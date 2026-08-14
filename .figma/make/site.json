@@ -1,0 +1,10 @@
+{
+  "description": "Provides a modern, user-friendly municipal government website with rounded design elements to enhance citizen engagement and access to public services.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

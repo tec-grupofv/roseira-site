@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;450;500;600&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-gov-blue: #1351B4;
+  --color-gov-blue-dark: #0C326F;
+  --color-gov-blue-light: #2670E8;
+  --color-gov-green: #168821;
+  --color-gov-green-light: #1DAA2A;
+  --color-gov-yellow: #FFCD07;
+  --color-gov-gray: #F8F9FA;
+  --color-gov-gray-2: #EDEFF2;
+  --color-gov-gray-3: #9EA4AE;
+  --color-gov-text: #1B1C1E;
+  --color-gov-text-light: #505C6D;
+
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --radius-card: 16px;
+  --radius-btn: 12px;
+  --radius-pill: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: #1B1C1E;
+  background: #fff;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #9EA4AE;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1351B4;
+}
