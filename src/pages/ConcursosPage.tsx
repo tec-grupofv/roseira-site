@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ClipboardList, Home, Search, Trophy, UsersRound } from "lucide-react";
+import { ClipboardList, FileText, Search, Trophy, UsersRound } from "lucide-react";
+import SiteBreadcrumb from "../components/SiteBreadcrumb";
 
 const CONCURSOS_PAGE_ITEMS = [
   { tag: "CP", type: "Concurso Público", num: "01/2023", status: "Em andamento", title: "Concurso Público para provimento de cargos efetivos do quadro de pessoal do Município", org: "Prefeitura Municipal de Roseira", period: "Inscrições: 23/10/2023 até 30/11/2023", views: 48 },
@@ -14,30 +15,26 @@ const CONCURSOS_PAGE_ITEMS = [
 export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }) {
   const [activeType, setActiveType] = useState<string | null>(null);
   const summary = [
-    { label: "Processo Seletivo", total: 3, available: "3 disponíveis", Icon: UsersRound, tone: "red", type: "Processo Seletivo" },
-    { label: "Concurso Público", total: 2, available: "2 disponíveis", Icon: Trophy, tone: "green", type: "Concurso Público" },
-    { label: "Edital", total: 2, available: "2 disponíveis", Icon: ClipboardList, tone: "yellow", type: "Edital" },
+    { label: "Todos os processos", total: CONCURSOS_PAGE_ITEMS.length, available: `${CONCURSOS_PAGE_ITEMS.length} disponíveis`, Icon: FileText, tone: "yellow", type: null },
+    { label: "Processo Seletivo", total: 3, available: "3 disponíveis", Icon: UsersRound, tone: "pss", type: "Processo Seletivo" },
+    { label: "Concurso Público", total: 2, available: "2 disponíveis", Icon: Trophy, tone: "cp", type: "Concurso Público" },
+    { label: "Edital", total: 2, available: "2 disponíveis", Icon: ClipboardList, tone: "red", type: "Edital" },
   ];
-  const activeSummary = summary.find((item) => item.type === activeType);
   const filteredItems = activeType
     ? CONCURSOS_PAGE_ITEMS.filter((item) => item.type === activeType)
     : CONCURSOS_PAGE_ITEMS;
 
   return (
     <div className="concursos-view">
-      <section className="concursos-hero">
+      <section className="site-internal-hero concursos-hero">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="concursos-breadcrumb" aria-label="Caminho de navegação">
-            <button type="button" onClick={onBackHome}>
-              <Home aria-hidden="true" />
-              Início
-            </button>
-            <span aria-hidden="true">›</span>
-            <strong>Concursos e Seleções</strong>
-          </div>
+          <SiteBreadcrumb items={[
+            { label: "Início", onClick: onBackHome },
+            { label: "Concursos e Seleções" },
+          ]} />
 
-          <h1>Concursos e Seleções Públicas</h1>
-          <p>
+          <h1 className="site-title">Concursos e Seleções Públicas</h1>
+          <p className="site-subtitle">
             Acompanhe todos os processos seletivos, concursos públicos e editais da Prefeitura Municipal de Roseira.
           </p>
 
@@ -54,8 +51,8 @@ export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }
                   <Icon aria-hidden="true" />
                 </span>
                 <div>
-                  <h2>{label}</h2>
-                  <p>{available}</p>
+                  <h2 className="site-card-title">{label}</h2>
+                  <p className="site-text">{available}</p>
                 </div>
                 <strong className={`concursos-summary-total concursos-summary-total-${tone}`}>{total}</strong>
               </button>
@@ -69,14 +66,14 @@ export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }
           <form className="concursos-filter" aria-label="Filtrar publicações">
             <div className="concursos-filter-grid">
               <label>
-                <span>Objeto / Descrição / Nº do Processo</span>
+                <span className="site-caps-title">Objeto / Descrição / Nº do Processo</span>
                 <div className="concursos-input">
                   <Search aria-hidden="true" />
                   <input type="search" placeholder="Buscar por objeto, descrição ou nº do processo..." />
                 </div>
               </label>
               <label>
-                <span>Ano</span>
+                <span className="site-caps-title">Ano</span>
                 <select defaultValue="">
                   <option value="">Todos os anos</option>
                   <option>2025</option>
@@ -89,7 +86,7 @@ export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }
               </label>
             </div>
           </form>
-          <h2>{filteredItems.length} publicações encontradas</h2>
+          <h2 className="site-card-title">{filteredItems.length} publicações encontradas</h2>
           <div className="concursos-list">
             {filteredItems.map((item) => (
               <a
@@ -98,7 +95,7 @@ export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }
                 className={[
                   "concursos-result-card",
                   `concursos-status-card-${item.status.toLowerCase().replace(" ", "-")}`,
-                  activeSummary ? `concursos-result-tone-${activeSummary.tone}` : "",
+                  `concursos-result-tag-${item.tag.toLowerCase()}`,
                 ].filter(Boolean).join(" ")}
               >
                 <div className="concursos-result-content">
@@ -107,8 +104,8 @@ export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }
                     <span>Nº {item.num}</span>
                     <span className={`concursos-status concursos-status-${item.status.toLowerCase().replace(" ", "-")}`}>{item.status}</span>
                   </div>
-                  <h3>{item.title}</h3>
-                  <p>{item.org} - {item.period}</p>
+                  <h3 className="site-card-title">{item.title}</h3>
+                  <p className="site-text">{item.org} - {item.period}</p>
                 </div>
                 <div className="concursos-views">
                   <strong>{item.views}</strong>
