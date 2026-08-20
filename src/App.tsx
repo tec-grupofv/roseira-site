@@ -2,6 +2,27 @@ import { useState, useEffect, useRef } from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { FileText, Info, Landmark, Newspaper, ShieldCheck, UsersRound } from "lucide-react";
 import ConcursosPage from "./pages/ConcursosPage";
+import LicitacoesPage, { LicitacaoDetailPage } from "./pages/LicitacoesPage";
+import LeisMunicipaisPage, { LeiMunicipalDetailPage, type LegislacaoPageConfig } from "./pages/LeisMunicipaisPage";
+import NoticiasPage, { NoticiaDetailPage } from "./pages/NoticiasPage";
+import SecretariaDetailPage, { SecretariasDirectoryPage } from "./pages/SecretariaDetailPage";
+import HistoriaRoseiraPage from "./pages/HistoriaRoseiraPage";
+import ContatoPage from "./pages/ContatoPage";
+import SiteBreadcrumb from "./components/SiteBreadcrumb";
+
+type RequirementPageKind = "table" | "documents" | "service" | "external" | "statement";
+
+type RequirementPageConfig = {
+  title: string;
+  subtitle: string;
+  category: string;
+  kind: RequirementPageKind;
+  sourceLabel?: string;
+  sourceUrl?: string;
+  requiredElements: string[];
+  columns: string[];
+  rows: string[][];
+};
 
 // -----------------------------------------------------------------------------
 // ICONS
@@ -39,34 +60,992 @@ const I = {
 // -----------------------------------------------------------------------------
 const NAV_ITEMS = [
   {
-    label: "Prefeitura",
-    children: ["Telefones Úteis", "Diretores das Secretarias", "Publicações Oficiais", "História do Município", "Galeria de Prefeitos", "Hino Municipal"],
+    label: "A Prefeitura",
+    children: ["História de Roseira", "Prefeito e Vice-prefeito", "Gabinete", "Estrutura Administrativa", "Telefones e Endereços", "Horário de Atendimento", "Símbolos Municipais", "Conselhos Municipais", "Mapa do Site", "Galeria de Fotos", "Termos de Uso", "Política de Cookies", "LGPD"],
   },
   {
     label: "Secretarias",
-    children: ["Administração", "Saúde", "Educação", "FUNDEB", "Esporte, Turismo e Lazer", "Meio Ambiente", "Assistência Social", "Finanças", "Obras e Infraestrutura", "Conselho Municipal de Educação", "Conselho de Alimentação Escolar"],
+    children: ["Administração", "Assistência Social", "Educação", "Saúde", "Obras e Serviços Municipais", "Agricultura e Meio Ambiente", "Cultura, Esporte e Turismo", "Fazenda / Finanças", "Planejamento", "Procuradoria / Jurídico"],
   },
   {
-    label: "Cidade",
-    children: ["Banco do Povo Paulista", "Bolsa Família", "Conselho Tutelar", "Junta Militar", "Calendário de Eventos", "Vagas de Emprego", "Plano de Arborização Urbana", "Centro de Esterilização de Animais"],
+    label: "Serviços",
+    children: ["Carta de Serviços", "Serviços ao Cidadão", "Serviços à Empresa", "Serviços ao Servidor", "Protocolos", "Emissão de Guias", "IPTU", "Dívida Ativa", "ITBI", "Nota Fiscal Eletrônica", "Cadastro de Inscrição Municipal", "Bolsa Família", "Banco do Povo", "Acessa SP", "Conselho Tutelar", "Junta Militar", "COVID-19", "Portal da Educação", "Conselho Municipal de Educação", "Conselho de Alimentação Escolar", "Vagas em Creche", "Educação - Página Temática", "Saúde - Página Temática", "Esporte - Página Temática", "Turismo e Cultura", "Meio Ambiente", "Plano Municipal de Arborização Urbana", "Centro de Esterilização de Animais", "Lei Aldir Blanc 2", "Vagas de Emprego", "Agendamento", "Perguntas Frequentes"],
   },
-  { label: "Setor de Projetos", children: [] },
   {
-    label: "Compras Públicas",
-    children: ["Licitações", "Portal de Compras", "Resultado de Licitações"],
+    label: "Notícias",
+    children: ["Últimas Notícias", "Comunicados", "Agenda de Eventos", "Campanhas", "Boletins Oficiais"],
+  },
+  {
+    label: "Licitações",
+    children: ["Licitações em Aberto", "Licitações Encerradas", "Concorrência Pública", "Chamada Pública", "Pregão Presencial", "Tomada de Preços", "Leilão", "Dispensas e Inexigibilidades", "Contratos", "Aditivos", "Atas de Registro de Preços", "Fornecedores", "PNCP"],
   },
   { label: "Concursos", children: [] },
-  { label: "Contas Públicas", children: [] },
   {
-    label: "Serviços Online",
-    children: ["2ª Via IPTU / Taxas Imobiliárias", "Quitação de Dívida Ativa", "ITBI", "Portal da Transparência", "Serviços ao Cidadão", "Audiências Públicas", "RH Online", "Veracidade do Holerite", "NFS-e", "ISS Online", "Acessa SP"],
+    label: "Transparência",
+    children: ["Portal da Transparência", "Receitas", "Despesas", "Folha de Pagamento", "Diárias e Passagens", "Contratos", "Convênios e Repasses", "Obras Públicas", "Audiências Públicas", "PPA, LDO e LOA", "RREO e RGF", "Prestação de Contas", "Parecer do Tribunal de Contas", "Dados Abertos", "Radar da Transparência / Matriz Atricon"],
   },
   {
-    label: "Fale Conosco",
-    children: ["Carta de Serviço ao Cidadão", "SIC - Acesso à Informação", "Ouvidoria Municipal", "Fale Conosco", "Perguntas Frequentes"],
+    label: "Legislação",
+    children: ["Leis Municipais", "Decretos", "Portarias", "Código Tributário", "Plano Diretor", "Lei Orgânica Municipal", "Diário Oficial", "Atos Oficiais"],
+  },
+  {
+    label: "Contato",
+    children: ["Fale Conosco", "Ouvidoria", "e-SIC", "Endereço e Telefones", "Horários de Atendimento", "Mapa de Localização", "Redes Sociais"],
   },
 ];
 
+const EXTERNAL_LINKS = {
+  transparencia: "https://pmroseira.geosiap.net.br:8443/portal-transparencia/home",
+  iptu: "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/2via/index.php",
+  iss: "https://pmroseira.geosiap.net.br:8443/pmroseira/issonline/iss.login.php",
+  nfse: "https://www.nfse.gov.br/EmissorNacional/Login?ReturnUrl=%2fEmissorNacional",
+  rh: "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/recursos_humanos/grh/grh_rh_online.php",
+  holerite: "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/recursos_humanos/fol/veracidade_holerith.php",
+};
+
+const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
+  "prefeito-vice": {
+    title: "Prefeito e Vice-prefeito",
+    subtitle: "Espaco para identificação dos chefes do Poder Executivo, agenda, biografia institucional e canais oficiais.",
+    category: "Institucional",
+    kind: "documents",
+    sourceLabel: "Prefeitura",
+    sourceUrl: "https://www.roseira.sp.gov.br/prefeitura",
+    requiredElements: ["Nome e cargo", "Mandato", "Contato institucional", "Agenda ou registro de compromissos"],
+    columns: ["Cargo", "Responsável", "Mandato", "Contato"],
+    rows: [["Prefeito", "Não declarado", "Não declarado", "Não declarado"], ["Vice-prefeito", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  gabinete: {
+    title: "Gabinete",
+    subtitle: "Página de referência para competencias, equipe responsável, atendimento e documentos do gabinete.",
+    category: "Institucional",
+    kind: "documents",
+    requiredElements: ["Competências", "Responsável", "Horário de atendimento", "Documentos relacionados"],
+    columns: ["Setor", "Responsável", "Telefone", "E-mail"],
+    rows: [["Gabinete do Prefeito", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "estrutura-administrativa": {
+    title: "Estrutura Administrativa",
+    subtitle: "Organograma, secretarias, competências e responsáveis da administração municipal.",
+    category: "Institucional",
+    kind: "table",
+    sourceLabel: "Departamentos/Secretarias",
+    sourceUrl: "https://www.roseira.sp.gov.br/prefeitura/departamento",
+    requiredElements: ["Organograma", "Competências", "Responsáveis", "Endereços e contatos"],
+    columns: ["Unidade", "Competência", "Responsável", "Contato"],
+    rows: [["Secretaria Municipal", "Descrição da atribuição", "Não declarado", "Não declarado"], ["Departamento", "Descrição da atribuição", "Não declarado", "Não declarado"]],
+  },
+  "telefones-enderecos": {
+    title: "Telefones e Endereços",
+    subtitle: "Lista estruturada dos setores, telefones, e-mails, enderecos e horarios de atendimento.",
+    category: "Atendimento",
+    kind: "table",
+    sourceLabel: "Telefones uteis",
+    sourceUrl: "https://www.roseira.sp.gov.br/prefeitura/telefones",
+    requiredElements: ["Setor", "Endereço", "Telefone", "E-mail", "Horário"],
+    columns: ["Setor", "Endereço", "Telefone", "E-mail", "Horário"],
+    rows: [["Prefeitura", "Não declarado", "Não declarado", "Não declarado", "Não declarado"], ["Secretaria", "Não declarado", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "horario-atendimento": {
+    title: "Horário de Atendimento",
+    subtitle: "Quadro de funcionamento dos orgaos municipais e excecoes de atendimento.",
+    category: "Atendimento",
+    kind: "table",
+    requiredElements: ["Unidade", "Dias de funcionamento", "Horário", "Observações"],
+    columns: ["Unidade", "Dias", "Horário", "Observação"],
+    rows: [["Prefeitura Municipal", "Segunda a sexta-feira", "Não declarado", "Atendimento geral"], ["Setores externos", "Não declarado", "Não declarado", "Conferir unidade"]],
+  },
+  "símbolos-municipais": {
+    title: "Símbolos Municipais",
+    subtitle: "Página para brasão, bandeira, hino e demais símbolos oficiais do Município.",
+    category: "Cidade",
+    kind: "documents",
+    sourceLabel: "Hino do Município",
+    sourceUrl: "https://www.roseira.sp.gov.br/cidade/hino",
+    requiredElements: ["Brasão", "Bandeira", "Hino", "Norma de instituição"],
+    columns: ["Símbolo", "Descrição", "Arquivo", "Norma"],
+    rows: [["Brasão", "Não declarado", "Não declarado", "Não declarado"], ["Hino", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "conselhos-municipais": {
+    title: "Conselhos Municipais",
+    subtitle: "Relação de conselhos, composição, mandato, atas, reuniões e documentos públicados.",
+    category: "Participação Social",
+    kind: "table",
+    requiredElements: ["Nome do conselho", "Composição", "Atas", "Calendário de reuniões"],
+    columns: ["Conselho", "Mandato", "Composição", "Atas"],
+    rows: [["Conselho Municipal", "Não declarado", "Não declarado", "Não declarado"], ["Conselho setorial", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "carta-servicos": {
+    title: "Carta de Serviços",
+    subtitle: "Catálogo de serviços públicos com público-alvo, documentos, prazo, etapas e canal de atendimento.",
+    category: "Serviços",
+    kind: "service",
+    sourceLabel: "Carta de Serviços antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/carta-servico/categoria",
+    requiredElements: ["Serviço", "Público-alvo", "Documentos", "Prazo", "Canal digital ou presencial"],
+    columns: ["Serviço", "Público-alvo", "Documentos", "Prazo", "Canal"],
+    rows: [["Solicitação de serviço", "Cidadão", "Não declarado", "Não declarado", "Não declarado"], ["Emissão de guia", "Cidadão/empresa", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "servicos-cidadao": {
+    title: "Serviços ao Cidadão",
+    subtitle: "Área para reunir IPTU, Bolsa Familia, Junta Militar, Conselho Tutelar, Educação e demais acessos.",
+    category: "Serviços",
+    kind: "service",
+    requiredElements: ["Serviço", "Descrição", "Link de acesso", "Unidade responsável"],
+    columns: ["Serviço", "Descrição", "Link", "Responsável"],
+    rows: [["2a via IPTU / Taxas Imobiliarias", "Acesso externo", EXTERNAL_LINKS.iptu, "Finanças"], ["Bolsa Familia", "Atendimento social", "Não declarado", "Assistência Social"]],
+  },
+  "servicos-empresa": {
+    title: "Serviços a Empresa",
+    subtitle: "Acessos para inscrição municipal, ISS Online, NFS-e, licitacoes e canais empresariais.",
+    category: "Serviços",
+    kind: "service",
+    requiredElements: ["Serviço", "Obrigação atendida", "Link", "Orientações"],
+    columns: ["Serviço", "Finalidade", "Link", "Responsável"],
+    rows: [["ISS Online", "Serviços fiscais", EXTERNAL_LINKS.iss, "Finanças"], ["NFS-e", "Emissão de nota fiscal", EXTERNAL_LINKS.nfse, "Finanças"]],
+  },
+  "servicos-servidor": {
+    title: "Serviços ao Servidor",
+    subtitle: "Área para RH Online, holerite, comprovantes, informativos funcionais e canais internos.",
+    category: "Servidor",
+    kind: "service",
+    requiredElements: ["RH Online", "Veracidade de holerite", "Informativos", "Canais de suporte"],
+    columns: ["Serviço", "Descrição", "Link", "Status"],
+    rows: [["RH Online", "Acesso externo", EXTERNAL_LINKS.rh, "Disponível"], ["Veracidade do Holerite", "Validação externa", EXTERNAL_LINKS.holerite, "Disponível"]],
+  },
+  protocolos: {
+    title: "Protocolos",
+    subtitle: "Página para abertura, consulta e acompanhamento de protocolos administrativos.",
+    category: "Serviços",
+    kind: "table",
+    requiredElements: ["Número do protocolo", "Assunto", "Data", "Situação"],
+    columns: ["Protocolo", "Assunto", "Data", "Situação"],
+    rows: [["0000/2026", "Solicitação demonstrativa", "Não declarado", "Em análise"], ["0001/2026", "Requerimento demonstrativo", "Não declarado", "Recebido"]],
+  },
+  "emissão-guias": {
+    title: "Emissão de Guias",
+    subtitle: "Central para guias tributárias, taxas, DAM e demais documentos de arrecadação.",
+    category: "Serviços",
+    kind: "service",
+    requiredElements: ["Tipo de guia", "Descrição", "Link", "Unidade responsável"],
+    columns: ["Guia", "Descrição", "Link", "Responsável"],
+    rows: [["IPTU / Taxas Imobiliarias", "Acesso externo", EXTERNAL_LINKS.iptu, "Finanças"], ["Outras guias", "Não declarado", "Não declarado", "Finanças"]],
+  },
+  iptu: {
+    title: "IPTU",
+    subtitle: "Acesso a 2a via, taxas imobiliarias, dívida ativa e orientações tributárias.",
+    category: "Tributos",
+    kind: "external",
+    sourceLabel: "2a via IPTU / Taxas Imobiliarias",
+    sourceUrl: EXTERNAL_LINKS.iptu,
+    requiredElements: ["2a via", "Taxas", "Dívida ativa", "Contato do setor"],
+    columns: ["Serviço", "Descrição", "Link", "Observação"],
+    rows: [["2a via IPTU", "Acesso externo GeoSIAP", EXTERNAL_LINKS.iptu, "Integração externa"], ["Dívida ativa", "Consulta/quitação", EXTERNAL_LINKS.transparencia, "Confirmar módulo"]],
+  },
+  "nota-fiscal-eletronica": {
+    title: "Nota Fiscal Eletronica",
+    subtitle: "Acesso ao emissor nacional de NFS-e e orientações para prestadores de serviço.",
+    category: "Tributos",
+    kind: "external",
+    sourceLabel: "NFS-e",
+    sourceUrl: EXTERNAL_LINKS.nfse,
+    requiredElements: ["Link externo", "Orientações", "Contato fiscal", "Perguntas frequentes"],
+    columns: ["Serviço", "Descrição", "Link", "Responsável"],
+    rows: [["NFS-e", "Emissor Nacional", EXTERNAL_LINKS.nfse, "Finanças"], ["ISS Online", "Módulo municipal", EXTERNAL_LINKS.iss, "Finanças"]],
+  },
+  agendamento: {
+    title: "Agendamento",
+    subtitle: "Página para organizar atendimentos por unidade, assunto, data e situação.",
+    category: "Serviços",
+    kind: "table",
+    requiredElements: ["Unidade", "Serviço", "Agenda", "Canal de atendimento"],
+    columns: ["Unidade", "Serviço", "Agenda", "Canal"],
+    rows: [["Prefeitura", "Atendimento geral", "Não declarado", "Presencial"], ["Secretaria", "Atendimento setorial", "Não declarado", "Não declarado"]],
+  },
+  faq: {
+    title: "Perguntas Frequentes",
+    subtitle: "Respostas objetivas para os temas mais buscados no portal municipal.",
+    category: "Atendimento",
+    kind: "documents",
+    sourceLabel: "Perguntas frequentes antigas",
+    sourceUrl: "https://www.roseira.sp.gov.br/prefeitura/perguntas-frequentes",
+    requiredElements: ["Pergunta", "Resposta", "Tema", "Última atualização"],
+    columns: ["Tema", "Pergunta", "Resposta", "Atualização"],
+    rows: [["Serviços", "Como solicitar atendimento?", "Não declarado", "Não declarado"], ["Transparência", "Onde consultar documentos?", "Não declarado", "Não declarado"]],
+  },
+  comunicados: {
+    title: "Comunicados",
+    subtitle: "Lista de avisos oficiais, comunicados administrativos e orientações temporarias.",
+    category: "Comunicação",
+    kind: "documents",
+    requiredElements: ["Titulo", "Data", "Setor", "Arquivo ou link"],
+    columns: ["Titulo", "Setor", "Data", "Arquivo"],
+    rows: [["Comunicado demonstrativo", "Administração", "Não declarado", "Não declarado"]],
+  },
+  eventos: {
+    title: "Agenda de Eventos",
+    subtitle: "Calendário de eventos oficiais, audiências, campanhas e reuniões públicas.",
+    category: "Comunicação",
+    kind: "table",
+    sourceLabel: "Eventos antigos",
+    sourceUrl: "https://www.roseira.sp.gov.br/evento",
+    requiredElements: ["Evento", "Data", "Local", "Responsável"],
+    columns: ["Evento", "Data", "Local", "Responsável"],
+    rows: [["Audiência pública", "Não declarado", "Não declarado", "Não declarado"], ["Campanha municipal", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  campanhas: {
+    title: "Campanhas",
+    subtitle: "Campanhas institucionais por Área, período, público-alvo e materiais de divulgação.",
+    category: "Comunicação",
+    kind: "documents",
+    requiredElements: ["Campanha", "Período", "Área responsável", "Materiais"],
+    columns: ["Campanha", "Período", "Área", "Material"],
+    rows: [["Campanha demonstrativa", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "boletins-oficiais": {
+    title: "Boletins Oficiais",
+    subtitle: "Publicações oficiais seriadas com data, edição, arquivo e busca.",
+    category: "Publicações",
+    kind: "table",
+    requiredElements: ["Edição", "Data", "Descrição", "Arquivo pesquisável"],
+    columns: ["Edição", "Data", "Descrição", "Arquivo"],
+    rows: [["000/2026", "Não declarado", "Boletim demonstrativo", "Não declarado"]],
+  },
+  "dispensas-inexigibilidades": {
+    title: "Dispensas e Inexigibilidades",
+    subtitle: "Relação sequencial de contratações diretas, fundamentos, documentos e situação.",
+    category: "Compras Públicas",
+    kind: "table",
+    sourceLabel: "Dispensa de Licitação antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/17/dispensa-de-licitacao/",
+    requiredElements: ["Número", "Objeto", "Fundamento", "Documentos da fase interna e externa"],
+    columns: ["Processo", "Objeto", "Fundamento", "Documentos"],
+    rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Edital, parecer, termo e públicação"], ["001/2026", "Objeto demonstrativo", "Não declarado", "Documentos pendentes"]],
+  },
+  contratos: {
+    title: "Contratos",
+    subtitle: "Relação de contratos, aditivos, fiscais, valores, vigência e documentos.",
+    category: "Compras Públicas",
+    kind: "table",
+    sourceLabel: "Portal da Transparência",
+    sourceUrl: EXTERNAL_LINKS.transparencia,
+    requiredElements: ["Contrato", "Fornecedor", "Objeto", "Valor", "Vigencia", "Fiscal", "Inteiro teor"],
+    columns: ["Contrato", "Fornecedor", "Objeto", "Valor", "Fiscal"],
+    rows: [["000/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Não declarado"], ["001/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Não declarado"]],
+  },
+  aditivos: {
+    title: "Aditivos",
+    subtitle: "Termos aditivos vinculados aos contratos, com objeto, valor, prazo e documento integral.",
+    category: "Compras Públicas",
+    kind: "table",
+    requiredElements: ["Contrato vinculado", "Tipo de aditivo", "Data", "Inteiro teor"],
+    columns: ["Contrato", "Aditivo", "Tipo", "Data", "Arquivo"],
+    rows: [["000/2026", "1o Termo Aditivo", "Prazo/valor", "Não declarado", "Não declarado"]],
+  },
+  "atas-registro-precos": {
+    title: "Atas de Registro de Precos",
+    subtitle: "Atas de registro de preços, adesões, fornecedores, itens e vigência.",
+    category: "Compras Públicas",
+    kind: "table",
+    sourceLabel: "Registro de Precos antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/25/registro-de-precos/",
+    requiredElements: ["Ata", "Fornecedor", "Itens", "Precos", "Vigencia"],
+    columns: ["Ata", "Fornecedor", "Objeto", "Vigencia", "Itens"],
+    rows: [["000/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Tabela de itens"], ["001/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Tabela de itens"]],
+  },
+  fornecedores: {
+    title: "Fornecedores",
+    subtitle: "Cadastro demonstrativo de fornecedores contratados, CNPJ, contratos e situação.",
+    category: "Compras Públicas",
+    kind: "table",
+    requiredElements: ["Fornecedor", "CNPJ", "Contrato", "Situação"],
+    columns: ["Fornecedor", "CNPJ", "Contrato", "Situação"],
+    rows: [["Fornecedor demonstrativo", "Não declarado", "000/2026", "Ativo"], ["Fornecedor demonstrativo", "Não declarado", "001/2026", "Ativo"]],
+  },
+  pncp: {
+    title: "PNCP",
+    subtitle: "Área de referência para públicações no Portal Nacional de Contratações Públicas.",
+    category: "Compras Públicas",
+    kind: "external",
+    requiredElements: ["Link PNCP", "Processo vinculado", "Objeto", "Data de públicação"],
+    columns: ["Processo", "Objeto", "Publicação", "Link PNCP"],
+    rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Não declarado"]],
+  },
+  "portal-transparencia": {
+    title: "Portal da Transparência",
+    subtitle: "Acesso central para receitas, despesas, contratos, folha, convênios, obras e demais dados fiscais.",
+    category: "Transparência",
+    kind: "external",
+    sourceLabel: "GeoSIAP Portal da Transparência",
+    sourceUrl: EXTERNAL_LINKS.transparencia,
+    requiredElements: ["Link visível", "Busca", "Filtros", "Exportação de dados", "Séries históricas"],
+    columns: ["Módulo", "Conteúdo esperado", "Origem", "Status estrutural"],
+    rows: [["Receitas", "Arrecadação e transferências recebidas", "Portal externo", "Página criada"], ["Despesas", "Empenhos, liquidações e pagamentos", "Portal externo", "Página criada"], ["Contratos", "Contratos e aditivos", "Portal externo", "Página criada"]],
+  },
+  receitas: {
+    title: "Receitas",
+    subtitle: "Consulta de receitas, arrecadação, transferências recebidas e filtros por período.",
+    category: "Transparência",
+    kind: "table",
+    requiredElements: ["Período", "Fonte", "Valor arrecadado", "Transferências recebidas", "Exportação"],
+    columns: ["Período", "Fonte", "Previsão", "Arrecadado", "Exportar"],
+    rows: [["2026", "Receita demonstrativa", "Não declarado", "Não declarado", "CSV/PDF"], ["2025", "Transferencia demonstrativa", "Não declarado", "Não declarado", "CSV/PDF"]],
+  },
+  despesas: {
+    title: "Despesas",
+    subtitle: "Consulta de empenhos, liquidações, pagamentos, favorecidos e ordem cronológica.",
+    category: "Transparência",
+    kind: "table",
+    requiredElements: ["Empenho", "Favorecido", "Liquidação", "Pagamento", "Ordem cronológica"],
+    columns: ["Empenho", "Favorecido", "Objeto", "Valor", "Pagamento"],
+    rows: [["000/2026", "Não declarado", "Despesa demonstrativa", "Não declarado", "Não declarado"], ["001/2026", "Não declarado", "Despesa demonstrativa", "Não declarado", "Não declarado"]],
+  },
+  "folha-pagamento": {
+    title: "Folha de Pagamento",
+    subtitle: "Relação nominal de servidores, remuneração, cargos, vínculos e tabela remuneratória.",
+    category: "Pessoal",
+    kind: "table",
+    requiredElements: ["Servidor", "Cargo", "Lotação", "Remuneração", "Tabela remuneratória"],
+    columns: ["Servidor", "Cargo", "Lotação", "Remuneração", "Competência"],
+    rows: [["Não declarado", "Cargo demonstrativo", "Lotação demonstrativa", "Não declarado", "2026"], ["Não declarado", "Cargo demonstrativo", "Lotação demonstrativa", "Não declarado", "2026"]],
+  },
+  "diarias-passagens": {
+    title: "Diarias e Passagens",
+    subtitle: "Detalhamento de diárias concedidas, passagens, beneficiarios, destino, motivo e tabela de valores.",
+    category: "Pessoal",
+    kind: "table",
+    requiredElements: ["Beneficiário", "Destino", "Período", "Motivo", "Valor", "Tabela de diárias"],
+    columns: ["Beneficiário", "Destino", "Período", "Motivo", "Valor"],
+    rows: [["Não declarado", "Destino demonstrativo", "Não declarado", "Não declarado", "Não declarado"], ["Tabela de valores", "Municipal/estadual", "Vigente", "Referência normativa", "Não declarado"]],
+  },
+  "convenios-repasses": {
+    title: "Convênios e Repasses",
+    subtitle: "Transferências recebidas e realizadas, convênios, parcerias e acordos sem transferência financeira.",
+    category: "Transparência",
+    kind: "table",
+    requiredElements: ["Convênio", "Concedente/convenente", "Objeto", "Valor", "Prestação de contas"],
+    columns: ["Instrumento", "Parte", "Objeto", "Valor", "Situação"],
+    rows: [["Convênio demonstrativo", "Não declarado", "Objeto demonstrativo", "Não declarado", "Não declarado"], ["Acordo sem transferência", "Não declarado", "Objeto demonstrativo", "Não se aplica", "Não declarado"]],
+  },
+  "obras-públicas": {
+    title: "Obras Públicas",
+    subtitle: "Quadro de obras com execucao física e financeira, quantitativos, contratos e obras paralisadas.",
+    category: "Transparência",
+    kind: "table",
+    requiredElements: ["Obra", "Contrato", "Execução física", "Execução financeira", "Situação", "Fotos/medições"],
+    columns: ["Obra", "Contrato", "Físico", "Financeiro", "Situação"],
+    rows: [["Obra demonstrativa", "000/2026", "0%", "Não declarado", "Em planejamento"], ["Obra paralisada", "Não declarado", "Não declarado", "Não declarado", "Declaração pendente"]],
+  },
+  "ppa-ldo-loa": {
+    title: "PPA, LDO e LOA",
+    subtitle: "Instrumentos de planejamento e orcamento com arquivos, exercícios e anexos.",
+    category: "Orcamento",
+    kind: "documents",
+    requiredElements: ["PPA", "LDO", "LOA", "Anexos", "Histórico"],
+    columns: ["Instrumento", "Exercício", "Arquivo", "Situação"],
+    rows: [["PPA", "2026", "Não declarado", "Pendente"], ["LDO", "2026", "Não declarado", "Pendente"], ["LOA", "2026", "Não declarado", "Pendente"]],
+  },
+  "rreo-rgf": {
+    title: "RREO e RGF",
+    subtitle: "Relatórios fiscais por período, anexos e arquivos pesquisáveis.",
+    category: "Orcamento",
+    kind: "table",
+    requiredElements: ["Relatório", "Quadrimestre/bimestre", "Exercício", "Arquivo"],
+    columns: ["Relatório", "Período", "Exercício", "Arquivo"],
+    rows: [["RREO", "Bimestre demonstrativo", "2026", "Não declarado"], ["RGF", "Quadrimestre demonstrativo", "2026", "Não declarado"]],
+  },
+  "prestacao-contas": {
+    title: "Prestação de Contas",
+    subtitle: "Prestação de contas anual, relatórios de gestão, julgamento legislativo e decisões do Tribunal de Contas.",
+    category: "Controle",
+    kind: "documents",
+    sourceLabel: "Contas Públicas antigas",
+    sourceUrl: "https://www.roseira.sp.gov.br/conta-pública",
+    requiredElements: ["Ano anterior", "Relatório de gestão", "Parecer prévio", "Julgamento legislativo"],
+    columns: ["Exercício", "Documento", "Órgão", "Arquivo"],
+    rows: [["2025", "Prestação de contas", "Executivo", "Não declarado"], ["2025", "Julgamento das contas", "Legislativo", "Não declarado"]],
+  },
+  "parecer-tce": {
+    title: "Parecer do Tribunal de Contas",
+    subtitle: "Pareceres, decisões e julgamentos relativos às contas municipais.",
+    category: "Controle",
+    kind: "documents",
+    requiredElements: ["Exercício", "Parecer prévio", "Decisão", "Link ou arquivo"],
+    columns: ["Exercício", "Documento", "Situação", "Arquivo"],
+    rows: [["2025", "Parecer prévio", "Não declarado", "Não declarado"], ["2024", "Decisão/Julgamento", "Não declarado", "Não declarado"]],
+  },
+  "dados-abertos": {
+    title: "Dados Abertos",
+    subtitle: "Catálogo de bases públicas reutilizáveis, formatos abertos, dicionário de dados e atualização.",
+    category: "Transparência",
+    kind: "table",
+    requiredElements: ["Base de dados", "Formato aberto", "Periodicidade", "Download", "Dicionario"],
+    columns: ["Base", "Formato", "Periodicidade", "Download", "Dicionario"],
+    rows: [["Receitas", "CSV/JSON", "Mensal", "Não declarado", "Não declarado"], ["Despesas", "CSV/JSON", "Mensal", "Não declarado", "Não declarado"]],
+  },
+  "radar-transparencia": {
+    title: "Radar da Transparência / Matriz Atricon",
+    subtitle: "Página para evidências da avaliação PNTP, matriz de critérios, plano de ação e links de verificação.",
+    category: "Controle",
+    kind: "table",
+    requiredElements: ["Critério", "Status", "Evidência", "Plano de ação"],
+    columns: ["Critério", "Exigência", "Status estrutural", "Evidência"],
+    rows: [["PNTP comum", "Página/funcionalidade exigida", "Estrutura criada", "Conteúdo pendente"], ["PNTP executivo", "Tabela ou documento específico", "Estrutura criada", "Conteúdo pendente"]],
+  },
+  "codigo-tributario": {
+    title: "Código Tributário",
+    subtitle: "Página para o código tributário municipal, leis complementares e anexos fiscais.",
+    category: "Legislação",
+    kind: "documents",
+    requiredElements: ["Norma vigente", "Alterações", "Anexos", "Download"],
+    columns: ["Norma", "Descrição", "Data", "Arquivo"],
+    rows: [["Código Tributário", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "plano-diretor": {
+    title: "Plano Diretor",
+    subtitle: "Plano diretor, mapas, anexos, revisões, audiências e legislação urbanística.",
+    category: "Legislação",
+    kind: "documents",
+    requiredElements: ["Lei vigente", "Mapas", "Audiências", "Anexos"],
+    columns: ["Documento", "Descrição", "Data", "Arquivo"],
+    rows: [["Plano Diretor", "Não declarado", "Não declarado", "Não declarado"], ["Audiência pública", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "lei-organica": {
+    title: "Lei Orgânica Municipal",
+    subtitle: "Texto da Lei Orgânica, emendas, consolidação e arquivo pesquisável.",
+    category: "Legislação",
+    kind: "documents",
+    requiredElements: ["Texto consolidado", "Emendas", "Arquivo pesquisável", "Histórico"],
+    columns: ["Documento", "Descrição", "Data", "Arquivo"],
+    rows: [["Lei Orgânica", "Texto consolidado", "Não declarado", "Não declarado"], ["Emendas", "Histórico", "Não declarado", "Não declarado"]],
+  },
+  "diario-oficial": {
+    title: "Diario Oficial",
+    subtitle: "Edicoes do diario oficial, busca por período, tipo de ato e arquivo.",
+    category: "Publicações",
+    kind: "table",
+    requiredElements: ["Edição", "Data", "Tipo de ato", "Arquivo"],
+    columns: ["Edição", "Data", "Tipo", "Arquivo"],
+    rows: [["000/2026", "Não declarado", "Atos oficiais", "Não declarado"], ["001/2026", "Não declarado", "Publicação", "Não declarado"]],
+  },
+  "atos-oficiais": {
+    title: "Atos Oficiais",
+    subtitle: "Publicações oficiais diversas com classificação, data, setor e arquivo.",
+    category: "Publicações",
+    kind: "table",
+    sourceLabel: "Publicações oficiais antigas",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/11/publicacoes-oficiais",
+    requiredElements: ["Ato", "Data", "Setor", "Arquivo"],
+    columns: ["Ato", "Setor", "Data", "Arquivo"],
+    rows: [["Publicação demonstrativa", "Administração", "Não declarado", "Não declarado"]],
+  },
+  ouvidoria: {
+    title: "Ouvidoria",
+    subtitle: "Canais para manifestações, consulta de chamados, relatórios e pesquisa de satisfação.",
+    category: "Controle Social",
+    kind: "service",
+    sourceLabel: "Ouvidoria antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/ouvidoria",
+    requiredElements: ["Registrar manifestação", "Consultar chamado", "Relatórios", "Pesquisa de satisfação"],
+    columns: ["Canal", "Finalidade", "Link", "Status"],
+    rows: [["Novo chamado anônimo", "Registrar manifestação", "https://www.roseira.sp.gov.br/ouvidoria/chamado-anonimo/#novo-chamado", "Referência externa"], ["Relatórios", "Prestação de contas da ouvidoria", "https://www.roseira.sp.gov.br/ouvidoria/relatorio/relatorio-download/1/", "Referência externa"]],
+  },
+  "e-sic": {
+    title: "e-SIC",
+    subtitle: "Serviço de Informação ao Cidadão, pedidos de acesso, formulários, prazos e relatórios LAI.",
+    category: "Acesso a Informação",
+    kind: "service",
+    sourceLabel: "SIC antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/sic-serviço-de-informacao-ao-cidadao",
+    requiredElements: ["Pedido de informação", "Formulario", "Prazos", "Relatório estatístico", "Informações sigilosas/desclassificadas"],
+    columns: ["Item", "Descrição", "Link/arquivo", "Status"],
+    rows: [["Pedido de informação", "Fluxo de solicitação", "Não declarado", "Estrutura criada"], ["Relatório anual LAI", "Estatísticas de pedidos", "Não declarado", "Conteúdo pendente"], ["Documentos classificados/desclassificados", "Lista anual", "Não declarado", "Conteúdo pendente"]],
+  },
+  "endereco-telefones": {
+    title: "Endereço e Telefones",
+    subtitle: "Contatos por setor, mapa, telefones, e-mails e horarios.",
+    category: "Atendimento",
+    kind: "table",
+    requiredElements: ["Endereço", "Telefone", "E-mail", "Mapa", "Horário"],
+    columns: ["Setor", "Endereço", "Telefone", "E-mail", "Horário"],
+    rows: [["Prefeitura", "Não declarado", "Não declarado", "Não declarado", "Não declarado"], ["Ouvidoria/SIC", "Não declarado", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "horarios-atendimento-contato": {
+    title: "Horários de Atendimento",
+    subtitle: "Quadro de horarios por unidade e canal de atendimento.",
+    category: "Atendimento",
+    kind: "table",
+    requiredElements: ["Unidade", "Horário", "Canal", "Observação"],
+    columns: ["Unidade", "Horário", "Canal", "Observação"],
+    rows: [["Atendimento presencial", "Não declarado", "Balcão", "Não declarado"], ["Atendimento digital", "Não declarado", "E-mail/formulário", "Não declarado"]],
+  },
+  "mapa-localizacao": {
+    title: "Mapa de Localização",
+    subtitle: "Mapa e dados de localização das unidades da Prefeitura.",
+    category: "Atendimento",
+    kind: "service",
+    requiredElements: ["Endereço", "Mapa", "Rotas", "Unidades vinculadas"],
+    columns: ["Unidade", "Endereço", "Mapa", "Observação"],
+    rows: [["Prefeitura Municipal", "Não declarado", "Mapa incorporado", "Confirmar endereco"], ["Unidade municipal", "Não declarado", "Não declarado", "Não declarado"]],
+  },
+  "redes-sociais": {
+    title: "Redes Sociais",
+    subtitle: "Canais oficiais de comunicação digital da Prefeitura.",
+    category: "Comunicação",
+    kind: "table",
+    requiredElements: ["Rede", "URL oficial", "Responsável", "Finalidade"],
+    columns: ["Canal", "URL", "Responsável", "Finalidade"],
+    rows: [["Facebook", "Não declarado", "Comunicação", "Notícias e avisos"], ["Instagram", "Não declarado", "Comunicação", "Notícias e avisos"]],
+  },
+  "mapa-site": {
+    title: "Mapa do Site",
+    subtitle: "Índice navegável das áreas institucionais, serviços, transparência, legislação e contato.",
+    category: "Acesso Principal",
+    kind: "documents",
+    sourceLabel: "Mapa do site antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/mapa-site/",
+    requiredElements: ["Índice por categoria", "Links diretos", "Atualização", "Acesso pelo rodapé/header"],
+    columns: ["Grupo", "Descrição", "Status"],
+    rows: [["A Prefeitura", "Páginas institucionais", "Estrutura criada"], ["Serviços", "Páginas de atendimento", "Estrutura criada"], ["Transparência", "Páginas de controle e dados", "Estrutura criada"]],
+  },
+  "galeria-fotos": {
+    title: "Galeria de Fotos",
+    subtitle: "Espaco para fotos da cidade, eventos, obras e registros institucionais.",
+    category: "Cidade",
+    kind: "documents",
+    sourceLabel: "Fotos da cidade",
+    sourceUrl: "https://www.roseira.sp.gov.br/album-de-fotos/foto/1/cidade/",
+    requiredElements: ["Album", "Imagem", "Legenda", "Data"],
+    columns: ["Album", "Descrição", "Arquivo"],
+    rows: [["Cidade", "Registros urbanos e pontos de interesse", "Não declarado"], ["Eventos", "Registros de eventos oficiais", "Não declarado"]],
+  },
+  "termos-uso": {
+    title: "Termos de Uso",
+    subtitle: "Regras de uso do portal, responsabilidades, direitos do usuário e condições gerais.",
+    category: "Legal",
+    kind: "documents",
+    sourceLabel: "Termos de uso antigos",
+    sourceUrl: "https://www.roseira.sp.gov.br/termos-e-condições-gerais-de-uso/",
+    requiredElements: ["Finalidade do portal", "Responsabilidades", "Direitos do usuário", "Data de atualização"],
+    columns: ["Seção", "Conteúdo esperado", "Status"],
+    rows: [["Uso do portal", "Descrição das regras gerais", "Conteúdo pendente"], ["Responsabilidades", "Condições e limites", "Conteúdo pendente"]],
+  },
+  "politica-cookies": {
+    title: "Politica de Cookies",
+    subtitle: "Informações sobre cookies, preferências, categorias e base legal de tratamento.",
+    category: "Legal",
+    kind: "documents",
+    sourceLabel: "Politica de cookies antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/politicas-de-cookies/",
+    requiredElements: ["Categorias de cookies", "Finalidade", "Preferências", "Data de atualização"],
+    columns: ["Categoria", "Finalidade", "Obrigatorio"],
+    rows: [["Necessários", "Funcionamento do portal", "Sim"], ["Desempenho", "Medição de uso", "Não"]],
+  },
+  lgpd: {
+    title: "LGPD",
+    subtitle: "Canal de privacidade, encarregado, direitos do titular e documentos sobre protecao de dados.",
+    category: "Legal",
+    kind: "documents",
+    sourceLabel: "LGPD antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/lgpd/",
+    requiredElements: ["Encarregado", "Canal de atendimento", "Direitos do titular", "Políticas e avisos"],
+    columns: ["Item", "Descrição", "Status"],
+    rows: [["Encarregado", "Dados de contato", "Não declarado"], ["Solicitação do titular", "Fluxo de atendimento", "Conteúdo pendente"]],
+  },
+  "audiencias-públicas": {
+    title: "Audiências Públicas",
+    subtitle: "Calendário, convocações, atas, materiais e registros de audiências públicas.",
+    category: "Participação Social",
+    kind: "table",
+    sourceLabel: "Audiências públicas antigas",
+    sourceUrl: "https://www.roseira.sp.gov.br/audiencia-pública",
+    requiredElements: ["Data", "Tema", "Local", "Ata", "Materiais"],
+    columns: ["Tema", "Data", "Local", "Documento"],
+    rows: [["Audiência demonstrativa", "Não declarado", "Não declarado", "Ata/material pendente"], ["Prestação de contas", "Não declarado", "Não declarado", "Documento pendente"]],
+  },
+  "concorrencia-pública": {
+    title: "Concorrencia Publica",
+    subtitle: "Categoria específica de licitacoes para processos de concorrencia pública.",
+    category: "Compras Públicas",
+    kind: "table",
+    sourceLabel: "Concorrencia Publica antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/15/concorrencia-pública/",
+    requiredElements: ["Processo", "Objeto", "Edital", "Situação"],
+    columns: ["Processo", "Objeto", "Data", "Situação"],
+    rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Pendente"]],
+  },
+  "chamada-pública": {
+    title: "Chamada Publica",
+    subtitle: "Categoria específica para chamamentos e chamadas públicas.",
+    category: "Compras Públicas",
+    kind: "table",
+    sourceLabel: "Chamada Publica antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/16/chamada-pública/",
+    requiredElements: ["Processo", "Objeto", "Documentos", "Resultado"],
+    columns: ["Processo", "Objeto", "Data", "Situação"],
+    rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Pendente"]],
+  },
+  "pregao-presencial": {
+    title: "Pregao Presencial",
+    subtitle: "Categoria específica para pregões presenciais e seus anexos.",
+    category: "Compras Públicas",
+    kind: "table",
+    sourceLabel: "Pregao Presencial antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/22/pregao-presencial/",
+    requiredElements: ["Processo", "Objeto", "Edital", "Ata", "Resultado"],
+    columns: ["Processo", "Objeto", "Data", "Situação"],
+    rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Pendente"]],
+  },
+  "tomada-precos": {
+    title: "Tomada de Precos",
+    subtitle: "Categoria específica para tomadas de preços e documentos vinculados.",
+    category: "Compras Públicas",
+    kind: "table",
+    sourceLabel: "Tomada de Precos antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/23/tomada-de-precos/",
+    requiredElements: ["Processo", "Objeto", "Edital", "Resultado"],
+    columns: ["Processo", "Objeto", "Data", "Situação"],
+    rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Pendente"]],
+  },
+  leilao: {
+    title: "Leilao",
+    subtitle: "Categoria específica para leilões, bens, editais e resultados.",
+    category: "Compras Públicas",
+    kind: "table",
+    sourceLabel: "Leilao antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/20/leilao/",
+    requiredElements: ["Processo", "Objeto", "Bens", "Edital", "Resultado"],
+    columns: ["Processo", "Objeto", "Data", "Situação"],
+    rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Pendente"]],
+  },
+  "cadastro-inscrição-municipal": {
+    title: "Cadastro de Inscrição Municipal",
+    subtitle: "Orientações e acesso para inscrição municipal de empresas e prestadores.",
+    category: "Serviços a Empresa",
+    kind: "service",
+    sourceLabel: "Cadastro antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/1/cadastro-de-inscrição-municipal",
+    requiredElements: ["Quem pode solicitar", "Documentos", "Prazo", "Canal de atendimento"],
+    columns: ["Serviço", "Descrição", "Canal"],
+    rows: [["Inscrição Municipal", "Cadastro e regularização", "Não declarado"]],
+  },
+  "bolsa-familia": {
+    title: "Bolsa Familia",
+    subtitle: "Informações sobre atendimento, cadastro, atualização cadastral e unidade responsável.",
+    category: "Assistência Social",
+    kind: "service",
+    sourceLabel: "Bolsa Familia antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/bolsa-familia",
+    requiredElements: ["Público-alvo", "Documentos", "Unidade", "Horário"],
+    columns: ["Serviço", "Descrição", "Responsável"],
+    rows: [["Atendimento Bolsa Familia", "Cadastro e atualização", "Assistência Social"]],
+  },
+  "banco-povo": {
+    title: "Banco do Povo",
+    subtitle: "Canal de apoio a empreendedores, crédito, orientações e atendimento.",
+    category: "Desenvolvimento",
+    kind: "service",
+    sourceLabel: "Banco do Povo antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/cria/banco-povo",
+    requiredElements: ["Serviço", "Público-alvo", "Documentos", "Contato"],
+    columns: ["Serviço", "Descrição", "Responsável"],
+    rows: [["Banco do Povo Paulista", "Orientação e crédito", "Não declarado"]],
+  },
+  "acessa-sp": {
+    title: "Acessa SP",
+    subtitle: "Informações sobre inclusão digital, acesso à internet e serviços apoiados.",
+    category: "Serviços",
+    kind: "service",
+    sourceLabel: "Acessa SP antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/cria/acessa-sp",
+    requiredElements: ["Endereço", "Horário", "Serviços", "Contato"],
+    columns: ["Serviço", "Descrição", "Status"],
+    rows: [["Acessa SP", "Atendimento digital apoiado", "Não declarado"]],
+  },
+  "conselho-tutelar": {
+    title: "Conselho Tutelar",
+    subtitle: "Informações de atendimento, contatos, escala e documentos do Conselho Tutelar.",
+    category: "Protecao Social",
+    kind: "service",
+    sourceLabel: "Conselho Tutelar antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/cria/conselho-tutelar",
+    requiredElements: ["Contato", "Endereço", "Horário", "Plantão"],
+    columns: ["Canal", "Descrição", "Contato"],
+    rows: [["Atendimento", "Conselho Tutelar", "Não declarado"]],
+  },
+  "junta-militar": {
+    title: "Junta Militar",
+    subtitle: "Alistamento militar, documentos, prazos e atendimento municipal.",
+    category: "Serviços",
+    kind: "service",
+    sourceLabel: "Junta Militar antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/junta-militar",
+    requiredElements: ["Serviço", "Documentos", "Prazo", "Contato"],
+    columns: ["Serviço", "Descrição", "Canal"],
+    rows: [["Alistamento", "Orientações e atendimento", "Não declarado"]],
+  },
+  covid: {
+    title: "COVID-19",
+    subtitle: "Área histórica para comunicados, boletins, orientações e documentos relacionados.",
+    category: "Saúde",
+    kind: "documents",
+    sourceLabel: "COVID-19 antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/covid",
+    requiredElements: ["Boletins", "Comunicados", "Orientações", "Arquivos"],
+    columns: ["Bloco", "Descrição", "Status"],
+    rows: [["Boletins", "Publicações históricas", "Conteúdo pendente"], ["Orientações", "Informativos oficiais", "Conteúdo pendente"]],
+  },
+  "portal-educação": {
+    title: "Portal da Educação",
+    subtitle: "Central de acesso a informações educacionais, escolas, conselhos e serviços da rede municipal.",
+    category: "Educação",
+    kind: "service",
+    sourceLabel: "Portal da Educação antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/portal-educação",
+    requiredElements: ["Escolas", "Calendário", "Conselhos", "Serviços"],
+    columns: ["Área", "Descrição", "Status"],
+    rows: [["Rede municipal", "Informações educacionais", "Conteúdo pendente"], ["Conselhos", "CME e alimentação escolar", "Estrutura criada"]],
+  },
+  "conselho-educação": {
+    title: "Conselho Municipal de Educação",
+    subtitle: "Composição, atas, documentos e calendário do Conselho Municipal de Educação.",
+    category: "Educação",
+    kind: "table",
+    sourceLabel: "Conselho de Educação antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/14/conselho-municipal-de-educação",
+    requiredElements: ["Composição", "Atas", "Mandato", "Calendário"],
+    columns: ["Documento", "Período", "Arquivo", "Status"],
+    rows: [["Composição", "Não declarado", "Não declarado", "Pendente"], ["Ata", "Não declarado", "Não declarado", "Pendente"]],
+  },
+  "conselho-alimentacao-escolar": {
+    title: "Conselho de Alimentação Escolar",
+    subtitle: "Composição, atas, fiscalização e documentos do Conselho de Alimentação Escolar.",
+    category: "Educação",
+    kind: "table",
+    sourceLabel: "CAE antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/15/conselho-de-alimentacao-escolar",
+    requiredElements: ["Composição", "Atas", "Prestação de contas", "Calendário"],
+    columns: ["Documento", "Período", "Arquivo", "Status"],
+    rows: [["Composição", "Não declarado", "Não declarado", "Pendente"], ["Ata", "Não declarado", "Não declarado", "Pendente"]],
+  },
+  "vagas-creche": {
+    title: "Vagas em Creche",
+    subtitle: "Lista de espera, critérios, posição, unidade e atualização das vagas em creche.",
+    category: "Educação",
+    kind: "table",
+    sourceLabel: "Vagas em Creche antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/16/vagas-em-creche",
+    requiredElements: ["Criança/responsável", "Unidade", "Posição", "Data de atualização"],
+    columns: ["Unidade", "Faixa etária", "Posição/Fila", "Atualização"],
+    rows: [["Creche demonstrativa", "0 a 3 anos", "Não declarado", "Não declarado"]],
+  },
+  "educação-tematica": {
+    title: "Educação",
+    subtitle: "Página temática da educação com documentos, programas, escolas, conselhos e serviços.",
+    category: "Área Tematica",
+    kind: "documents",
+    sourceLabel: "Educação antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/12/educação",
+    requiredElements: ["Programas", "Documentos", "Escolas", "Conselhos"],
+    columns: ["Bloco", "Descrição", "Status"],
+    rows: [["Programas", "Ações e projetos", "Conteúdo pendente"], ["Documentos", "Arquivos oficiais", "Conteúdo pendente"]],
+  },
+  "saude-tematica": {
+    title: "Saúde",
+    subtitle: "Página temática da saúde com serviços, unidades, documentos de gestão e informações obrigatórias.",
+    category: "Área Tematica",
+    kind: "documents",
+    sourceLabel: "Saúde antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/5/saude",
+    requiredElements: ["Serviços", "Unidades", "Plano de saúde", "Estoque de medicamentos"],
+    columns: ["Bloco", "Descrição", "Status"],
+    rows: [["Gestao da saúde", "Plano, programação e relatório", "Conteúdo pendente"], ["Medicamentos", "Estoque e disponibilidade", "Conteúdo pendente"]],
+  },
+  "esporte-tematica": {
+    title: "Esporte",
+    subtitle: "Página temática de esporte com atividades, projetos, locais e calendário.",
+    category: "Área Tematica",
+    kind: "documents",
+    sourceLabel: "Esporte antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/6/esporte",
+    requiredElements: ["Atividades", "Projetos", "Locais", "Calendário"],
+    columns: ["Bloco", "Descrição", "Status"],
+    rows: [["Projetos esportivos", "Programas e atividades", "Conteúdo pendente"]],
+  },
+  "turismo-cultura": {
+    title: "Turismo e Cultura",
+    subtitle: "Atrativos, eventos culturais, roteiros, equipamentos e politicas culturais.",
+    category: "Área Tematica",
+    kind: "documents",
+    sourceLabel: "Turismo e Cultura antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/9/turismo-e-cultura",
+    requiredElements: ["Atrativos", "Eventos", "Equipamentos", "Documentos"],
+    columns: ["Bloco", "Descrição", "Status"],
+    rows: [["Turismo", "Atrativos e roteiros", "Conteúdo pendente"], ["Cultura", "Programas e eventos", "Conteúdo pendente"]],
+  },
+  "meio-ambiente": {
+    title: "Meio Ambiente",
+    subtitle: "Políticas ambientais, programas, licenças, arborização e ações municipais.",
+    category: "Área Tematica",
+    kind: "documents",
+    sourceLabel: "Meio Ambiente antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/meio-ambiente",
+    requiredElements: ["Programas", "Documentos", "Licencas", "Contato"],
+    columns: ["Bloco", "Descrição", "Status"],
+    rows: [["Programas ambientais", "Ações e documentos", "Conteúdo pendente"]],
+  },
+  "plano-arborizacao": {
+    title: "Plano Municipal de Arborização Urbana",
+    subtitle: "Plano, anexos, mapas, metas e documentos de arborização urbana.",
+    category: "Meio Ambiente",
+    kind: "documents",
+    sourceLabel: "Plano de Arborização antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/17/plano-municipal-de-arborizacao-urbana",
+    requiredElements: ["Plano", "Anexos", "Mapas", "Atualização"],
+    columns: ["Documento", "Descrição", "Arquivo"],
+    rows: [["Plano Municipal", "Arborização urbana", "Não declarado"]],
+  },
+  "centro-esterilizacao": {
+    title: "Centro de Esterilização de Animais",
+    subtitle: "Informações, agendamento, critérios e orientações do centro de esterilização.",
+    category: "Meio Ambiente",
+    kind: "service",
+    sourceLabel: "Centro de Esterilização antigo",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/20/centro-de-esterilizacao-de-animais-de-roseira",
+    requiredElements: ["Agendamento", "Critérios", "Local", "Contato"],
+    columns: ["Serviço", "Descrição", "Canal"],
+    rows: [["Esterilização", "Orientações e atendimento", "Não declarado"]],
+  },
+  "lei-aldir-blanc": {
+    title: "Lei Aldir Blanc 2",
+    subtitle: "Editais, resultados, documentos e prestação de contas da politica cultural.",
+    category: "Cultura",
+    kind: "table",
+    sourceLabel: "Lei Aldir Blanc 2 antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/19/lei-aldir-blanc-2",
+    requiredElements: ["Edital", "Inscrições", "Resultado", "Prestação de contas"],
+    columns: ["Documento", "Data", "Arquivo", "Status"],
+    rows: [["Edital demonstrativo", "Não declarado", "Não declarado", "Pendente"]],
+  },
+  "vagas-emprego": {
+    title: "Vagas de Emprego",
+    subtitle: "Divulgação de oportunidades, requisitos, contato e situação das vagas.",
+    category: "Desenvolvimento",
+    kind: "table",
+    sourceLabel: "Vagas de Emprego antiga",
+    sourceUrl: "https://www.roseira.sp.gov.br/pagina/18/vagas-de-emprego",
+    requiredElements: ["Vaga", "Requisitos", "Contato", "Data de públicação"],
+    columns: ["Vaga", "Requisitos", "Contato", "Situação"],
+    rows: [["Vaga demonstrativa", "Não declarado", "Não declarado", "Aberta"]],
+  },
+  "divida-ativa": {
+    title: "Dívida Ativa",
+    subtitle: "Consulta, orientações, quitação e regularização de débitos inscritos em dívida ativa.",
+    category: "Tributos",
+    kind: "service",
+    sourceLabel: "Portal da Transparência",
+    sourceUrl: EXTERNAL_LINKS.transparencia,
+    requiredElements: ["Consulta", "Quitação", "Parcelamento", "Contato fiscal"],
+    columns: ["Serviço", "Descrição", "Canal"],
+    rows: [["Quitação de Dívida Ativa", "Consulta e regularização", "Não declarado"]],
+  },
+  itbi: {
+    title: "ITBI",
+    subtitle: "Orientações para solicitação, cálculo, emissão e acompanhamento de ITBI.",
+    category: "Tributos",
+    kind: "service",
+    requiredElements: ["Solicitação", "Documentos", "Cálculo", "Emissão de guia"],
+    columns: ["Serviço", "Descrição", "Canal"],
+    rows: [["ITBI", "Solicitação e emissão", "Não declarado"]],
+  },
+};
+
+const NAVIGATION_REQUIREMENT_SLUGS: Record<string, string> = {
+  "Prefeito e Vice-prefeito": "prefeito-vice",
+  "Gabinete": "gabinete",
+  "Estrutura Administrativa": "estrutura-administrativa",
+  "Telefones e Endereços": "telefones-enderecos",
+  "Horário de Atendimento": "horario-atendimento",
+  "Símbolos Municipais": "símbolos-municipais",
+  "Conselhos Municipais": "conselhos-municipais",
+  "Mapa do Site": "mapa-site",
+  "Galeria de Fotos": "galeria-fotos",
+  "Termos de Uso": "termos-uso",
+  "Política de Cookies": "politica-cookies",
+  "LGPD": "lgpd",
+  "Carta de Serviços": "carta-servicos",
+  "Serviços ao Cidadão": "servicos-cidadao",
+  "Serviços à Empresa": "servicos-empresa",
+  "Serviços ao Servidor": "servicos-servidor",
+  "Protocolos": "protocolos",
+  "Emissão de Guias": "emissão-guias",
+  "IPTU": "iptu",
+  "Dívida Ativa": "divida-ativa",
+  "ITBI": "itbi",
+  "Nota Fiscal Eletrônica": "nota-fiscal-eletronica",
+  "Cadastro de Inscrição Municipal": "cadastro-inscrição-municipal",
+  "Bolsa Família": "bolsa-familia",
+  "Banco do Povo": "banco-povo",
+  "Acessa SP": "acessa-sp",
+  "Conselho Tutelar": "conselho-tutelar",
+  "Junta Militar": "junta-militar",
+  "COVID-19": "covid",
+  "Portal da Educação": "portal-educação",
+  "Conselho Municipal de Educação": "conselho-educação",
+  "Conselho de Alimentação Escolar": "conselho-alimentacao-escolar",
+  "Vagas em Creche": "vagas-creche",
+  "Educação - Página Temática": "educação-tematica",
+  "Saúde - Página Temática": "saude-tematica",
+  "Esporte - Página Temática": "esporte-tematica",
+  "Turismo e Cultura": "turismo-cultura",
+  "Meio Ambiente": "meio-ambiente",
+  "Plano Municipal de Arborização Urbana": "plano-arborizacao",
+  "Centro de Esterilização de Animais": "centro-esterilizacao",
+  "Lei Aldir Blanc 2": "lei-aldir-blanc",
+  "Vagas de Emprego": "vagas-emprego",
+  "Agendamento": "agendamento",
+  "Perguntas Frequentes": "faq",
+  "Comunicados": "comunicados",
+  "Agenda de Eventos": "eventos",
+  "Campanhas": "campanhas",
+  "Boletins Oficiais": "boletins-oficiais",
+  "Dispensas e Inexigibilidades": "dispensas-inexigibilidades",
+  "Concorrência Pública": "concorrencia-pública",
+  "Chamada Pública": "chamada-pública",
+  "Pregão Presencial": "pregao-presencial",
+  "Tomada de Preços": "tomada-precos",
+  "Leilão": "leilao",
+  "Contratos": "contratos",
+  "Aditivos": "aditivos",
+  "Atas de Registro de Preços": "atas-registro-precos",
+  "Fornecedores": "fornecedores",
+  "PNCP": "pncp",
+  "Portal da Transparência": "portal-transparencia",
+  "Receitas": "receitas",
+  "Despesas": "despesas",
+  "Folha de Pagamento": "folha-pagamento",
+  "Diárias e Passagens": "diarias-passagens",
+  "Convênios e Repasses": "convenios-repasses",
+  "Obras Públicas": "obras-públicas",
+  "Audiências Públicas": "audiencias-públicas",
+  "PPA, LDO e LOA": "ppa-ldo-loa",
+  "RREO e RGF": "rreo-rgf",
+  "Prestação de Contas": "prestacao-contas",
+  "Parecer do Tribunal de Contas": "parecer-tce",
+  "Dados Abertos": "dados-abertos",
+  "Radar da Transparência / Matriz Atricon": "radar-transparencia",
+  "Código Tributário": "codigo-tributario",
+  "Plano Diretor": "plano-diretor",
+  "Lei Orgânica Municipal": "lei-organica",
+  "Diário Oficial": "diario-oficial",
+  "Atos Oficiais": "atos-oficiais",
+  "Ouvidoria": "ouvidoria",
+  "e-SIC": "e-sic",
+  "Endereço e Telefones": "endereco-telefones",
+  "Horários de Atendimento": "horarios-atendimento-contato",
+  "Mapa de Localização": "mapa-localizacao",
+  "Redes Sociais": "redes-sociais",
+};
 const LEGISLACAO = [
   { num: "2036-2026", desc: "Horário de funcionamento durante jogos da Seleção - Copa 2026", date: "25/06/2026", status: "Ativo" },
   { num: "2035-2026", desc: "Utilidade pública e desapropriação de imóvel - SABESP/EEE", date: "19/06/2026", status: "Ativo" },
@@ -75,6 +1054,52 @@ const LEGISLACAO = [
   { num: "2031-2026", desc: "Regulamenta o Fundo Municipal de Saneamento (FMSAI)", date: "15/06/2026", status: "Ativo" },
   { num: "2029-2026", desc: "Prorrogação das validades do Concurso Público nº 01/2023", date: "13/06/2026", status: "Ativo" },
 ];
+const DECRETOS = [
+  { num: "1809-2026", desc: "Dispõe sobre expediente nas repartições públicas municipais em dias de jogos oficiais", date: "28/06/2026", status: "Ativo" },
+  { num: "1808-2026", desc: "Regulamenta procedimentos administrativos para atendimento ao cidadão", date: "21/06/2026", status: "Ativo" },
+  { num: "1807-2026", desc: "Declara ponto facultativo nas unidades administrativas municipais", date: "14/06/2026", status: "Ativo" },
+  { num: "1806-2026", desc: "Nomeia membros para comissão de acompanhamento de políticas públicas", date: "05/06/2026", status: "Ativo" },
+  { num: "1805-2026", desc: "Atualiza normas internas de funcionamento dos serviços municipais", date: "29/05/2026", status: "Ativo" },
+  { num: "1804-2026", desc: "Institui medidas de regularização fundiária de interesse social", date: "18/05/2026", status: "Ativo" },
+];
+const PORTARIAS = [
+  { num: "112-2026", desc: "Designa servidor para acompanhamento de contratos administrativos", date: "30/06/2026", status: "Ativo" },
+  { num: "111-2026", desc: "Nomeia comissão responsável por análise de processos internos", date: "24/06/2026", status: "Ativo" },
+  { num: "110-2026", desc: "Concede licença e providências funcionais a servidor municipal", date: "17/06/2026", status: "Ativo" },
+  { num: "109-2026", desc: "Dispõe sobre escala de trabalho em setor administrativo", date: "10/06/2026", status: "Ativo" },
+  { num: "108-2026", desc: "Designa fiscal para execução de serviço público municipal", date: "03/06/2026", status: "Ativo" },
+  { num: "107-2026", desc: "Atualiza composição de equipe técnica para programas municipais", date: "27/05/2026", status: "Ativo" },
+];
+const DECRETOS_CONFIG: LegislacaoPageConfig = {
+  pageTitle: "Decretos",
+  pageSubtitle: "Consulte decretos municipais públicados pela Prefeitura Municipal de Roseira.",
+  itemLabel: "Decreto",
+  summaryLabel: "Decretos",
+  activeSummaryLabel: "Decretos Ativos",
+  extraSummaryLabel: "Publicações Recentes",
+  extraSummaryTone: "yellow",
+  searchAriaLabel: "Filtrar decretos",
+  foundLabel: "decretos encontrados",
+  detailInfoTitle: "Informações do Decreto",
+  detailTitlePrefix: "Decreto Nº",
+  relatedTitle: "Outros Decretos",
+  documentLabel: "Decreto",
+};
+const PORTARIAS_CONFIG: LegislacaoPageConfig = {
+  pageTitle: "Portarias",
+  pageSubtitle: "Consulte portarias, nomeações e atos administrativos públicados pela Prefeitura Municipal de Roseira.",
+  itemLabel: "Portaria",
+  summaryLabel: "Portarias",
+  activeSummaryLabel: "Portarias Ativas",
+  extraSummaryLabel: "Atos Administrativos",
+  extraSummaryTone: "yellow",
+  searchAriaLabel: "Filtrar portarias",
+  foundLabel: "portarias encontradas",
+  detailInfoTitle: "Informações da Portaria",
+  detailTitlePrefix: "Portaria Nº",
+  relatedTitle: "Outras Portarias",
+  documentLabel: "Portaria",
+};
 const LICITACOES = [
   { num: "23-2025", desc: "Manutenção preventiva e corretiva de veículos da frota municipal", date: "01/06/2026", status: "Encerrado" },
   { num: "32-2025", desc: "Aquisição de gêneros alimentícios para a merenda escolar", date: "03/03/2026", status: "Encerrado" },
@@ -115,10 +1140,48 @@ const SECRETARIAS = [
   { nome: "Diretoria de Administração", diretor: "Isaac Pontes", horario: "08h às 17h", end: "Praça Sant'Ana, 201, Centro - Roseira/SP", tel: "Não declarado", email: "administracao@roseira.sp.gov.br" },
   { nome: "Diretoria de Cultura", diretor: "Wladimir Roberto Garcia de Paula Santos", horario: "08h às 17h", end: "Praça Sant'Ana, 201", tel: "(12) 3646-9900 / 202", email: "turismo@roseira.sp.gov.br" },
   { nome: "Diretoria de Esporte, Turismo e Lazer", diretor: "Zaneth de Sousa Miranda", horario: "08h às 17h", end: "R. Dep. Antônio Silvio Cunha Bueno - Nova Era", tel: "(12) 3646-3394", email: "secesportesroseira@gmail.com" },
-  { nome: "Diretoria de Educação", diretor: "Leonaria Rodrigues de Sousa Corrêa", horario: "08h00 às 17h00", end: "Extensão da Praça Sant'Ana, 02 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "educacao@roseira.sp.gov.br" },
+  { nome: "Diretoria de Educação", diretor: "Leonaria Rodrigues de Sousa Corrêa", horario: "08h00 às 17h00", end: "Extensão da Praça Sant'Ana, 02 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "educação@roseira.sp.gov.br" },
   { nome: "Secretaria de Assistência Social", diretor: "Fabiana Caltabiano de Souza Siqueira", horario: "07h30 às 16h00", end: "Rua Cel. Rodophiano de Barros, 97 - Centro - Roseira/SP", tel: "Não declarado", email: "psroseira@yahoo.com.br" },
   { nome: "Diretoria de Finanças", diretor: "Luiz Carlos Rodrigues", horario: "8h às 17h", end: "Praça Sant'Ana, 201 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "lcarlos@roseira.sp.gov.br" },
 ];
+
+export type Secretaria = {
+  slug: string;
+  nome: string;
+  shortName: string;
+  diretor: string;
+  cargo: string;
+  horario: string;
+  end: string;
+  tel: string;
+  email: string;
+  summary: string;
+  sobre: string;
+  competencias: string[];
+};
+
+const SECRETARIA_DETAILS: Secretaria[] = [
+  { slug: "administracao", nome: "Diretoria de Administração", shortName: "Administração", diretor: "Isaac Pontes", cargo: "Diretor de Administração", horario: "08h às 17h", end: "Praça Sant'Ana, 201, Centro - Roseira/SP", tel: "Não declarado", email: "administracao@roseira.sp.gov.br", summary: "Coordena as rotinas administrativas, a gestão interna e o suporte às demais áreas da Prefeitura.", sobre: "A Diretoria de Administração organiza processos internos, documentos, patrimônio, compras administrativas e apoio aos setores municipais. Sua atuação busca garantir eficiência, transparência e continuidade aos serviços públicos.", competencias: ["Gestão de recursos humanos e folha de pagamento", "Administração de patrimônio público e bens móveis", "Compras, licitações e contratos administrativos", "Protocolo, arquivo e gestão documental", "Serviços de tecnologia da informação", "Gestão do diário oficial e públicações legais"] },
+  { slug: "assistencia-social", nome: "Secretaria de Assistência Social", shortName: "Assistência Social", diretor: "Fabiana Caltabiano de Souza Siqueira", cargo: "Secretária de Assistência Social", horario: "07h30 às 16h00", end: "Rua Cel. Rodophiano de Barros, 97 - Centro - Roseira/SP", tel: "Não declarado", email: "psroseira@yahoo.com.br", summary: "Atende famílias, indivíduos e grupos em situação de vulnerabilidade social.", sobre: "A Secretaria de Assistência Social organiza serviços de proteção social, atendimento às famílias, programas de transferência de renda e acompanhamento de situações de vulnerabilidade.", competencias: ["Proteção social básica e especial", "Atendimento às famílias e indivíduos", "Gestão de benefícios e programas sociais", "Acompanhamento do Cadastro Único", "Articulação com conselhos e rede socioassistencial"] },
+  { slug: "educação", nome: "Diretoria de Educação", shortName: "Educação", diretor: "Leonaria Rodrigues de Sousa Corrêa", cargo: "Diretora de Educação", horario: "08h00 às 17h00", end: "Extensão da Praça Sant'Ana, 02 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "educação@roseira.sp.gov.br", summary: "Coordena ações pedagógicas, administrativas e de apoio escolar na rede municipal.", sobre: "A Diretoria de Educação coordena ações pedagógicas, administrativas e de apoio escolar, buscando fortalecer a aprendizagem, a permanência dos alunos e a qualidade da rede municipal.", competencias: ["Gestão da rede municipal de ensino", "Acompanhamento pedagógico das escolas", "Transporte, merenda e apoio escolar", "Formação de profissionais da educação", "Atendimento às famílias e estudantes"] },
+  { slug: "saude", nome: "Diretoria de Saúde", shortName: "Saúde", diretor: "João Bosco de Almeida Maia", cargo: "Diretor de Saúde", horario: "08h às 17h", end: "Roque Vieira da Silva Nº197", tel: "(12) 3646-1210", email: "sms@roseira.sp.gov.br", summary: "Organiza a atenção à saúde, os serviços municipais e as ações de prevenção.", sobre: "A Diretoria de Saúde planeja e acompanha os serviços de saúde do município, incluindo atendimento à população, programas preventivos, vigilância e suporte às unidades municipais.", competencias: ["Atenção básica e atendimento à população", "Programas de prevenção e promoção da saúde", "Vigilância em saúde", "Gestão das unidades e equipes municipais", "Acompanhamento de demandas e encaminhamentos"] },
+  { slug: "obras-infraestrutura", nome: "Obras e Serviços Municipais", shortName: "Obras e Serviços", diretor: "Não declarado", cargo: "Responsável pela área", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Cuida da manutenção urbana, infraestrutura e serviços operacionais do município.", sobre: "A área de Obras e Serviços Municipais acompanha demandas de manutenção urbana, conservação de vias, infraestrutura pública e apoio operacional aos serviços municipais.", competencias: ["Manutenção de vias e espaços públicos", "Apoio a obras e infraestrutura", "Conservação urbana", "Serviços operacionais", "Atendimento de demandas da população"] },
+  { slug: "esporte-turismo-lazer", nome: "Diretoria de Esporte, Turismo e Lazer", shortName: "Esporte, Turismo e Lazer", diretor: "Zaneth de Sousa Miranda", cargo: "Diretora de Esporte, Turismo e Lazer", horario: "08h às 17h", end: "R. Dep. Antônio Silvio Cunha Bueno - Nova Era", tel: "(12) 3646-3394", email: "secesportesroseira@gmail.com", summary: "Promove atividades esportivas, ações de turismo e iniciativas de lazer.", sobre: "A Diretoria de Esporte, Turismo e Lazer desenvolve atividades esportivas, eventos, programas de incentivo à prática física e ações de valorização turística e cultural do município.", competencias: ["Eventos esportivos e recreativos", "Apoio a equipes e atletas", "Promoção do turismo local", "Projetos de lazer comunitário", "Gestão de espaços esportivos"] },
+  { slug: "financas", nome: "Diretoria de Finanças", shortName: "Finanças", diretor: "Luiz Carlos Rodrigues", cargo: "Diretor de Finanças", horario: "8h às 17h", end: "Praça Sant'Ana, 201 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "lcarlos@roseira.sp.gov.br", summary: "Coordena orçamento, receitas, despesas e controle financeiro municipal.", sobre: "A Diretoria de Finanças acompanha a gestão orçamentária, financeira e contábil do município, com foco no equilíbrio das contas públicas e no cumprimento das obrigações legais.", competencias: ["Gestão orçamentária e financeira", "Controle de receitas e despesas", "Acompanhamento contábil", "Planejamento fiscal", "Prestação de informações financeiras"] },
+  { slug: "cultura", nome: "Diretoria de Cultura", shortName: "Cultura", diretor: "Wladimir Roberto Garcia de Paula Santos", cargo: "Diretor de Cultura", horario: "08h às 17h", end: "Praça Sant'Ana, 201", tel: "(12) 3646-9900 / 202", email: "turismo@roseira.sp.gov.br", summary: "Promove ações culturais, eventos e valorização da memória local.", sobre: "A Diretoria de Cultura organiza iniciativas culturais, eventos públicos e ações de valorização da identidade, da memória e da participação comunitária.", competencias: ["Promoção de eventos culturais", "Apoio a artistas e grupos locais", "Valorização da memória municipal", "Projetos de formação cultural", "Articulação de ações comunitárias"] },
+];
+
+const SECRETARIA_MENU_SLUGS: Record<string, string> = {
+  "Administração": "administracao",
+  "Assistência Social": "assistencia-social",
+  "Educação": "educação",
+  "Saúde": "saude",
+  "Obras e Serviços Municipais": "obras-infraestrutura",
+  "Agricultura e Meio Ambiente": "obras-infraestrutura",
+  "Cultura, Esporte e Turismo": "esporte-turismo-lazer",
+  "Fazenda / Finanças": "financas",
+  Cultura: "cultura",
+};
 
 const SLIDER_ITEMS = [
   { title: "Base do Corpo de Bombeiros inaugurada", sub: "Defesa Civil - 05/08/2026", img: "https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?w=1200&h=500&fit=crop&auto=format" },
@@ -282,12 +1345,12 @@ function AccessBar({ fontSize, setFontSize }: { fontSize: number; setFontSize: (
 // -----------------------------------------------------------------------------
 // HEADER
 // -----------------------------------------------------------------------------
-function Header({ menuOpen, setMenuOpen }: { menuOpen: boolean; setMenuOpen: (v: boolean) => void }) {
+function Header({ menuOpen, setMenuOpen, onNavigateHome }: { menuOpen: boolean; setMenuOpen: (v: boolean) => void; onNavigateHome: () => void }) {
   return (
     <div  className="sx-19">
       <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
         {/* Logo */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <button type="button" onClick={onNavigateHome} className="brand-home-link flex items-center gap-3 flex-shrink-0" aria-label="Ir para a página inicial">
           <div  className="sx-20">
             <img src="/prefeitura-de-roseira-logo.png" alt="Brasão da Prefeitura Municipal de Roseira" className="brand-logo" />
           </div>
@@ -295,7 +1358,7 @@ function Header({ menuOpen, setMenuOpen }: { menuOpen: boolean; setMenuOpen: (v:
             <div  className="sx-21">Prefeitura Municipal</div>
             <div  className="sx-22">de Roseira - SP</div>
           </div>
-        </div>
+        </button>
 
         {/* Spacer */}
         <div className="flex-1" />
@@ -360,7 +1423,9 @@ function SearchBar() {
 // -----------------------------------------------------------------------------
 // NAVIGATION
 // -----------------------------------------------------------------------------
-function NavBar({ menuOpen, setMenuOpen, onNavigate }: { menuOpen: boolean; setMenuOpen: (v: boolean) => void; onNavigate: (page: "home" | "concursos") => void }) {
+type AppPage = "home" | "historia-roseira" | "contato" | "concursos" | "licitacoes" | "licitacao-detail" | "leis-municipais" | "lei-detail" | "decretos" | "decreto-detail" | "portarias" | "portaria-detail" | "noticias" | "noticia-detail" | "secretarias" | "secretaria-detail" | "faq" | "requirement-page";
+
+function NavBar({ menuOpen, setMenuOpen, currentPage, onNavigate, onOpenRequirement, onSelectSecretaria }: { menuOpen: boolean; setMenuOpen: (v: boolean) => void; currentPage: AppPage; onNavigate: (page: AppPage) => void; onOpenRequirement: (slug: string) => void; onSelectSecretaria: (slug: string) => void }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -371,6 +1436,19 @@ function NavBar({ menuOpen, setMenuOpen, onNavigate }: { menuOpen: boolean; setM
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
   }, []);
+
+  const isActiveItem = (label: string) => {
+    if (label === "Concursos") return currentPage === "concursos";
+    if (label === "Licitações") return currentPage === "licitacoes" || currentPage === "licitacao-detail";
+    if (label === "Notícias") return currentPage === "noticias" || currentPage === "noticia-detail";
+    if (label === "Secretarias") return currentPage === "secretarias" || currentPage === "secretaria-detail";
+    if (label === "Legislação") return currentPage === "leis-municipais" || currentPage === "lei-detail" || currentPage === "decretos" || currentPage === "decreto-detail" || currentPage === "portarias" || currentPage === "portaria-detail";
+    if (label === "A Prefeitura") return currentPage === "historia-roseira";
+    if (label === "Contato") return currentPage === "contato";
+    if (label === "Serviços") return currentPage === "requirement-page" || currentPage === "faq";
+    if (label === "Transparência") return currentPage === "requirement-page";
+    return false;
+  };
 
   return (
     <nav  ref={ref} className="sx-33">
@@ -383,9 +1461,11 @@ function NavBar({ menuOpen, setMenuOpen, onNavigate }: { menuOpen: boolean; setM
                 onMouseEnter={() => item.children.length ? setOpenIdx(idx) : setOpenIdx(null)}
                 onClick={() => {
                   if (item.label === "Concursos") onNavigate("concursos");
+                  if (item.label === "Licitações") onNavigate("licitacoes");
+                  if (item.label === "Notícias") onNavigate("noticias");
                 }}
 
-                className={[openIdx === idx ? "bg-white/15" : "hover:bg-white/10", 'sx-35'].filter(Boolean).join(' ')}
+                className={[openIdx === idx ? "bg-white/15" : "hover:bg-white/10", isActiveItem(item.label) ? "nav-item-active" : "", "sx-35"].filter(Boolean).join(" ")}
               >
                 {item.label}
                 {item.children.length > 0 && I.chevDown}
@@ -397,7 +1477,61 @@ function NavBar({ menuOpen, setMenuOpen, onNavigate }: { menuOpen: boolean; setM
                  className="sx-36">
                   {item.children.map(child => (
                     <a key={child} href="#"
-
+                      onClick={(event) => {
+                        const secretariaSlug = SECRETARIA_MENU_SLUGS[child];
+                        if (item.label === "Secretarias" && secretariaSlug) {
+                          event.preventDefault();
+                          onSelectSecretaria(secretariaSlug);
+                          setOpenIdx(null);
+                        }
+                        if (item.label === "Notícias" && child === "Últimas Notícias") {
+                          event.preventDefault();
+                          onNavigate("noticias");
+                          setOpenIdx(null);
+                        }
+                        if (item.label === "Licitações") {
+                          event.preventDefault();
+                          onNavigate("licitacoes");
+                          setOpenIdx(null);
+                        }
+                        if (item.label === "Legislação" && child === "Leis Municipais") {
+                          event.preventDefault();
+                          onNavigate("leis-municipais");
+                          setOpenIdx(null);
+                        }
+                        if (item.label === "Legislação" && child === "Decretos") {
+                          event.preventDefault();
+                          onNavigate("decretos");
+                          setOpenIdx(null);
+                        }
+                        if (item.label === "Legislação" && child === "Portarias") {
+                          event.preventDefault();
+                          onNavigate("portarias");
+                          setOpenIdx(null);
+                        }
+                        if (item.label === "A Prefeitura" && child === "História de Roseira") {
+                          event.preventDefault();
+                          onNavigate("historia-roseira");
+                          setOpenIdx(null);
+                        }
+                        if (item.label === "Contato" && child === "Fale Conosco") {
+                          event.preventDefault();
+                          onNavigate("contato");
+                          setOpenIdx(null);
+                        }
+                        if (item.label === "Serviços" && child === "Perguntas Frequentes") {
+                          event.preventDefault();
+                          onNavigate("faq");
+                          setOpenIdx(null);
+                          return;
+                        }
+                        const requirementSlug = NAVIGATION_REQUIREMENT_SLUGS[child];
+                        if (requirementSlug) {
+                          event.preventDefault();
+                          onOpenRequirement(requirementSlug);
+                          setOpenIdx(null);
+                        }
+                      }}
                       className="gray-hover sx-37"
                     >
                       {child}
@@ -421,6 +1555,42 @@ function NavBar({ menuOpen, setMenuOpen, onNavigate }: { menuOpen: boolean; setM
                   if (item.label === "Concursos") {
                     event.preventDefault();
                     onNavigate("concursos");
+                    setMenuOpen(false);
+                  }
+                  if (item.label === "Licitações") {
+                    event.preventDefault();
+                    onNavigate("licitacoes");
+                    setMenuOpen(false);
+                  }
+                  if (item.label === "Notícias") {
+                    event.preventDefault();
+                    onNavigate("noticias");
+                    setMenuOpen(false);
+                  }
+                  if (item.label === "Secretarias") {
+                    event.preventDefault();
+                    onNavigate("secretarias");
+                    setMenuOpen(false);
+                  }
+                  if (item.label === "Legislação") {
+                    event.preventDefault();
+                    onNavigate("leis-municipais");
+                    setMenuOpen(false);
+                  }
+                  if (item.label === "A Prefeitura") {
+                    event.preventDefault();
+                    onNavigate("historia-roseira");
+                    setMenuOpen(false);
+                  }
+                  if (item.label === "Contato") {
+                    event.preventDefault();
+                    onNavigate("contato");
+                    setMenuOpen(false);
+                  }
+                  const firstRequirement = item.children.map(child => NAVIGATION_REQUIREMENT_SLUGS[child]).find(Boolean);
+                  if (firstRequirement) {
+                    event.preventDefault();
+                    onOpenRequirement(firstRequirement);
                     setMenuOpen(false);
                   }
                 }}
@@ -553,7 +1723,7 @@ function AcessoRapido() {
 }
 
 // -----------------------------------------------------------------------------
-// ÚLTIMAS PUBLICAÇÕES (tabs)
+// ÚLTIMAS PUBLICAÇÍES (tabs)
 // -----------------------------------------------------------------------------
 function Publicacoes() {
   const [tab, setTab] = useState<"leg" | "lic" | "con">("leg");
@@ -617,7 +1787,7 @@ function Publicacoes() {
 // -----------------------------------------------------------------------------
 // NOTÍCIAS
 // -----------------------------------------------------------------------------
-function Noticias() {
+function Noticias({ onSelectNoticia, onOpenNoticias }: { onSelectNoticia: (index: number) => void; onOpenNoticias: () => void }) {
   const [idx, setIdx] = useState(0);
   const [transitionOn, setTransitionOn] = useState(true);
   const [paused, setPaused] = useState(false);
@@ -673,7 +1843,7 @@ function Noticias() {
               style={{ "--news-index": idx } as React.CSSProperties}
             >
           {newsTrack.map((n, i) => (
-            <a key={`${n.title}-${i}`} href="#"
+            <button key={`${n.title}-${i}`} type="button" onClick={() => onSelectNoticia(i % NOTICIAS.length)}
 
               className="hover:shadow-lg hover:-translate-y-1 group sx-92">
               <div  className="sx-93">
@@ -693,7 +1863,7 @@ function Noticias() {
                   Ler mais {I.chevRight}
                 </div>
               </div>
-            </a>
+            </button>
           ))}
             </div>
           </div>
@@ -714,9 +1884,9 @@ function Noticias() {
           ))}
         </div>
         <div className="text-center mt-8">
-          <a href="#" className="sx-101 more-link">
+          <button type="button" onClick={onOpenNoticias} className="sx-101 more-link">
             Ver mais notícias {I.chevRight}
-          </a>
+          </button>
         </div>
       </div>
     </section>
@@ -772,13 +1942,13 @@ function Galeria() {
 // -----------------------------------------------------------------------------
 // SECRETARIAS
 // -----------------------------------------------------------------------------
-function Secretarias() {
+function Secretarias({ onSelectSecretaria, onOpenDirectory }: { onSelectSecretaria: (slug: string) => void; onOpenDirectory: () => void }) {
   const [idx, setIdx] = useState(0);
   const [transitionOn, setTransitionOn] = useState(true);
   const [paused, setPaused] = useState(false);
-  const secretariasTrack = Array.from({ length: 12 }, (_, offset) => SECRETARIAS[offset % SECRETARIAS.length]);
+  const secretariasTrack = Array.from({ length: 12 }, (_, offset) => SECRETARIA_DETAILS[offset % SECRETARIA_DETAILS.length]);
   const loopPoint = Math.max(1, secretariasTrack.length - 4);
-  const activeDot = idx % SECRETARIAS.length;
+  const activeDot = idx % SECRETARIA_DETAILS.length;
 
   useEffect(() => {
     if (paused || prefersReducedMotion()) return;
@@ -837,15 +2007,15 @@ function Secretarias() {
                 <div className="secretaria-card-body">
                   <h3>{s.nome}</h3>
                   <div className="secretaria-info-list">
-                    <p><span aria-hidden="true">●</span>{s.diretor}</p>
+                    <p><span aria-hidden="true">•</span>{s.diretor}</p>
                     <p><span aria-hidden="true">{I.clock}</span>{s.horario}</p>
                     <p><span aria-hidden="true">{I.map}</span>{s.end}</p>
                     <p><span aria-hidden="true">{I.phone}</span><a href={`tel:${s.tel}`}>{s.tel}</a></p>
                     <p><span aria-hidden="true">{I.mail}</span><a href={`mailto:${s.email}`}>{s.email}</a></p>
                   </div>
-                  <a href="#" className="secretaria-profile more-link">
+                  <button type="button" onClick={() => onSelectSecretaria(s.slug)} className="secretaria-profile more-link">
                     Ver perfil
-                  </a>
+                  </button>
                 </div>
               </article>
             ))}
@@ -856,14 +2026,14 @@ function Secretarias() {
           </button>
         </div>
         <div className="secretarias-dots" aria-label="Páginas do carrossel de secretarias">
-          {SECRETARIAS.map((_, i) => (
+          {SECRETARIA_DETAILS.map((_, i) => (
             <button key={i} type="button" onClick={() => setIdx(i)} className={`carousel-dot ${i === activeDot ? "carousel-dot-active" : "carousel-dot-idle"}`} aria-label={`Ir para secretaria ${i + 1}`} />
           ))}
         </div>
         <div className="text-center mt-6">
-          <a href="#" className="more-link">
+          <button type="button" onClick={onOpenDirectory} className="more-link">
             Ver mais secretarias {I.chevRight}
-          </a>
+          </button>
         </div>
       </div>
     </section>
@@ -953,7 +2123,7 @@ function CalendarioEventos() {
 }
 
 // -----------------------------------------------------------------------------
-// TRANSPARÊNCIA
+// TRANSPARÚNCIA
 // -----------------------------------------------------------------------------
 function Transparencia() {
   const items = [
@@ -961,7 +2131,7 @@ function Transparencia() {
     { lbl: "Contas Públicas", desc: "Balanços e relatórios de execução orçamentária", Icon: Landmark },
     { lbl: "Licitações e Contratos", desc: "Editais, resultados e atas de sessão", Icon: FileText },
     { lbl: "Lei de Acesso à Informação", desc: "Solicite informações via e-SIC", Icon: Info },
-    { lbl: "Diário Oficial", desc: "Atos e publicações da administração", Icon: Newspaper },
+    { lbl: "Diário Oficial", desc: "Atos e públicações da administração", Icon: Newspaper },
     { lbl: "Audiências Públicas", desc: "Pautas, atas e transmissões ao vivo", Icon: UsersRound },
   ];
 
@@ -1004,7 +2174,6 @@ function SocialNewsletter() {
     <section  className="py-14 sx-161">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Social */}
           <div>
             <p  className="sx-162">Comunicação</p>
             <h2  className="sx-163 section-title">Acompanhe-nos nas redes</h2>
@@ -1031,7 +2200,6 @@ function SocialNewsletter() {
             </div>
           </div>
 
-          {/* Newsletter */}
           <div  className="sx-169">
             <h3  className="sx-163 section-title">Newsletter Municipal</h3>
             <p  className="sx-171">
@@ -1056,7 +2224,6 @@ function SocialNewsletter() {
 
                    className="sx-176"/>
                 </div>
-                {/* Captcha simulation */}
                 <div  className="sx-177">
                   <input type="checkbox" id="captcha"   className="sx-178"/>
                   <label htmlFor="captcha"  className="sx-179">Não sou um robô</label>
@@ -1069,6 +2236,137 @@ function SocialNewsletter() {
               </form>
             )}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// MAPA TURÍSTICO
+// -----------------------------------------------------------------------------
+const TOURISM_POINTS = [
+  {
+    name: "Estação Ferroviária de Roseira",
+    description: "Marco ligado à formação urbana do município e à história da Estrada de Ferro Central do Brasil no Vale do Paraíba.",
+    address: "Linha férrea - Roseira/SP",
+    image: "https://www.estacoesferroviarias.com.br/r/fotos/roseira0151.jpg",
+    x: 10.8,
+    y: 58.5,
+  },
+  {
+    name: "Espaço Arte, Cultura e Turismo Ana Cláudia Giovanelli Fázzeri",
+    description: "Antigo espaço ferroviário revitalizado para abrigar atividades culturais, turismo e memória roseirense.",
+    address: "Área central, junto à linha férrea",
+    image: "https://www.roseira.sp.gov.br/public/admin/globalarq/uploads/files/IMG_3925.JPG",
+    x: 23.4,
+    y: 38.8,
+  },
+  {
+    name: "Igreja Matriz de Sant'Ana",
+    description: "Principal templo católico da cidade e referência histórica, cultural e religiosa no centro de Roseira.",
+    address: "Praça Sant'Ana, 446 - Centro",
+    image: "https://chaocaipira.org.br/wp-content/uploads/2024/10/igreja-matriz-roseira.jpg",
+    x: 32.4,
+    y: 76.2,
+  },
+  {
+    name: "Mosteiro da Sagrada Face",
+    description: "Santuário religioso em estilo medieval, integrado à Rota da Fé e reconhecido como um dos principais atrativos turísticos de Roseira.",
+    address: "Estrada dos Oblatos, 1 - Pindaitiba",
+    image: "https://www.roseira.sp.gov.br/admin/globalarq/noticia/noticia/651_366/ce43c18f7f09b2e8eb19eb78acb85c01.jpeg",
+    x: 43.4,
+    y: 52,
+  },
+  {
+    name: "Paço Municipal de Roseira",
+    description: "Sede da administração municipal e ponto de referência cívica no centro da cidade.",
+    address: "Praça Sant'Ana, 201 - Centro",
+    image: "https://www.roseira.sp.gov.br/admin/globalarq/noticia/noticia/651_366/cf55a1f50949a2bec2c8996f18f0a62a.png",
+    x: 60.4,
+    y: 53.2,
+  },
+  {
+    name: "Igreja de Nossa Senhora da Piedade",
+    description: "Igreja histórica localizada em Roseira Velha, ligada às origens religiosas e culturais do município.",
+    address: "Rua Olegário de Paula - Roseira Velha",
+    image: "https://images.mnstatic.com/e5/de/e5deadf0bac3a5050518869de2670e52.jpg",
+    x: 79.3,
+    y: 52,
+  },
+  {
+    name: "Praça da Matriz",
+    description: "Praça arborizada em frente à Matriz, com bancos, sombra e espaços de convivência para moradores e visitantes.",
+    address: "Centro de Roseira/SP",
+    image: "https://images.mnstatic.com/51/5a/515ab4364bfb570cc7b1d32cb10160ef.jpg?aspect_ratio=980%3A880&fit=crop&format=png&height=880&quality=75&width=980",
+    x: 74.6,
+    y: 77,
+  },
+  {
+    name: "Caminho Velho da Estrada Real",
+    description: "Roseira integra o Caminho Velho da Estrada Real, rota histórica que valoriza natureza, cultura, religiosidade e cicloturismo.",
+    address: "Roseira/SP",
+    image: "https://www.roseira.sp.gov.br/admin/globalarq/noticia/noticia/651_366/cc320d7a91af56685a8489a86920a622.webp",
+    x: 92.6,
+    y: 57.4,
+  },
+];
+
+function MapaTuristico() {
+  const [activePoint, setActivePoint] = useState<(typeof TOURISM_POINTS)[number] | null>(null);
+
+  return (
+    <section className="tourism-map-section" aria-labelledby="tourism-map-title">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="tourism-map-header">
+          <div className="tourism-map-heading">
+            <p className="site-caps-title">Pontos Turísticos</p>
+            <h2 id="tourism-map-title" className="site-section-title">Mapa turístico de Roseira</h2>
+            <p className="site-subtitle-text">
+              Explore os principais pontos turísticos e locais de interesse da cidade de Roseira.
+            </p>
+          </div>
+          <div className="tourism-map-cta">
+            <span className="site-card-title">Interaja com o mapa</span>
+            <span className="site-text">Clique nos pontos turísticos para explorar a cidade.</span>
+          </div>
+        </div>
+      </div>
+      <div className="tourism-map-full">
+        <div className="tourism-map-card" aria-label="Mapa turístico interativo de Roseira">
+          <img src="/mapa-cidade-de-roseira.png" alt="Mapa turístico da cidade de Roseira" />
+          {TOURISM_POINTS.map((point) => (
+            <button
+              key={point.name}
+              type="button"
+              className={`tourism-map-point ${activePoint?.name === point.name ? "tourism-map-point-active" : ""}`}
+              style={{ left: `${point.x}%`, top: `${point.y}%` }}
+              onClick={() => setActivePoint(point)}
+              aria-label={`Ver informações sobre ${point.name}`}
+            >
+              <span />
+            </button>
+          ))}
+          {activePoint && (
+            <article className="tourism-map-info-card" aria-live="polite">
+              <button type="button" className="tourism-map-close" onClick={() => setActivePoint(null)} aria-label="Fechar informações">
+                ×
+              </button>
+              <div className="tourism-map-info-content">
+                <h3 className="site-card-title">{activePoint.name}</h3>
+                <p className="site-text">{activePoint.description}</p>
+                <div className="tourism-map-address">
+                  {I.map}
+                  <span>{activePoint.address}</span>
+                </div>
+                <div className="tourism-map-actions">
+                  <a href="#" className="site-action-button button-yellow">Como chegar</a>
+                  <a href="#" className="site-action-button-muted">Compartilhar</a>
+                </div>
+              </div>
+              <img src={activePoint.image} alt={activePoint.name} />
+            </article>
+          )}
         </div>
       </div>
     </section>
@@ -1156,9 +2454,6 @@ function FaleConosco() {
   );
 }
 
-// -----------------------------------------------------------------------------
-// FOOTER
-// -----------------------------------------------------------------------------
 function Footer() {
   const COLS = [
     { title: "A Prefeitura", links: ["História do Município", "Galeria de Prefeitos", "Estrutura Organizacional", "Secretarias Municipais", "Câmara Municipal", "Plano Diretor"] },
@@ -1324,45 +2619,396 @@ function CookieBanner() {
   );
 }
 
+function getRequirementBreadcrumb(slug: string, page: RequirementPageConfig) {
+  for (const item of NAV_ITEMS) {
+    const child = item.children.find(childLabel => NAVIGATION_REQUIREMENT_SLUGS[childLabel] === slug);
+    if (child) {
+      const label = child.includes(" - Página Temática") ? page.title : child;
+      return [item.label, label];
+    }
+  }
+
+  return [page.category, page.title];
+}
+
+const FAQ_ITEMS = [
+  {
+    theme: "Geral / IPTU",
+    question: "Qual o dia de vencimento do IPTU 2021?",
+    answer: "A Prefeitura Municipal de Roseira colocou o dia 10 de junho como o dia de vencimento da primeira parcela do IPTU de 2021.",
+  },
+  {
+    theme: "Geral / IPTU",
+    question: "Onde posso pagar o meu IPTU?",
+    answer: "Os carnês podem ser pagos na Tesouraria da Prefeitura, Agência da Caixa Econômica Federal, Banco do Brasil e Casas Lotéricas.",
+  },
+  {
+    theme: "Geral / IPTU",
+    question: "Não sei onde guardei meu IPTU, como consigo a 2ª via?",
+    answer: "A 2ª via das parcelas do IPTU pode ser obtida no site da Prefeitura Municipal de Roseira, pelo serviço de 2ª via do IPTU e taxas imobiliárias.",
+  },
+  {
+    theme: "Geral / IPTU",
+    question: "Existe algum desconto para quem não possui débitos anteriores?",
+    answer: "Sim. Há desconto de 10% para pagamento em parcela única e 5% na opção de parcelamento.",
+  },
+  {
+    theme: "Geral / IPTU",
+    question: "Mesmo eu tendo débitos de anos anteriores, ainda consigo desconto no IPTU 2021?",
+    answer: "Para obter o desconto no IPTU 2021, quem possui débitos anteriores deve procurar a Tesouraria da Prefeitura Municipal de Roseira para quitar ou parcelar esses débitos. Após o primeiro pagamento das parcelas atrasadas ou quitação, o carnê de IPTU 2021 terá desconto de 10% à vista ou 5% parcelado. O desconto somente será concedido com pagamento efetuado na Tesouraria da Prefeitura.",
+  },
+];
+
+function FAQPage({ onBackHome }: { onBackHome: () => void }) {
+  return (
+    <div className="faq-page">
+      <section className="site-internal-hero concursos-hero faq-hero">
+        <div className="max-w-7xl mx-auto px-4">
+          <SiteBreadcrumb items={[
+            { label: "Início", onClick: onBackHome },
+            { label: "Serviços" },
+            { label: "Perguntas Frequentes" },
+          ]} />
+          <div className="faq-hero-grid">
+            <div>
+              <span className="concursos-hero-kicker">Atendimento ao cidadão</span>
+              <h1 className="site-title">Perguntas Frequentes</h1>
+              <p className="site-subtitle">
+                Respostas objetivas para orientar o acesso a serviços, transparência, documentos públicos e canais oficiais da Prefeitura.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="faq-content">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="faq-intro-grid">
+            <article className="faq-panel">
+              <Info aria-hidden="true" />
+              <h2>Como esta página deve funcionar</h2>
+              <p>
+                A FAQ deve reunir dúvidas recorrentes em linguagem simples, agrupadas por tema, com respostas curtas, links para páginas oficiais e data de atualização.
+              </p>
+            </article>
+            <article className="faq-panel">
+              <ShieldCheck aria-hidden="true" />
+              <h2>Requisitos esperados</h2>
+              <p>
+                Deve estar em local de fácil acesso, preferencialmente no menu de Serviços ou Atendimento, e indicar quando o usuário deve usar e-SIC, Ouvidoria ou atendimento presencial.
+              </p>
+            </article>
+          </div>
+
+          <div className="faq-toolbar">
+            <div>
+              <h2>Dúvidas frequentes</h2>
+              <p>Conteúdo demonstrativo para receber as respostas oficiais da Prefeitura.</p>
+            </div>
+            <label className="faq-search">
+              <span className="sr-only">Buscar dúvida frequente</span>
+              {I.search}
+              <input type="search" placeholder="Buscar por tema ou palavra-chave" />
+            </label>
+          </div>
+
+          <div className="faq-list">
+            {FAQ_ITEMS.map((item) => (
+              <details className="faq-item" key={item.question}>
+                <summary>
+                  <span className="faq-question-icon" aria-hidden="true">?</span>
+                  <span className="faq-question-text">
+                    <strong>{item.question}</strong>
+                  </span>
+                  <span className="faq-arrow" aria-hidden="true">{I.chevDown}</span>
+                </summary>
+                <p>{item.answer}</p>
+              </details>
+            ))}
+          </div>
+
+          <div className="faq-footer-grid">
+            <article className="faq-service-note">
+              <h2>Canais relacionados</h2>
+              <div>
+                <a href="#" className="site-green-pill-button">Acessar e-SIC {I.ext}</a>
+                <a href="#" className="site-green-pill-button">Acessar Ouvidoria {I.ext}</a>
+                <a href="#" className="site-green-pill-button">Carta de Serviços {I.ext}</a>
+              </div>
+            </article>
+            <article className="faq-update-note">
+              <span>Atualização</span>
+              <p>Última atualização: não declarada. Responsável pela página: setor de atendimento/comunicação.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function RequirementPage({ page, slug, onBackHome }: { page: RequirementPageConfig; slug: string; onBackHome: () => void }) {
+  const statusText = page.kind === "external" ? "Integração externa" : page.kind === "service" ? "Serviço estruturado" : page.kind === "documents" ? "Documentos esperados" : "Tabela prevista";
+  const isTablePage = page.kind === "table";
+  const contentTitle = page.kind === "service" ? "Serviços previstos" : page.kind === "external" ? "Links e integrações" : page.kind === "documents" ? "Blocos de conteúdo" : "Tabela demonstrativa";
+  const contentDescription = isTablePage
+    ? "Modelo visual para demonstrar que a página possui Área própria de listagem, filtros e dados tabulares."
+    : "Modelo visual para demonstrar a estrutura da página sem forçar uma tabela onde ela não é necessária.";
+  const [breadcrumbSection, breadcrumbPage] = getRequirementBreadcrumb(slug, page);
+
+  return (
+    <div className="requirement-page">
+      <section className="site-internal-hero concursos-hero requirement-hero">
+        <div className="max-w-7xl mx-auto px-4">
+          <SiteBreadcrumb items={[
+            { label: "Início", onClick: onBackHome },
+            { label: breadcrumbSection },
+            { label: breadcrumbPage },
+          ]} />
+          <div className="requirement-hero-grid">
+            <div>
+              <span className="concursos-hero-kicker">{page.category}</span>
+              <h1 className="site-title">{page.title}</h1>
+              <p className="site-subtitle">{page.subtitle}</p>
+            </div>
+            <div className="requirement-status-card">
+              <span>Status estrutural</span>
+              <strong>{statusText}</strong>
+              <p>Página criada para receber dados oficiais, anexos e integrações quando o conteúdo definitivo for fornecido.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="requirement-content">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="requirement-summary-grid">
+            <article className="requirement-panel">
+              <h2>Elementos obrigatorios previstos</h2>
+              <div className="requirement-checklist">
+                {page.requiredElements.map(item => (
+                  <div key={item} className="requirement-check-item">
+                    <span aria-hidden="true">✓</span>
+                    <p>{item}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
+            <article className="requirement-panel">
+              <h2>Origem de referencia</h2>
+              <p className="requirement-panel-text">
+                Estrutura criada a partir do mapa do site antigo e dos apontamentos PNTP. Os campos com "Não declarado" são reservas para conteúdo oficial.
+              </p>
+              {page.sourceUrl ? (
+                <a className="site-green-pill-button requirement-source-link" href={page.sourceUrl} target="_blank" rel="noreferrer">
+                  {page.sourceLabel ?? "Abrir referência"} {I.ext}
+                </a>
+              ) : (
+                <span className="requirement-empty-source">Referência externa não localizada na análise.</span>
+              )}
+            </article>
+          </div>
+
+          <div className="requirement-table-toolbar">
+            <div>
+              <h2>{contentTitle}</h2>
+              <p>{contentDescription}</p>
+            </div>
+            {isTablePage && (
+              <div className="requirement-filter-row" aria-label="Filtros demonstrativos">
+                <input type="search" placeholder="Buscar nesta página" aria-label="Buscar nesta página" />
+                <select aria-label="Filtrar por exercício">
+                  <option>Exercício</option>
+                  <option>2026</option>
+                  <option>2025</option>
+                </select>
+                <select aria-label="Filtrar por situação">
+                  <option>Situação</option>
+                  <option>Publicado</option>
+                  <option>Pendente</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          {isTablePage ? (
+            <div className="requirement-table-wrap">
+              <table className="requirement-table">
+                <thead>
+                  <tr>
+                    {page.columns.map(column => (
+                      <th key={column}>{column}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {page.rows.map((row, rowIndex) => (
+                    <tr key={`${page.title}-${rowIndex}`}>
+                      {row.map((cell, cellIndex) => (
+                        <td key={`${page.title}-${rowIndex}-${cellIndex}`}>
+                          {cell.startsWith("http") ? (
+                            <a href={cell} target="_blank" rel="noreferrer">Acessar</a>
+                          ) : (
+                            cell
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="requirement-card-list">
+              {page.rows.map((row, rowIndex) => (
+                <article className="requirement-content-card" key={`${page.title}-${rowIndex}`}>
+                  <span>{page.columns[0] ?? page.category}</span>
+                  <h3>{row[0]}</h3>
+                  <dl>
+                    {row.slice(1).map((cell, cellIndex) => {
+                      const label = page.columns[cellIndex + 1] ?? "Informação";
+                      return (
+                        <div key={`${page.title}-${rowIndex}-${cellIndex}`}>
+                          <dt>{label}</dt>
+                          <dd>
+                            {cell.startsWith("http") ? (
+                              <a href={cell} target="_blank" rel="noreferrer">Acessar</a>
+                            ) : (
+                              cell
+                            )}
+                          </dd>
+                        </div>
+                      );
+                    })}
+                  </dl>
+                </article>
+              ))}
+            </div>
+          )}
+
+          <div className="requirement-note">
+            <strong>Conteúdo provisório:</strong> esta página mostra a estrutura esperada. A validação PNTP real depende de documentos oficiais, atualização, filtros, arquivos pesquisáveis e links confirmados.
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 // -----------------------------------------------------------------------------
 // APP
 // -----------------------------------------------------------------------------
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [fontSize, setFontSize] = useState(0);
-  const [page, setPage] = useState<"home" | "concursos">("home");
+  const [page, setPage] = useState<AppPage>("home");
+  const [activeNoticiaIndex, setActiveNoticiaIndex] = useState(0);
+  const [activeLicitacaoIndex, setActiveLicitacaoIndex] = useState(0);
+  const [activeLeiIndex, setActiveLeiIndex] = useState(0);
+  const [activeDecretoIndex, setActiveDecretoIndex] = useState(0);
+  const [activePortariaIndex, setActivePortariaIndex] = useState(0);
+  const [activeSecretariaSlug, setActiveSecretariaSlug] = useState(SECRETARIA_DETAILS[0].slug);
+  const [activeRequirementSlug, setActiveRequirementSlug] = useState("portal-transparencia");
 
   const fontScale = fontSize === -1 ? 0.9 : fontSize === 1 ? 1.1 : 1;
-  const navigate = (nextPage: "home" | "concursos") => {
+  const navigate = (nextPage: AppPage) => {
     setPage(nextPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const openNoticia = (index: number) => {
+    setActiveNoticiaIndex(index);
+    navigate("noticia-detail");
+  };
+  const openLicitacao = (index: number) => {
+    setActiveLicitacaoIndex(index);
+    navigate("licitacao-detail");
+  };
+  const openLei = (index: number) => {
+    setActiveLeiIndex(index);
+    navigate("lei-detail");
+  };
+  const openDecreto = (index: number) => {
+    setActiveDecretoIndex(index);
+    navigate("decreto-detail");
+  };
+  const openPortaria = (index: number) => {
+    setActivePortariaIndex(index);
+    navigate("portaria-detail");
+  };
+  const openSecretaria = (slug: string) => {
+    setActiveSecretariaSlug(slug);
+    navigate("secretaria-detail");
+  };
+  const openRequirement = (slug: string) => {
+    setActiveRequirementSlug(slug);
+    navigate("requirement-page");
+  };
+  const activeNoticia = NOTICIAS[activeNoticiaIndex] ?? NOTICIAS[0];
+  const activeLicitacao = LICITACOES[activeLicitacaoIndex] ?? LICITACOES[0];
+  const activeLei = LEGISLACAO[activeLeiIndex] ?? LEGISLACAO[0];
+  const activeDecreto = DECRETOS[activeDecretoIndex] ?? DECRETOS[0];
+  const activePortaria = PORTARIAS[activePortariaIndex] ?? PORTARIAS[0];
+  const activeSecretaria = SECRETARIA_DETAILS.find((secretaria) => secretaria.slug === activeSecretariaSlug) ?? SECRETARIA_DETAILS[0];
+  const activeRequirement = REQUIREMENT_PAGES[activeRequirementSlug] ?? REQUIREMENT_PAGES["portal-transparencia"];
 
   return (
     <div className={`sx-232 ${fontSize === -1 ? "font-scale-small" : fontSize === 1 ? "font-scale-large" : "font-scale-normal"}`}>
-      <a href="#conteudo-principal" className="skip-link">Pular para o conteúdo principal</a>
+      <a href="#conteúdo-principal" className="skip-link">Pular para o conteúdo principal</a>
       <div className="site-header-fixed">
         <AccessBar fontSize={fontSize} setFontSize={setFontSize} />
-        <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-        <NavBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} onNavigate={navigate} />
+        <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} onNavigateHome={() => navigate("home")} />
+        <NavBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} currentPage={page} onNavigate={navigate} onOpenRequirement={openRequirement} onSelectSecretaria={openSecretaria} />
         <SearchBar />
       </div>
       {page === "home" && <AlertBanner />}
       <main id="conteudo-principal" tabIndex={-1}>
         {page === "concursos" ? (
           <ConcursosPage onBackHome={() => navigate("home")} />
+        ) : page === "historia-roseira" ? (
+          <HistoriaRoseiraPage onBackHome={() => navigate("home")} />
+        ) : page === "contato" ? (
+          <ContatoPage onBackHome={() => navigate("home")} />
+        ) : page === "licitacoes" ? (
+          <LicitacoesPage licitacoes={LICITACOES} onBackHome={() => navigate("home")} onSelectLicitacao={openLicitacao} />
+        ) : page === "licitacao-detail" ? (
+          <LicitacaoDetailPage licitacao={activeLicitacao} licitacoes={LICITACOES} onBackHome={() => navigate("home")} onBackList={() => navigate("licitacoes")} onSelectLicitacao={openLicitacao} />
+        ) : page === "leis-municipais" ? (
+          <LeisMunicipaisPage leis={LEGISLACAO} onBackHome={() => navigate("home")} onSelectLei={openLei} />
+        ) : page === "lei-detail" ? (
+          <LeiMunicipalDetailPage lei={activeLei} leis={LEGISLACAO} onBackHome={() => navigate("home")} onBackList={() => navigate("leis-municipais")} onSelectLei={openLei} />
+        ) : page === "decretos" ? (
+          <LeisMunicipaisPage leis={DECRETOS} config={DECRETOS_CONFIG} onBackHome={() => navigate("home")} onSelectLei={openDecreto} />
+        ) : page === "decreto-detail" ? (
+          <LeiMunicipalDetailPage lei={activeDecreto} leis={DECRETOS} config={DECRETOS_CONFIG} onBackHome={() => navigate("home")} onBackList={() => navigate("decretos")} onSelectLei={openDecreto} />
+        ) : page === "portarias" ? (
+          <LeisMunicipaisPage leis={PORTARIAS} config={PORTARIAS_CONFIG} onBackHome={() => navigate("home")} onSelectLei={openPortaria} />
+        ) : page === "portaria-detail" ? (
+          <LeiMunicipalDetailPage lei={activePortaria} leis={PORTARIAS} config={PORTARIAS_CONFIG} onBackHome={() => navigate("home")} onBackList={() => navigate("portarias")} onSelectLei={openPortaria} />
+        ) : page === "noticias" ? (
+          <NoticiasPage noticias={NOTICIAS} onBackHome={() => navigate("home")} onSelectNoticia={openNoticia} />
+        ) : page === "noticia-detail" ? (
+          <NoticiaDetailPage noticia={activeNoticia} noticias={NOTICIAS} onBackHome={() => navigate("home")} onBackList={() => navigate("noticias")} onSelectNoticia={openNoticia} />
+        ) : page === "secretarias" ? (
+          <SecretariasDirectoryPage secretarias={SECRETARIA_DETAILS} onBackHome={() => navigate("home")} onSelectSecretaria={openSecretaria} />
+        ) : page === "secretaria-detail" ? (
+          <SecretariaDetailPage secretaria={activeSecretaria} onBackHome={() => navigate("home")} onBackList={() => navigate("secretarias")} />
+        ) : page === "faq" ? (
+          <FAQPage onBackHome={() => navigate("home")} />
+        ) : page === "requirement-page" ? (
+          <RequirementPage page={activeRequirement} slug={activeRequirementSlug} onBackHome={() => navigate("home")} />
         ) : (
           <>
             <HeroSlider />
             <AcessoRapido />
-            <Noticias />
+            <Noticias onSelectNoticia={openNoticia} onOpenNoticias={() => navigate("noticias")} />
             <Publicacoes />
             <Galeria />
-            <Secretarias />
+            <Secretarias onSelectSecretaria={openSecretaria} onOpenDirectory={() => navigate("secretarias")} />
             <CalendarioEventos />
             <Transparencia />
             <SocialNewsletter />
             <FaleConosco />
+            <MapaTuristico />
           </>
         )}
       </main>

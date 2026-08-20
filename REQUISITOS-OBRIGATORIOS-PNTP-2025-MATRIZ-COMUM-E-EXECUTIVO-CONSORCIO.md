@@ -1,0 +1,229 @@
+# Requisitos obrigatórios PNTP 2025 - matriz comum e Executivo + Consórcio Público
+
+Fonte-base: `\\SRV-FV01\Desenvolvimento\Dev\referencias\Cartilha-PNTP-2025-exata.md`
+
+Escopo: requisitos com **Classificação: Obrigatória**, recoletados da cartilha e separados por aplicabilidade.
+
+## Critério de separação
+
+- **Matriz comum**: itens obrigatórios da matriz comum, isto é, itens dos grupos 1 a 15 aplicáveis a mais de um tipo de entidade.
+- **Executivo + Consórcio Público simultaneamente**: itens obrigatórios cujo campo de aplicabilidade inclui ao mesmo tempo Poder Executivo e Consórcio Público.
+- Não foi localizado item obrigatório aplicável **exclusivamente** apenas a Poder Executivo e Consórcio Público. Os itens simultâneos abaixo também alcançam outros tipos de entidade.
+
+## Resumo
+
+- Matriz comum obrigatória, multi-entidade: 51 itens.
+- Aplicáveis simultaneamente a Poder Executivo e Consórcio Público: 51 itens.
+- Aplicáveis exclusivamente apenas a Poder Executivo e Consórcio Público: 0 itens.
+
+## Matriz comum - obrigatórios multi-entidade
+
+- [ ] **1.3** - O acesso ao portal transparência está visível na capa do site?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **1.4** - O site e o portal de transparência contêm ferramenta de pesquisa de conteúdo que permita o acesso à informação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.1** - Divulga a sua estrutura organizacional?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.2** - Divulga competências e/ou atribuições?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.3** - Identifica o nome dos atuais responsáveis pela gestão do Poder/Órgão?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.4** - Divulga os endereços e telefones atuais do Poder ou órgão e e-mails institucionais?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.5** - Divulga o horário de atendimento?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.6** - Divulga os atos normativos próprios?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.7** - Divulga as perguntas e respostas mais frequentes relacionadas às atividades desenvolvidas pelo Poder/Órgão?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **4.3** - Possibilita a consulta de empenhos com os detalhes do beneficiário do pagamento ou credor, o bem fornecido ou serviço prestado e a identificação do procedimento licitatório originário da despesa?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **5.1** - Identifica as transferências recebidas a partir da celebração de convênios/acordos com indicação, no mínimo, do valor total previsto dos recursos envolvidos, do valor recebido, do objeto e da origem (órgão repassador/concedente)?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **5.2** - Identifica as transferências realizadas a partir da celebração de convênios/acordos/ajustes, com indicação, no mínimo, do beneficiário, do objeto, do valor total previsto para repasse e do valor concedido?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **5.3** - Identifica os acordos firmados que não envolvam transferência de recursos financeiros, identificando as partes, o objeto e as obrigações ajustadas?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **6.1** - Divulga a relação nominal dos servidores/autoridades/ membros, seus cargos/funções, as respectivas lotações, as suas datas de admissão/exoneração/inativação e a carga horária do cargo/função ocupada/desempenhada?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **6.2** - Identifica a remuneração nominal de cada servidor/ autoridade/Membro e a tabela com o padrão remuneratório dos cargos e funções?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **6.5** - Divulga a íntegra dos editais de concursos e seleções públicas realizados pelo Poder ou órgão para provimento de cargos e empregos públicos?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **6.6** - Divulga informações sobre os demais atos dos concursos públicos e processos seletivos do Poder ou órgão, contendo no mínimo a lista de aprovados com as classificações e as nomeações?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **7.1** - Divulga o nome e o cargo/função do beneficiário, além do valor total recebido, número de diárias usufruídas por afastamento, período de afastamento, motivo do afastamento e local de destino?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **7.2** - Divulga tabela ou relação que explicite os valores das diárias dentro do Estado, fora do Estado e fora do país, conforme legislação local?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.1** - Divulga a relação das licitações em ordem sequencial, informando o número e modalidade licitatória, o objeto, a data, o valor estimado/homologado e a situação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.2** - Divulga a íntegra dos editais de licitação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.3** - Divulga a íntegra dos demais documentos das fases interna e externa das licitações?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.4** - Divulga a íntegra dos principais documentos dos processos de dispensa e inexigibilidade de licitação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.5** - Divulga a íntegra das Atas de Adesão – SRP?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **9.1** - Divulga a relação dos contratos celebrados em ordem sequencial, com o seu respectivo resumo, contendo, no mínimo, indicação do contratado(a), do valor, do objeto e da vigência, bem como dos aditivos deles decorrentes?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **9.2** - Divulga o inteiro teor dos contratos e dos respectivos termos aditivos?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **9.3** - Divulga a relação/lista dos fiscais de cada contrato vigente e encerrado?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **9.4** - Divulga a ordem cronológica de seus pagamentos, bem como as justificativas que fundamentaram a eventual alteração dessa ordem?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **10.2** - Divulga os quantitativos, os preços unitários e totais contratados?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **10.3** - Divulga os quantitativos executados e os preços efetivamente pagos?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **10.4** - Divulga relação das obras paralisadas contendo o motivo, o responsável pela inexecução temporária do objeto do contrato e a data prevista para o reinício da sua execução?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **11.1** - Publica a Prestação de Contas do Ano Anterior (Balanço Geral)?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **11.2** - Divulga o Relatório de Gestão ou Atividades?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **11.3** - Divulga a íntegra da decisão da apreciação ou julgamento das contas pelo Tribunal de Contas?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.1** - Existe o SIC no site e indica a unidade/setor responsável?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.2** - Indica o endereço físico, o telefone e o e-mail da unidade responsável pelo SIC, além do horário de funcionamento?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.3** - Há possibilidade de envio de pedidos de informação de forma eletrônica (e-SIC)?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.4** - A solicitação por meio de eSic é simples, ou seja, sem a exigência de itens de identificação do requerente que dificultem ou impossibilitem o acesso à informação, tais como: envio de documentos, assinatura reconhecida, declaração de responsabilidade, maioridade?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.5** - Divulga nesta seção, instrumento normativo local que regulamente a Lei nº 12.527/2011 – LAI?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.7** - Divulga relatório anual estatístico contendo a quantidade de pedidos de acesso recebidos, atendidos, indeferidos, bem como informações genéricas sobre os solicitantes?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.8** - Divulga lista de documentos classificados em cada grau de sigilo, contendo pelo menos o assunto sobre o qual versa a informação, a categoria na qual ela se encontra, o dispositivo legal que fundamenta a classificação e o respectivo prazo?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.9** - Divulga lista das informações que tenham sido desclassificadas nos últimos 12 (doze) meses?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **13.1** - O site oficial e o portal de transparência contêm símbolo de acessibilidade em destaque?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **13.2** - O site e o portal de transparência contêm exibição do “caminho” de páginas percorridas pelo usuário?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **13.3** - O site e o portal de transparência contêm opção de alto contraste?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **13.4** - O site e o portal de transparência contêm ferramenta de redimensionamento de texto?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **14.1** - Há informações sobre o atendimento presencial pela Ouvidoria (Indicação de endereço físico e telefone, além do horário de funcionamento)?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **14.3** - Divulga Carta de Serviços ao Usuário?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **15.3** - Possibilita a demanda e o acesso a serviços públicos por meio digital, sem necessidade de solicitação presencial?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **15.4** - Possibilita o acesso automatizado por sistemas externos em dados abertos (estruturados e legíveis por máquina), e a página contém as regras de utilização?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **15.6** - Realiza e divulga resultados de pesquisas de satisfação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+
+## Aplicáveis simultaneamente a Poder Executivo e Consórcio Público
+
+Estes itens também fazem parte da matriz comum multi-entidade listada acima. A seção está separada para facilitar a conferência específica de Executivo + Consórcio Público.
+
+- [ ] **1.3** - O acesso ao portal transparência está visível na capa do site?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **1.4** - O site e o portal de transparência contêm ferramenta de pesquisa de conteúdo que permita o acesso à informação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.1** - Divulga a sua estrutura organizacional?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.2** - Divulga competências e/ou atribuições?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.3** - Identifica o nome dos atuais responsáveis pela gestão do Poder/Órgão?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.4** - Divulga os endereços e telefones atuais do Poder ou órgão e e-mails institucionais?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.5** - Divulga o horário de atendimento?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.6** - Divulga os atos normativos próprios?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **2.7** - Divulga as perguntas e respostas mais frequentes relacionadas às atividades desenvolvidas pelo Poder/Órgão?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **4.3** - Possibilita a consulta de empenhos com os detalhes do beneficiário do pagamento ou credor, o bem fornecido ou serviço prestado e a identificação do procedimento licitatório originário da despesa?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **5.1** - Identifica as transferências recebidas a partir da celebração de convênios/acordos com indicação, no mínimo, do valor total previsto dos recursos envolvidos, do valor recebido, do objeto e da origem (órgão repassador/concedente)?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **5.2** - Identifica as transferências realizadas a partir da celebração de convênios/acordos/ajustes, com indicação, no mínimo, do beneficiário, do objeto, do valor total previsto para repasse e do valor concedido?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **5.3** - Identifica os acordos firmados que não envolvam transferência de recursos financeiros, identificando as partes, o objeto e as obrigações ajustadas?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **6.1** - Divulga a relação nominal dos servidores/autoridades/ membros, seus cargos/funções, as respectivas lotações, as suas datas de admissão/exoneração/inativação e a carga horária do cargo/função ocupada/desempenhada?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **6.2** - Identifica a remuneração nominal de cada servidor/ autoridade/Membro e a tabela com o padrão remuneratório dos cargos e funções?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **6.5** - Divulga a íntegra dos editais de concursos e seleções públicas realizados pelo Poder ou órgão para provimento de cargos e empregos públicos?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **6.6** - Divulga informações sobre os demais atos dos concursos públicos e processos seletivos do Poder ou órgão, contendo no mínimo a lista de aprovados com as classificações e as nomeações?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **7.1** - Divulga o nome e o cargo/função do beneficiário, além do valor total recebido, número de diárias usufruídas por afastamento, período de afastamento, motivo do afastamento e local de destino?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **7.2** - Divulga tabela ou relação que explicite os valores das diárias dentro do Estado, fora do Estado e fora do país, conforme legislação local?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.1** - Divulga a relação das licitações em ordem sequencial, informando o número e modalidade licitatória, o objeto, a data, o valor estimado/homologado e a situação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.2** - Divulga a íntegra dos editais de licitação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.3** - Divulga a íntegra dos demais documentos das fases interna e externa das licitações?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.4** - Divulga a íntegra dos principais documentos dos processos de dispensa e inexigibilidade de licitação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **8.5** - Divulga a íntegra das Atas de Adesão – SRP?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **9.1** - Divulga a relação dos contratos celebrados em ordem sequencial, com o seu respectivo resumo, contendo, no mínimo, indicação do contratado(a), do valor, do objeto e da vigência, bem como dos aditivos deles decorrentes?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **9.2** - Divulga o inteiro teor dos contratos e dos respectivos termos aditivos?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **9.3** - Divulga a relação/lista dos fiscais de cada contrato vigente e encerrado?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **9.4** - Divulga a ordem cronológica de seus pagamentos, bem como as justificativas que fundamentaram a eventual alteração dessa ordem?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **10.2** - Divulga os quantitativos, os preços unitários e totais contratados?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **10.3** - Divulga os quantitativos executados e os preços efetivamente pagos?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **10.4** - Divulga relação das obras paralisadas contendo o motivo, o responsável pela inexecução temporária do objeto do contrato e a data prevista para o reinício da sua execução?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **11.1** - Publica a Prestação de Contas do Ano Anterior (Balanço Geral)?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **11.2** - Divulga o Relatório de Gestão ou Atividades?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público
+- [ ] **11.3** - Divulga a íntegra da decisão da apreciação ou julgamento das contas pelo Tribunal de Contas?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.1** - Existe o SIC no site e indica a unidade/setor responsável?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.2** - Indica o endereço físico, o telefone e o e-mail da unidade responsável pelo SIC, além do horário de funcionamento?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.3** - Há possibilidade de envio de pedidos de informação de forma eletrônica (e-SIC)?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.4** - A solicitação por meio de eSic é simples, ou seja, sem a exigência de itens de identificação do requerente que dificultem ou impossibilitem o acesso à informação, tais como: envio de documentos, assinatura reconhecida, declaração de responsabilidade, maioridade?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.5** - Divulga nesta seção, instrumento normativo local que regulamente a Lei nº 12.527/2011 – LAI?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.7** - Divulga relatório anual estatístico contendo a quantidade de pedidos de acesso recebidos, atendidos, indeferidos, bem como informações genéricas sobre os solicitantes?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.8** - Divulga lista de documentos classificados em cada grau de sigilo, contendo pelo menos o assunto sobre o qual versa a informação, a categoria na qual ela se encontra, o dispositivo legal que fundamenta a classificação e o respectivo prazo?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **12.9** - Divulga lista das informações que tenham sido desclassificadas nos últimos 12 (doze) meses?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **13.1** - O site oficial e o portal de transparência contêm símbolo de acessibilidade em destaque?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **13.2** - O site e o portal de transparência contêm exibição do “caminho” de páginas percorridas pelo usuário?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **13.3** - O site e o portal de transparência contêm opção de alto contraste?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **13.4** - O site e o portal de transparência contêm ferramenta de redimensionamento de texto?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **14.1** - Há informações sobre o atendimento presencial pela Ouvidoria (Indicação de endereço físico e telefone, além do horário de funcionamento)?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **14.3** - Divulga Carta de Serviços ao Usuário?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **15.3** - Possibilita a demanda e o acesso a serviços públicos por meio digital, sem necessidade de solicitação presencial?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **15.4** - Possibilita o acesso automatizado por sistemas externos em dados abertos (estruturados e legíveis por máquina), e a página contém as regras de utilização?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
+- [ ] **15.6** - Realiza e divulga resultados de pesquisas de satisfação?
+  - Aplicável a: Poder Executivo, Poder Legislativo, Poder Judiciário, Tribunal de Contas, Ministério Público, Defensoria, Consórcio Público, Estatais
