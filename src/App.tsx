@@ -9,6 +9,7 @@ import SecretariaDetailPage, { SecretariasDirectoryPage } from "./pages/Secretar
 import HistoriaRoseiraPage from "./pages/HistoriaRoseiraPage";
 import ContatoPage from "./pages/ContatoPage";
 import SiteBreadcrumb from "./components/SiteBreadcrumb";
+import { loadPortalSnapshot, type PortalSnapshot } from "./services/transparenciaApi";
 
 type RequirementPageKind = "table" | "documents" | "service" | "external" | "statement";
 
@@ -22,6 +23,7 @@ type RequirementPageConfig = {
   requiredElements: string[];
   columns: string[];
   rows: string[][];
+  apiSource?: "licitacoes" | "contratos";
 };
 
 // -----------------------------------------------------------------------------
@@ -93,6 +95,7 @@ const NAV_ITEMS = [
     children: ["Fale Conosco", "Ouvidoria", "e-SIC", "Endereço e Telefones", "Horários de Atendimento", "Mapa de Localização", "Redes Sociais"],
   },
 ];
+
 
 const EXTERNAL_LINKS = {
   transparencia: "https://pmroseira.geosiap.net.br:8443/portal-transparencia/home",
@@ -317,7 +320,8 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     category: "Compras Públicas",
     kind: "table",
     sourceLabel: "Dispensa de Licitação antiga",
-    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/17/dispensa-de-licitacao/",
+    sourceUrl: "https://pmroseira.geosiap.net.br:8443/portal-transparencia/api/licitacoes/licitacoes/index?id_entidade=2",
+    apiSource: "licitacoes",
     requiredElements: ["Número", "Objeto", "Fundamento", "Documentos da fase interna e externa"],
     columns: ["Processo", "Objeto", "Fundamento", "Documentos"],
     rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Edital, parecer, termo e públicação"], ["001/2026", "Objeto demonstrativo", "Não declarado", "Documentos pendentes"]],
@@ -329,6 +333,7 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     kind: "table",
     sourceLabel: "Portal da Transparência",
     sourceUrl: EXTERNAL_LINKS.transparencia,
+    apiSource: "contratos",
     requiredElements: ["Contrato", "Fornecedor", "Objeto", "Valor", "Vigencia", "Fiscal", "Inteiro teor"],
     columns: ["Contrato", "Fornecedor", "Objeto", "Valor", "Fiscal"],
     rows: [["000/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Não declarado"], ["001/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Não declarado"]],
@@ -2747,7 +2752,7 @@ function FAQPage({ onBackHome }: { onBackHome: () => void }) {
   );
 }
 
-function RequirementPage({ page, slug, onBackHome }: { page: RequirementPageConfig; slug: string; onBackHome: () => void }) {
+function RequirementPage({ page, slug, onBackHome, portalSnapshot }: { page: RequirementPageConfig; slug: string; onBackHome: () => void; portalSnapshot?: PortalSnapshot | null }) {
   const statusText = page.kind === "external" ? "Integração externa" : page.kind === "service" ? "Serviço estruturado" : page.kind === "documents" ? "Documentos esperados" : "Tabela prevista";
   const isTablePage = page.kind === "table";
   const contentTitle = page.kind === "service" ? "Serviços previstos" : page.kind === "external" ? "Links e integrações" : page.kind === "documents" ? "Blocos de conteúdo" : "Tabela demonstrativa";
@@ -2755,6 +2760,89 @@ function RequirementPage({ page, slug, onBackHome }: { page: RequirementPageConf
     ? "Modelo visual para demonstrar que a página possui Área própria de listagem, filtros e dados tabulares."
     : "Modelo visual para demonstrar a estrutura da página sem forçar uma tabela onde ela não é necessária.";
   const [breadcrumbSection, breadcrumbPage] = getRequirementBreadcrumb(slug, page);
+  const liveRows = page.apiSource === "licitacoes" && portalSnapshot?.licitacoes.length
+    ? portalSnapshot.licitacoes
+      .filter((item) => !item.ds_tp_aquisicao || /dispensa|inexig/i.test(item.ds_tp_aquisicao))
+      .map((item) => [
+        item.nr_processo_compra || item.nr_modalidade || "Não informado",
+        item.objeto || "Não informado",
+        item.ds_tp_aquisicao || "Não informado",
+        item.ds_st_processo_compra || "Não informado",
+      ])
+    : null;
+  const contactRows = page.category === "Atendimento" && portalSnapshot?.contatos.length
+    ? portalSnapshot.contatos.map((item) => [
+        String(item.referencial ?? "Contato"),
+        String(item.descricao ?? "Não informado"),
+        String(item.endereco ?? "Não informado"),
+        String(item.telefone ?? "Não informado"),
+        String(item.email ?? "Não informado"),
+        String(item.horario ?? "Não informado"),
+      ])
+    : null;
+  const hrRows = (page.category === "Servidor" || page.category === "Pessoal") && portalSnapshot?.servidores.length
+    ? portalSnapshot.servidores.slice(0, 50).map((item) => {
+        const row = item as Record<string, unknown>;
+        return [
+          String(row.nome ?? row.nm_servidor ?? row.servidor ?? "Não informado"),
+          String(row.cargo ?? row.ds_cargo ?? "Não informado"),
+          String(row.lotacao ?? row.ds_lotacao ?? row.setor ?? "Não informado"),
+          String(row.situacao ?? row.ds_situacao ?? "Ativo"),
+        ];
+      })
+    : null;
+  const orgRows = page.category === "Institucional" && portalSnapshot?.organograma.length
+    ? portalSnapshot.organograma.slice(0, 30).map((item) => {
+        const row = item as Record<string, unknown>;
+        return [
+          String(row.nome ?? row.nm_orgao ?? row.orgao ?? "Órgão não informado"),
+          String(row.responsavel ?? row.nm_responsavel ?? "Não informado"),
+          String(row.telefone ?? "Não informado"),
+          String(row.email ?? "Não informado"),
+        ];
+      })
+    : null;
+  const contractRows = page.apiSource === "contratos" && portalSnapshot?.contratos.length
+    ? [...portalSnapshot.contratos]
+      .sort((a, b) => String(b.dt_inicio ?? b.dt_fim ?? "").localeCompare(String(a.dt_inicio ?? a.dt_fim ?? "")))
+      .slice(0, 10)
+      .map((item) => [
+        String(item.nr_contrato ?? item.id_contrato ?? "Não informado"),
+        String(item.fornecedor ?? item.credor ?? "Não informado"),
+        String(item.objeto ?? "Não informado"),
+        String(item.valor ?? "Não informado"),
+        String(item.fiscal ?? "Não informado"),
+        String(item.dt_inicio ?? "Não informado"),
+        String(item.dt_fim ?? "Não informado"),
+      ])
+    : null;
+  const latestContracts = page.apiSource === "contratos" && portalSnapshot?.contratos.length
+    ? [...portalSnapshot.contratos]
+      .sort((a, b) => String(b.dt_inicio ?? b.dt_fim ?? "").localeCompare(String(a.dt_inicio ?? a.dt_fim ?? "")))
+      .slice(0, 10)
+    : [];
+  const displayColumns = contractRows?.length
+    ? ["Contrato", "Fornecedor", "Objeto", "Valor", "Fiscal", "Início", "Fim"]
+    : contactRows?.length ? ["Referência", "Descrição", "Endereço", "Telefone", "E-mail", "Horário"]
+      : hrRows?.length ? ["Servidor", "Cargo", "Lotação", "Situação"]
+        : orgRows?.length ? ["Órgão", "Responsável", "Telefone", "E-mail"]
+        : liveRows?.length ? ["Processo", "Objeto", "Fundamento", "Situação"] : page.columns;
+  const displayRows = contractRows?.length ? contractRows : contactRows?.length ? contactRows : hrRows?.length ? hrRows : orgRows?.length ? orgRows : liveRows?.length ? liveRows : page.rows;
+  const apiExample = page.apiSource === "contratos"
+    ? portalSnapshot?.contratos[0]
+    : page.category === "Compras Públicas"
+      ? portalSnapshot?.licitacoes[0]
+      : page.category === "Atendimento"
+      ? portalSnapshot?.contatos[0]
+      : page.category === "Institucional" || page.category === "Servidor"
+        ? portalSnapshot?.servidores[0] ?? portalSnapshot?.organograma[0]
+        : portalSnapshot?.contatos[0] ?? portalSnapshot?.licitacoes[0];
+  const apiExampleEntries = apiExample && typeof apiExample === "object"
+    ? Object.entries(apiExample as Record<string, unknown>).filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== "").slice(0, 8)
+    : [];
+  const apiExpectedFields = page.apiSource === "contratos"
+    ? ["id_contrato", "nr_contrato", "fornecedor/credor", "objeto", "valor", "dt_inicio", "dt_fim", "fiscal"]
+    : [];
 
   return (
     <div className="requirement-page">
@@ -2807,6 +2895,19 @@ function RequirementPage({ page, slug, onBackHome }: { page: RequirementPageConf
                 <span className="requirement-empty-source">Referência externa não localizada na análise.</span>
               )}
             </article>
+            <article className="requirement-panel requirement-api-panel">
+              <h2>Dados oficiais conectados</h2>
+              <p className="requirement-panel-text">
+                Os campos desta visualização são preparados para receber dados publicados pelo Portal da Transparência da Prefeitura de Roseira.
+              </p>
+              <div className="requirement-api-status-grid">
+                <div><strong>{portalSnapshot ? "Conectada" : "Carregando"}</strong><span>API do portal</span></div>
+                <div><strong>{portalSnapshot?.licitacoes.length ?? "—"}</strong><span>licitações consultadas</span></div>
+                <div><strong>{portalSnapshot?.contatos.length ?? "—"}</strong><span>contatos consultados</span></div>
+                <div><strong>{portalSnapshot?.servidores.length ?? "—"}</strong><span>servidores consultados</span></div>
+                <div><strong>{portalSnapshot?.contratos.length ?? "—"}</strong><span>contratos consultados</span></div>
+              </div>
+            </article>
           </div>
 
           <div className="requirement-table-toolbar">
@@ -2836,13 +2937,13 @@ function RequirementPage({ page, slug, onBackHome }: { page: RequirementPageConf
               <table className="requirement-table">
                 <thead>
                   <tr>
-                    {page.columns.map(column => (
+                    {displayColumns.map(column => (
                       <th key={column}>{column}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {page.rows.map((row, rowIndex) => (
+                  {displayRows.map((row, rowIndex) => (
                     <tr key={`${page.title}-${rowIndex}`}>
                       {row.map((cell, cellIndex) => (
                         <td key={`${page.title}-${rowIndex}-${cellIndex}`}>
@@ -2860,13 +2961,13 @@ function RequirementPage({ page, slug, onBackHome }: { page: RequirementPageConf
             </div>
           ) : (
             <div className="requirement-card-list">
-              {page.rows.map((row, rowIndex) => (
+              {displayRows.map((row, rowIndex) => (
                 <article className="requirement-content-card" key={`${page.title}-${rowIndex}`}>
-                  <span>{page.columns[0] ?? page.category}</span>
+                  <span>{displayColumns[0] ?? page.category}</span>
                   <h3>{row[0]}</h3>
                   <dl>
                     {row.slice(1).map((cell, cellIndex) => {
-                      const label = page.columns[cellIndex + 1] ?? "Informação";
+                      const label = displayColumns[cellIndex + 1] ?? "Informação";
                       return (
                         <div key={`${page.title}-${rowIndex}-${cellIndex}`}>
                           <dt>{label}</dt>
@@ -2884,6 +2985,72 @@ function RequirementPage({ page, slug, onBackHome }: { page: RequirementPageConf
                 </article>
               ))}
             </div>
+          )}
+
+          <section className="requirement-api-example" aria-labelledby="api-example-title">
+            <div className="requirement-api-example-heading">
+              <div>
+                <span className="site-caps-title">Integração de dados</span>
+                <h2 id="api-example-title">Exemplo consumido da API</h2>
+              </div>
+              <span className={`requirement-api-badge ${apiExampleEntries.length ? "is-connected" : "is-pending"}`}>
+                {apiExampleEntries.length ? "Dados reais carregados" : "API sem registros"}
+              </span>
+            </div>
+            {apiExampleEntries.length ? (
+              <dl className="requirement-api-fields">
+                {apiExampleEntries.map(([key, value]) => (
+                  <div key={key}>
+                    <dt>{key.replaceAll("_", " ")}</dt>
+                    <dd>{typeof value === "object" ? JSON.stringify(value) : String(value)}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : page.apiSource === "contratos" ? (
+              <>
+                <p className="requirement-panel-text">A API respondeu sem contratos publicados no período consultado. Os campos abaixo correspondem às propriedades esperadas para cada objeto de contrato.</p>
+                <dl className="requirement-api-fields">
+                  {apiExpectedFields.map((field) => (
+                    <div key={field}>
+                      <dt>{field.replaceAll("_", " ")}</dt>
+                      <dd>Sem registro retornado</dd>
+                    </div>
+                  ))}
+                </dl>
+              </>
+            ) : (
+              <p className="requirement-panel-text">A API ainda não retornou um objeto para esta categoria. Os campos obrigatórios permanecem visíveis para conferência.</p>
+            )}
+          </section>
+
+          {page.apiSource === "contratos" && (
+            <section className="requirement-latest-list" aria-labelledby="latest-contracts-title">
+              <div className="requirement-api-example-heading">
+                <div>
+                  <span className="site-caps-title">Contratos publicados</span>
+                  <h2 id="latest-contracts-title">Últimos 10 contratos</h2>
+                </div>
+                <span className="requirement-api-badge is-connected">API oficial</span>
+              </div>
+              {latestContracts.length ? (
+                <div className="requirement-latest-table-wrap">
+                  <table className="requirement-table">
+                    <thead><tr><th>Contrato</th><th>Fornecedor</th><th>Objeto</th><th>Valor</th><th>Vigência</th></tr></thead>
+                    <tbody>{latestContracts.map((item, index) => (
+                      <tr key={String(item.id_contrato ?? item.nr_contrato ?? index)}>
+                        <td>{String(item.nr_contrato ?? item.id_contrato ?? "Não informado")}</td>
+                        <td>{String(item.fornecedor ?? item.credor ?? "Não informado")}</td>
+                        <td>{String(item.objeto ?? "Não informado")}</td>
+                        <td>{String(item.valor ?? "Não informado")}</td>
+                        <td>{String(item.dt_inicio ?? "Não informado")} — {String(item.dt_fim ?? "Não informado")}</td>
+                      </tr>
+                    ))}</tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="requirement-panel-text">Nenhum contrato foi retornado pela API no período consultado.</p>
+              )}
+            </section>
           )}
 
           <div className="requirement-note">
@@ -2909,6 +3076,15 @@ export default function App() {
   const [activePortariaIndex, setActivePortariaIndex] = useState(0);
   const [activeSecretariaSlug, setActiveSecretariaSlug] = useState(SECRETARIA_DETAILS[0].slug);
   const [activeRequirementSlug, setActiveRequirementSlug] = useState("portal-transparencia");
+  const [portalSnapshot, setPortalSnapshot] = useState<PortalSnapshot | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    loadPortalSnapshot().then((snapshot) => { if (active) setPortalSnapshot(snapshot); }).catch(() => {
+      // O site continua disponível com o conteúdo editorial local quando a API estiver indisponível.
+    });
+    return () => { active = false; };
+  }, []);
 
   const fontScale = fontSize === -1 ? 0.9 : fontSize === 1 ? 1.1 : 1;
   const navigate = (nextPage: AppPage) => {
@@ -2950,6 +3126,15 @@ export default function App() {
   const activePortaria = PORTARIAS[activePortariaIndex] ?? PORTARIAS[0];
   const activeSecretaria = SECRETARIA_DETAILS.find((secretaria) => secretaria.slug === activeSecretariaSlug) ?? SECRETARIA_DETAILS[0];
   const activeRequirement = REQUIREMENT_PAGES[activeRequirementSlug] ?? REQUIREMENT_PAGES["portal-transparencia"];
+  const licitacoes = portalSnapshot?.licitacoes.length
+    ? portalSnapshot.licitacoes.map((item) => ({
+      num: item.nr_modalidade || item.nr_processo_compra || item.id_processo_compra || "—",
+      desc: item.objeto || "Objeto não informado pela API",
+      date: item.dt_abertura || item.dt_homologacao || "—",
+      status: item.ds_st_processo_compra || "Não informado",
+    }))
+    : LICITACOES;
+  const activeApiLicitacao = licitacoes[activeLicitacaoIndex] ?? licitacoes[0];
 
   return (
     <div className={`sx-232 ${fontSize === -1 ? "font-scale-small" : fontSize === 1 ? "font-scale-large" : "font-scale-normal"}`}>
@@ -2967,11 +3152,11 @@ export default function App() {
         ) : page === "historia-roseira" ? (
           <HistoriaRoseiraPage onBackHome={() => navigate("home")} />
         ) : page === "contato" ? (
-          <ContatoPage onBackHome={() => navigate("home")} />
+          <ContatoPage onBackHome={() => navigate("home")} contacts={portalSnapshot?.contatos} />
         ) : page === "licitacoes" ? (
-          <LicitacoesPage licitacoes={LICITACOES} onBackHome={() => navigate("home")} onSelectLicitacao={openLicitacao} />
+          <LicitacoesPage licitacoes={licitacoes} onBackHome={() => navigate("home")} onSelectLicitacao={openLicitacao} />
         ) : page === "licitacao-detail" ? (
-          <LicitacaoDetailPage licitacao={activeLicitacao} licitacoes={LICITACOES} onBackHome={() => navigate("home")} onBackList={() => navigate("licitacoes")} onSelectLicitacao={openLicitacao} />
+          <LicitacaoDetailPage licitacao={activeApiLicitacao ?? activeLicitacao} licitacoes={licitacoes} onBackHome={() => navigate("home")} onBackList={() => navigate("licitacoes")} onSelectLicitacao={openLicitacao} />
         ) : page === "leis-municipais" ? (
           <LeisMunicipaisPage leis={LEGISLACAO} onBackHome={() => navigate("home")} onSelectLei={openLei} />
         ) : page === "lei-detail" ? (
@@ -2995,7 +3180,7 @@ export default function App() {
         ) : page === "faq" ? (
           <FAQPage onBackHome={() => navigate("home")} />
         ) : page === "requirement-page" ? (
-          <RequirementPage page={activeRequirement} slug={activeRequirementSlug} onBackHome={() => navigate("home")} />
+          <RequirementPage page={activeRequirement} slug={activeRequirementSlug} onBackHome={() => navigate("home")} portalSnapshot={portalSnapshot} />
         ) : (
           <>
             <HeroSlider />
