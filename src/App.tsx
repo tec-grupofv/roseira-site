@@ -1351,6 +1351,44 @@ function AccessBar({ fontSize, setFontSize }: { fontSize: number; setFontSize: (
 // HEADER
 // -----------------------------------------------------------------------------
 function Header({ menuOpen, setMenuOpen, onNavigateHome }: { menuOpen: boolean; setMenuOpen: (v: boolean) => void; onNavigateHome: () => void }) {
+  const [weather, setWeather] = useState({ current: null as number | null, min: null as number | null, max: null as number | null });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const loadWeather = async () => {
+      try {
+        const params = new URLSearchParams({
+          latitude: "-22.8989",
+          longitude: "-45.3058",
+          current: "temperature_2m",
+          daily: "temperature_2m_min,temperature_2m_max",
+          temperature_unit: "celsius",
+          timezone: "America/Sao_Paulo",
+          forecast_days: "1",
+        });
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: controller.signal });
+        if (!response.ok) throw new Error(`Weather request failed: ${response.status}`);
+        const data = await response.json();
+        setWeather({
+          current: Number.isFinite(data.current?.temperature_2m) ? data.current.temperature_2m : null,
+          min: Number.isFinite(data.daily?.temperature_2m_min?.[0]) ? data.daily.temperature_2m_min[0] : null,
+          max: Number.isFinite(data.daily?.temperature_2m_max?.[0]) ? data.daily.temperature_2m_max[0] : null,
+        });
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") console.warn("Clima de Roseira indisponível.", error);
+      }
+    };
+
+    loadWeather();
+    const refresh = window.setInterval(loadWeather, 10 * 60 * 1000);
+    return () => {
+      controller.abort();
+      window.clearInterval(refresh);
+    };
+  }, []);
+
+  const formatTemperature = (value: number | null) => value === null ? "--°" : `${Math.round(value)}°`;
+
   return (
     <div  className="sx-19">
       <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
@@ -1386,10 +1424,12 @@ function Header({ menuOpen, setMenuOpen, onNavigateHome }: { menuOpen: boolean; 
         </div>
 
         {/* Weather */}
-        <div className="hidden md:flex items-center gap-1.5 sx-24" >
+        <div className="hidden md:flex items-center gap-1.5 sx-24" title="Clima atual de Roseira">
           {I.sun}
-          <span  className="sx-25">24°</span>
-          <span  className="sx-26">/ 31°</span>
+          <span className="sx-25" aria-label={`Temperatura atual: ${formatTemperature(weather.current)}`}>{formatTemperature(weather.current)}</span>
+          <span className="sx-26" aria-label={`Mínima e máxima de hoje: ${formatTemperature(weather.min)} / ${formatTemperature(weather.max)}`}>
+            / {formatTemperature(weather.max)}
+          </span>
         </div>
 
         {/* Mobile hamburger */}
