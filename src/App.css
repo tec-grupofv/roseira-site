@@ -6435,3 +6435,60 @@ span.social-icon-link {
     grid-template-columns: 1fr;
   }
 }
+.requirement-api-panel {
+  grid-column: 1 / -1;
+  border-color: rgba(0, 92, 43, 0.22);
+}
+
+.requirement-api-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.requirement-api-status-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--success-surface);
+}
+
+.requirement-api-status-grid strong {
+  color: var(--green-dark);
+}
+
+.requirement-api-status-grid span {
+  color: var(--gray);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .requirement-api-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.requirement-api-example {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--white);
+}
+
+.requirement-api-example-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.requirement-api-example-heading h2 { margin: 4px 0 0; color: var(--text); }
+.requirement-api-badge { border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 700; }
+.requirement-api-badge.is-connected { background: var(--success-surface); color: var(--green-dark); }
+.requirement-api-badge.is-pending { background: var(--surface); color: var(--gray); }
+.requirement-api-fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.requirement-api-fields > div { padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.requirement-api-fields dt { color: var(--gray); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.requirement-api-fields dd { margin: 6px 0 0; color: var(--text); overflow-wrap: anywhere; }
+.requirement-latest-list { margin-top: 24px; padding: 24px; border: 1px solid var(--border); border-radius: 16px; background: var(--white); }
+.requirement-latest-table-wrap { overflow-x: auto; }
+.requirement-latest-table-wrap .requirement-table { min-width: 820px; }
+@media (max-width: 900px) { .requirement-api-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .requirement-api-example-heading { flex-direction: column; } .requirement-api-fields { grid-template-columns: 1fr; } }
