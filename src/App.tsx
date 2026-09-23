@@ -187,6 +187,7 @@ const NAV_ITEMS = [
   },
 ];
 
+
 const EXTERNAL_LINKS = {
   transparencia: CONTACT_INFO.transparencyPortalUrl,
   iptu: "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/2via/index.php",
@@ -449,7 +450,8 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     category: "Compras Públicas",
     kind: "table",
     sourceLabel: "Dispensa de Licitação antiga",
-    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/17/dispensa-de-licitacao/",
+    sourceUrl: "https://pmroseira.geosiap.net.br:8443/portal-transparencia/api/licitacoes/licitacoes/index?id_entidade=2",
+    apiSource: "licitacoes",
     requiredElements: ["Número", "Objeto", "Fundamento", "Documentos da fase interna e externa"],
     columns: ["Processo", "Objeto", "Fundamento", "Documentos"],
     rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Edital, parecer, termo e públicação"], ["001/2026", "Objeto demonstrativo", "Não declarado", "Documentos pendentes"]],
@@ -461,6 +463,7 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     kind: "table",
     sourceLabel: "Portal da Transparência",
     sourceUrl: EXTERNAL_LINKS.transparencia,
+    apiSource: "contratos",
     requiredElements: ["Contrato", "Fornecedor", "Objeto", "Valor", "Vigencia", "Fiscal", "Inteiro teor"],
     columns: ["Contrato", "Fornecedor", "Objeto", "Valor", "Fiscal"],
     rows: [["000/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Não declarado"], ["001/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Não declarado"]],
@@ -1734,7 +1737,7 @@ function Header({ menuOpen, setMenuOpen, onNavigateHome }: { menuOpen: boolean; 
         </div>
 
         {/* Weather */}
-        <div className="hidden md:flex items-center gap-1.5 sx-24" >
+        <div className="hidden md:flex items-center gap-1.5 sx-24" title="Clima atual de Roseira">
           {I.sun}
           <span className="sx-25">{weather.current}°</span>
           <span className="sx-26">/ {weather.maximum}°</span>
@@ -3350,9 +3353,9 @@ export default function App() {
         ) : page === "contato" || page === "fale-conosco" ? (
           <ContatoPage onBackHome={() => navigate("home")} />
         ) : page === "licitacoes" ? (
-          <LicitacoesPage licitacoes={LICITACOES} onBackHome={() => navigate("home")} onSelectLicitacao={openLicitacao} />
+          <LicitacoesPage licitacoes={licitacoes} onBackHome={() => navigate("home")} onSelectLicitacao={openLicitacao} />
         ) : page === "licitacao-detail" ? (
-          <LicitacaoDetailPage licitacao={activeLicitacao} licitacoes={LICITACOES} onBackHome={() => navigate("home")} onBackList={() => navigate("licitacoes")} onSelectLicitacao={openLicitacao} />
+          <LicitacaoDetailPage licitacao={activeApiLicitacao ?? activeLicitacao} licitacoes={licitacoes} onBackHome={() => navigate("home")} onBackList={() => navigate("licitacoes")} onSelectLicitacao={openLicitacao} />
         ) : page === "leis-municipais" ? (
           <LeisMunicipaisPage leis={LEGISLACAO} onBackHome={() => navigate("home")} onSelectLei={openLei} />
         ) : page === "lei-detail" ? (
