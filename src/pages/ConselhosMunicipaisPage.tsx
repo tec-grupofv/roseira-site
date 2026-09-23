@@ -1,0 +1,17 @@
+import { CalendarDays } from "lucide-react";
+import { useState } from "react";
+import type { RequirementPageConfig } from "./RequirementPage";
+import SiteBreadcrumb from "../components/SiteBreadcrumb";
+
+type ConselhoTab = "conselhos" | "calendario";
+const tabs: Array<{ id: ConselhoTab; label: string }> = [{ id: "conselhos", label: "Conselhos" }, { id: "calendario", label: "Calendário de reuniões" }];
+const conselhos = ["Conselho Municipal", "Conselho setorial"];
+
+function MeetingCalendar() {
+  return <article className="conselho-calendar-card sx-132"><div className="sx-135"><button type="button" className="sx-136" title="Mês anterior" aria-label="Mês anterior">‹</button><span className="sx-137">Ago 2026</span><button type="button" className="sx-138" title="Próximo mês" aria-label="Próximo mês">›</button></div><div className="sx-139"><div className="sx-140">{["D", "S", "T", "Q", "Q", "S", "S"].map((day, index) => <div key={index} className="sx-141">{day}</div>)}</div><div className="sx-142">{Array.from({ length: 6 }).map((_, index) => <div key={`empty-${index}`} />)}{Array.from({ length: 31 }).map((_, index) => { const day = index + 1; const hasEvent = [12, 15, 18, 22, 29].includes(day); const today = day === 10; return <div key={day} className={`sx-143 ${today ? "calendar-day-today" : hasEvent ? "calendar-day-event" : "calendar-day-normal"}`}>{day}{hasEvent && !today && <div className="sx-144" />}</div>; })}</div></div></article>;
+}
+
+export default function ConselhosMunicipaisPage({ onBackHome }: { page: RequirementPageConfig; onBackHome: () => void }) {
+  const [activeTab, setActiveTab] = useState<ConselhoTab>("conselhos");
+  return <div className="secretaria-detail-view conselhos-page-view"><section className="site-internal-hero secretaria-detail-hero conselhos-hero"><div className="max-w-7xl mx-auto px-4"><SiteBreadcrumb items={[{ label: "Início", onClick: onBackHome }, { label: "A Prefeitura" }, { label: "Conselhos Municipais" }]} /><div className="secretaria-detail-hero-row"><div><h1 className="site-title">Conselhos Municipais</h1><p className="site-subtitle">Relação de conselhos, composição, mandato, atas, reuniões e documentos publicados.</p></div></div></div></section><nav className="secretaria-detail-tabs conselhos-tabs" aria-label="Seções dos conselhos municipais"><div className="max-w-7xl mx-auto px-4">{tabs.map((tab) => <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} className={activeTab === tab.id ? "conselho-tab-active site-card-title" : "site-card-title"} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}</div></nav><section className="secretaria-detail-main conselhos-main"><div className="max-w-7xl mx-auto px-4">{activeTab === "conselhos" ? <div className="requirement-table-wrap conselho-table-wrap"><table className="requirement-table"><thead><tr><th>Conselho</th><th>Mandato</th><th>Composição</th><th>Atas</th></tr></thead><tbody><tr><td>Conselho Municipal</td><td>Não declarado</td><td>Não declarado</td><td>Não declarado</td></tr><tr><td>Conselho setorial</td><td>Não declarado</td><td>Não declarado</td><td>Não declarado</td></tr></tbody></table></div> : <div className="conselho-calendar-layout"><article className="secretaria-detail-panel"><span className="site-caps-title">Reuniões públicas</span><h2 className="site-panel-title">Calendário de reuniões</h2><p className="site-text">Acompanhe as datas de reuniões publicadas pelos Conselhos Municipais.</p></article><MeetingCalendar /></div>}</div></section></div>;
+}

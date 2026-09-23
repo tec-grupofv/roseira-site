@@ -61,6 +61,7 @@ export default function LicitacoesPage({
                 <button
                   key={label}
                   type="button"
+                  title={label}
                   aria-pressed={activeStatus === status}
                   className={`concursos-summary-card ${activeStatus === status ? "concursos-summary-card-active" : ""}`}
                   onClick={() => setActiveStatus((current) => current === status ? null : status)}
@@ -120,6 +121,7 @@ export default function LicitacoesPage({
               <button
                 key={`${item.num}-${item.date}`}
                 type="button"
+                title={item.desc}
                 onClick={() => onSelectLicitacao(itemIndex)}
                 className={[
                   "concursos-result-card",
@@ -206,11 +208,11 @@ export function LicitacaoDetailPage({
               </div>
               <div className="licitacao-detail-documents">
                 <h2 className="site-panel-title">Documentos</h2>
-                <a href="#" className="site-action-button button-yellow">
+                <a href="#" title="Edital" className="site-action-button button-yellow">
                   <FileText aria-hidden="true" />
                   Edital
                 </a>
-                <a href="#" className="site-action-button-muted">
+                <a href="#" title="Publicações" className="site-action-button-muted">
                   <CalendarDays aria-hidden="true" />
                   Publicações
                 </a>
@@ -223,7 +225,7 @@ export function LicitacaoDetailPage({
                 {relatedItems.map((item) => {
                   const itemIndex = licitacoes.indexOf(item);
                   return (
-                    <button key={`${item.num}-${item.date}`} type="button" className="licitacao-related-card" onClick={() => onSelectLicitacao(itemIndex)}>
+                    <button key={`${item.num}-${item.date}`} type="button" title={`Nº ${item.num}`} className="licitacao-related-card" onClick={() => onSelectLicitacao(itemIndex)}>
                       <span className={`concursos-status concursos-status-${statusClass(item.status)}`}>{item.status}</span>
                       <strong className="site-card-title">Nº {item.num}</strong>
                       <p className="site-text">{item.desc}</p>

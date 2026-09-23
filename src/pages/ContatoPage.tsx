@@ -1,6 +1,7 @@
 import { Clock, Mail, MapPin, MessageCircle, Phone, Send } from "lucide-react";
 import { useState } from "react";
 import SiteBreadcrumb from "../components/SiteBreadcrumb";
+import { CONTACT_INFO } from "../siteContact";
 
 const CONTACT_CHANNELS = [
   {
@@ -106,7 +107,7 @@ export default function ContatoPage({ onBackHome }: { onBackHome: () => void }) 
                     <span className="site-caps-title">Mensagem</span>
                     <textarea name="mensagem" placeholder="Escreva sua mensagem" rows={6} required />
                   </label>
-                  <button type="submit" className="sx-220 lgpd-yellow-button">
+                  <button type="submit" title="Enviar mensagem" className="sx-220 lgpd-yellow-button">
                     <Send aria-hidden="true" />
                     Enviar mensagem
                   </button>
@@ -125,15 +126,15 @@ export default function ContatoPage({ onBackHome }: { onBackHome: () => void }) 
               <article>
                 <span className="site-caps-title">Canais digitais</span>
                 <div className="contato-link-list">
-                  <a href="#" className="site-card-title site-green-pill-button">Ouvidoria</a>
-                  <a href="#" className="site-card-title site-green-pill-button">e-SIC</a>
-                  <a href="#" className="site-card-title site-green-pill-button">Portal da Transparência</a>
-                  <a href="#" className="site-card-title site-green-pill-button">Carta de Serviços</a>
+                  <a href="#" title="Ouvidoria" className="site-card-title site-green-pill-button">Ouvidoria</a>
+                  <a href="#" title="e-SIC" className="site-card-title site-green-pill-button">e-SIC</a>
+                  <a href={CONTACT_INFO.transparencyPortalUrl} target="_blank" rel="noreferrer" title="Portal da Transparência" className="site-card-title site-green-pill-button">Portal da Transparência</a>
+                  <a href="#" title="Carta de Serviços" className="site-card-title site-green-pill-button">Carta de Serviços</a>
                 </div>
               </article>
               <div className="contato-map-preview">
                 <iframe
-                  title="Mapa de localização da Prefeitura Municipal de Roseira"
+                  title="Mapa"
                   src="https://www.google.com/maps?q=Prefeitura%20Municipal%20de%20Roseira%20Pra%C3%A7a%20Sant%27Ana%20201%20Roseira%20SP&output=embed"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"

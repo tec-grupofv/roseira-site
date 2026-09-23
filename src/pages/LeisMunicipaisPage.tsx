@@ -93,6 +93,7 @@ export default function LeisMunicipaisPage({
                 <button
                   key={label}
                   type="button"
+                  title={label}
                   aria-pressed={activeStatus === status}
                   className={`concursos-summary-card ${activeStatus === status ? "concursos-summary-card-active" : ""}`}
                   onClick={() => setActiveStatus((current) => current === status ? null : status)}
@@ -152,6 +153,7 @@ export default function LeisMunicipaisPage({
               <button
                 key={`${item.num}-${item.date}`}
                 type="button"
+                title={item.desc}
                 onClick={() => onSelectLei(itemIndex)}
                 className={[
                   "concursos-result-card",
@@ -241,11 +243,11 @@ export function LeiMunicipalDetailPage({
               </div>
               <div className="licitacao-detail-documents">
                 <h2 className="site-panel-title">Documentos</h2>
-                <a href="#" className="site-action-button button-yellow">
+                <a href="#" title={config.documentLabel} className="site-action-button button-yellow">
                   <FileText aria-hidden="true" />
                   {config.documentLabel}
                 </a>
-                <a href="#" className="site-action-button-muted">
+                <a href="#" title="Publicações" className="site-action-button-muted">
                   <CalendarDays aria-hidden="true" />
                   Publicações
                 </a>
@@ -258,7 +260,7 @@ export function LeiMunicipalDetailPage({
                 {relatedItems.map((item) => {
                   const itemIndex = leis.indexOf(item);
                   return (
-                    <button key={`${item.num}-${item.date}`} type="button" className="licitacao-related-card" onClick={() => onSelectLei(itemIndex)}>
+                    <button key={`${item.num}-${item.date}`} type="button" title={`Nº ${item.num}`} className="licitacao-related-card" onClick={() => onSelectLei(itemIndex)}>
                       <span className={`concursos-status concursos-status-${statusClass(item.status)}`}>{item.status}</span>
                       <strong className="site-card-title">Nº {item.num}</strong>
                       <p className="site-text">{item.desc}</p>
