@@ -43,6 +43,7 @@ export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }
               <button
                 key={label}
                 type="button"
+                title={label}
                 aria-pressed={activeType === type}
                 className={`concursos-summary-card ${activeType === type ? "concursos-summary-card-active" : ""}`}
                 onClick={() => setActiveType((current) => current === type ? null : type)}
@@ -92,6 +93,7 @@ export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }
               <a
                 key={`${item.tag}-${item.num}`}
                 href="#"
+                title={item.title}
                 className={[
                   "concursos-result-card",
                   `concursos-status-card-${item.status.toLowerCase().replace(" ", "-")}`,

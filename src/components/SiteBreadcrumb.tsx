@@ -23,7 +23,7 @@ export default function SiteBreadcrumb({ items }: { items: SiteBreadcrumbItem[] 
             <li key={`${item.label}-${index}`}>
               {index > 0 && <ChevronRight className="site-breadcrumb-separator" aria-hidden="true" />}
               {item.onClick && !isCurrent ? (
-                <button type="button" onClick={item.onClick} className={isHome ? "site-breadcrumb-home" : undefined}>
+                <button type="button" onClick={item.onClick} title={item.label} className={isHome ? "site-breadcrumb-home" : undefined}>
                   {content}
                 </button>
               ) : (

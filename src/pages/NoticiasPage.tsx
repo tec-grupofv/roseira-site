@@ -101,6 +101,7 @@ export default function NoticiasPage({
                 <button
                   key={category}
                   type="button"
+                  title={category}
                   className={activeCategory === category ? "noticias-page-category-active" : ""}
                   onClick={() => setActiveCategory(category)}
                 >
@@ -120,7 +121,7 @@ export default function NoticiasPage({
               const noticiaIndex = noticias.indexOf(noticia);
               return (
                 <article key={`${noticia.date}-${noticia.title}`} className="noticias-page-card">
-                  <button type="button" onClick={() => onSelectNoticia(noticiaIndex)} aria-label={`Ler notícia: ${noticia.title}`}>
+                  <button type="button" onClick={() => onSelectNoticia(noticiaIndex)} title={noticia.title} aria-label={`Ler notícia: ${noticia.title}`}>
                     <div className="noticias-page-image-wrap">
                       <img src={noticia.img} alt="" />
                     </div>
@@ -197,7 +198,7 @@ export function NoticiaDetailPage({
                 </p>
               </div>
               <div className="noticia-detail-actions">
-                <button type="button" className="site-action-button button-yellow">
+                <button type="button" title="Compartilhar" className="site-action-button button-yellow">
                   <Share2 aria-hidden="true" />
                   Compartilhar
                 </button>
@@ -210,7 +211,7 @@ export function NoticiaDetailPage({
                 {relatedNews.map((item) => {
                   const itemIndex = noticias.indexOf(item);
                   return (
-                    <button key={item.title} type="button" className="noticia-related-card" onClick={() => onSelectNoticia(itemIndex)}>
+                    <button key={item.title} type="button" title={item.title} className="noticia-related-card" onClick={() => onSelectNoticia(itemIndex)}>
                       <img src={item.img} alt="" />
                       <span>
                         <NewsMeta noticia={item} />
