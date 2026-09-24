@@ -203,7 +203,8 @@ const TRANSPARENCIA_EXTERNAL_LINKS: Record<string, string> = {
   "Contratos": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/contratos",
   "Convênios e Repasses": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/convenios",
   "Radar da Transparência / Matriz Atricon": "https://radardatransparencia.atricon.org.br/",
-};
+};
+
 
 const EXTERNAL_LINKS = {
 

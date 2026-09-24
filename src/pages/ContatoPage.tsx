@@ -30,8 +30,16 @@ const CONTACT_CHANNELS = [
   },
 ];
 
-export default function ContatoPage({ onBackHome }: { onBackHome: () => void }) {
+export default function ContatoPage({ onBackHome, contacts = [] }: { onBackHome: () => void; contacts?: PortalContact[] }) {
   const [sent, setSent] = useState(false);
+  const channels = contacts.length
+    ? contacts.filter((item) => item.descricao && (item.telefone !== "-" || item.email !== "-" || item.endereco !== "-")).slice(0, 8).map((item) => ({
+      icon: <Phone aria-hidden="true" />,
+      title: item.descricao?.trim() || "Contato institucional",
+      text: [item.telefone?.trim(), item.email?.trim()].filter((value) => value && value !== "-").join(" · ") || "Consulte a Prefeitura",
+      helper: [item.endereco?.trim(), item.horario?.trim()].filter((value) => value && value !== "-").join(" · "),
+    }))
+    : CONTACT_CHANNELS;
 
   return (
     <div className="contato-page-view">
@@ -55,7 +63,7 @@ export default function ContatoPage({ onBackHome }: { onBackHome: () => void }) 
       <section className="contato-page-section">
         <div className="max-w-7xl mx-auto px-4">
           <div className="secretaria-detail-contact-grid contato-channel-grid contato-channel-grid-reference">
-            {CONTACT_CHANNELS.map((item) => (
+            {channels.map((item) => (
               <article key={item.title} className="secretaria-detail-contact-card contato-channel-card-reference">
                 <span className="sx-185 secretaria-detail-contact-icon">{item.icon}</span>
                 <div>
