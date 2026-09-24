@@ -1,6 +1,11 @@
-import RequirementPage, { type RequirementPageConfig } from "./RequirementPage";
+import { useEffect } from "react";
 
-export default function ItbiPage({ page, onBackHome }: { page: RequirementPageConfig; onBackHome: () => void }) {
-  return <RequirementPage page={page} slug="itbi" onBackHome={onBackHome} />;
+const ITBI_URL = "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/itbi/itbi_login.php";
+
+export default function ItbiPage() {
+  useEffect(() => {
+    window.location.replace(ITBI_URL);
+  }, []);
+
+  return null;
 }
-

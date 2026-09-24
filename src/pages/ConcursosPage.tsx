@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { ClipboardList, FileText, Search, Trophy, UsersRound } from "lucide-react";
+import { ClipboardList, ChevronRight, FileText, Search, Trophy, UsersRound } from "lucide-react";
 import SiteBreadcrumb from "../components/SiteBreadcrumb";
 
-const CONCURSOS_PAGE_ITEMS = [
-  { tag: "CP", type: "Concurso Público", num: "01/2023", status: "Em andamento", title: "Concurso Público para provimento de cargos efetivos do quadro de pessoal do Município", org: "Prefeitura Municipal de Roseira", period: "Inscrições: 23/10/2023 até 30/11/2023", views: 48 },
+export const CONCURSOS_PAGE_ITEMS = [
+  { tag: "CP", type: "Concurso Público", num: "01/2023", status: "Em andamento", title: "Concurso Público para provimento de cargos efetivos do quadro de pessoal do Município", org: "Prefeitura Municipal de Roseira", period: "Inscrições: 23/10/2023 até 30/11/2023", views: 48, acolhimento: "23/10/2023", abertura: "01/12/2023", disputa: "10/12/2023", objeto: "Provimento de cargos efetivos do quadro de pessoal municipal", resumo: "Processo destinado ao preenchimento de cargos efetivos, conforme edital e cronograma oficial.", arquivos: ["Edital de abertura", "Cronograma", "Resultado"] },
   { tag: "CP", type: "Concurso Público", num: "01/2017", status: "Encerrado", title: "Concurso Público para cargos das áreas administrativa e operacional", org: "Prefeitura Municipal de Roseira", period: "Inscrições: 19/11/2017 até 28/12/2017", views: 32 },
   { tag: "PSS", type: "Processo Seletivo", num: "01/2025", status: "Aberto", title: "Processo Seletivo Simplificado para contratação de pessoal por prazo determinado - Área da Saúde", org: "Prefeitura Municipal de Roseira", period: "Inscrições: 02/03/2025 até 16/03/2025", views: 22 },
   { tag: "PSS", type: "Processo Seletivo", num: "01/2024", status: "Em andamento", title: "Processo Seletivo Simplificado - Educação e Assistência Social", org: "Prefeitura Municipal de Roseira", period: "Inscrições: 01/11/2024 até 15/11/2024", views: 35 },
@@ -12,7 +12,7 @@ const CONCURSOS_PAGE_ITEMS = [
   { tag: "ED", type: "Edital", num: "01/2018", status: "Encerrado", title: "Edital de convocação para atribuição de vagas remanescentes", org: "Prefeitura Municipal de Roseira", period: "Publicação: 14/08/2018", views: 12 },
 ];
 
-export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }) {
+export default function ConcursosPage({ onBackHome, onSelectConcurso }: { onBackHome: () => void; onSelectConcurso: (index: number) => void }) {
   const [activeType, setActiveType] = useState<string | null>(null);
   const summary = [
     { label: "Todos os processos", total: CONCURSOS_PAGE_ITEMS.length, available: `${CONCURSOS_PAGE_ITEMS.length} disponíveis`, Icon: FileText, tone: "yellow", type: null },
@@ -90,10 +90,11 @@ export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }
           <h2 className="site-card-title">{filteredItems.length} publicações encontradas</h2>
           <div className="concursos-list">
             {filteredItems.map((item) => (
-              <a
+              <button
                 key={`${item.tag}-${item.num}`}
-                href="#"
+                type="button"
                 title={item.title}
+                onClick={() => onSelectConcurso(CONCURSOS_PAGE_ITEMS.indexOf(item))}
                 className={[
                   "concursos-result-card",
                   `concursos-status-card-${item.status.toLowerCase().replace(" ", "-")}`,
@@ -113,8 +114,47 @@ export default function ConcursosPage({ onBackHome }: { onBackHome: () => void }
                   <strong>{item.views}</strong>
                   <span>visitas</span>
                 </div>
-              </a>
+              </button>
             ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export function ConcursoDetailPage({ item, onBackHome, onBackList, onSelectConcurso }: { item: (typeof CONCURSOS_PAGE_ITEMS)[number]; onBackHome: () => void; onBackList: () => void; onSelectConcurso: (index: number) => void }) {
+  const relatedItems = CONCURSOS_PAGE_ITEMS.filter((candidate) => candidate.num !== item.num).slice(0, 4);
+  return (
+    <div className="concursos-view concurso-detail-view">
+      <section className="site-internal-hero concursos-hero">
+        <div className="max-w-7xl mx-auto px-4">
+          <SiteBreadcrumb items={[{ label: "Início", onClick: onBackHome }, { label: "Concursos e Seleções", onClick: onBackList }, { label: `Nº ${item.num}` }]} />
+          <span className="concursos-status concursos-status-em-andamento">{item.status}</span>
+          <h1 className="site-title">{item.type} Nº {item.num}</h1>
+          <p className="site-subtitle">{item.title}</p>
+        </div>
+      </section>
+      <section className="concursos-results">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="licitacao-detail-layout">
+            <article className="licitacao-detail-panel">
+              <h2 className="site-panel-title">Informações do concurso</h2>
+              <div className="licitacao-detail-grid concurso-detail-dates">
+                <div><span className="site-caps-title">Data de acolhimento</span><strong className="site-card-title">{item.acolhimento ?? "Não informado"}</strong></div>
+                <div><span className="site-caps-title">Data de abertura</span><strong className="site-card-title">{item.abertura ?? "Não informado"}</strong></div>
+                <div><span className="site-caps-title">Data de disputa</span><strong className="site-card-title">{item.disputa ?? "Não informado"}</strong></div>
+              </div>
+              <div className="licitacao-detail-object concurso-detail-object"><span className="site-caps-title">Objeto</span><p className="site-text">{item.objeto ?? item.title}</p></div>
+              <div className="licitacao-detail-object concurso-detail-object"><span className="site-caps-title">Resumo</span><p className="site-text">{item.resumo ?? item.title}</p></div>
+              <div className="licitacao-detail-documents"><h2 className="site-panel-title">Arquivos</h2>{(item.arquivos ?? []).map((arquivo) => <button type="button" className="site-action-button button-yellow" key={arquivo}><FileText aria-hidden="true" />{arquivo}</button>)}</div>
+            </article>
+            <aside className="licitacao-detail-panel licitacao-related-panel">
+              <h2 className="site-panel-title">Outros Concursos</h2>
+              <div className="licitacao-related-list">
+                {relatedItems.map((related) => <button key={related.num} type="button" className="licitacao-related-card" onClick={() => onSelectConcurso(CONCURSOS_PAGE_ITEMS.indexOf(related))}><span className={`concursos-status concursos-status-${related.status.toLowerCase().replace(" ", "-")}`}>{related.status}</span><strong className="site-card-title">Nº {related.num}</strong><p className="site-text">{related.title}</p></button>)}
+              </div>
+            </aside>
           </div>
         </div>
       </section>

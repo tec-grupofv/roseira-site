@@ -1,6 +1,11 @@
-import RequirementPage, { type RequirementPageConfig } from "./RequirementPage";
+import { useEffect } from "react";
 
-export default function DividaAtivaPage({ page, onBackHome }: { page: RequirementPageConfig; onBackHome: () => void }) {
-  return <RequirementPage page={page} slug="divida-ativa" onBackHome={onBackHome} />;
+const DIVIDA_ATIVA_URL = "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/geda/geda_consulta.php";
+
+export default function DividaAtivaPage() {
+  useEffect(() => {
+    window.location.replace(DIVIDA_ATIVA_URL);
+  }, []);
+
+  return null;
 }
-

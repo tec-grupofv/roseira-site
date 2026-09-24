@@ -56,3 +56,67 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: #1351B4;
 }
+
+.ouvidoria-page .ouvidoria-intro-card { display: grid; gap: 1.5rem; }
+.ouvidoria-contact-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.ouvidoria-contact-grid > div { display: grid; gap: .35rem; padding: 1rem; border: 1px solid #dce4e8; border-radius: .75rem; background: #f8fafb; }
+.ouvidoria-contact-grid strong { color: #003b25; }
+.ouvidoria-contact-grid span, .ouvidoria-contact-grid small { color: #334155; }
+.ouvidoria-contact-grid a { color: #005c3b; font-weight: 700; text-decoration: underline; text-underline-offset: .15em; }
+.ouvidoria-tabs { margin-top: 1.5rem; }
+.ouvidoria-tabpanel { margin-top: 1.5rem; outline: none; }
+.ouvidoria-tabpanel:focus-visible { box-shadow: 0 0 0 3px #1d70b8; border-radius: 1rem; }
+.ouvidoria-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+.ouvidoria-list { display: grid; gap: .75rem; padding-left: 1.25rem; color: #334155; }
+.ouvidoria-note { margin-top: 1.25rem; padding: 1rem; border-left: 4px solid #005c3b; background: #eef7f2; color: #173b2d; }
+.ouvidoria-page .requirement-table caption { caption-side: top; text-align: left; padding-bottom: .75rem; }
+@media (max-width: 800px) {
+  .ouvidoria-contact-grid, .ouvidoria-grid { grid-template-columns: 1fr; }
+  .ouvidoria-tabs { overflow-x: auto; justify-content: flex-start; }
+  .ouvidoria-tabs .esic-card-tab { min-width: max-content; }
+}
+.ouvidoria-hero-actions { margin-top: 1.5rem; }
+.ouvidoria-hero-actions .concursos-summary-card { text-align: left; }
+.ouvidoria-hero-actions .concursos-summary-card > span:last-child { display: grid; gap: .2rem; }
+.ouvidoria-hero-actions small { color: #496172; }
+.ouvidoria-hero-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 900px) {
+  .ouvidoria-hero-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .ouvidoria-hero-actions { grid-template-columns: 1fr; }
+}
+.requirement-page .ouvidoria-hero-actions { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+@media (max-width: 900px) {
+  .requirement-page .ouvidoria-hero-actions { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 560px) {
+  .requirement-page .ouvidoria-hero-actions { grid-template-columns: 1fr !important; }
+}
+.ouvidoria-page .requirement-hero-grid { grid-template-columns: minmax(0, 1fr); }
+.ouvidoria-page .ouvidoria-hero-actions { width: 100%; }
+.ouvidoria-page .ouvidoria-intro-card { background: transparent; border: 0; box-shadow: none; padding: 0; }
+.ouvidoria-page .ouvidoria-intro-card > h2,
+.ouvidoria-page .ouvidoria-intro-card > .requirement-panel-text { display: none; }
+.ouvidoria-contact-grid { width: 100%; gap: 1rem; }
+.ouvidoria-contact-card { display: flex !important; align-items: center; gap: .85rem; min-height: 112px; padding: 1.25rem 1.5rem !important; border: 0 !important; border-radius: .75rem !important; background: #f4f7f6 !important; }
+.ouvidoria-contact-icon { display: grid !important; place-items: center; flex: 0 0 40px; width: 40px; height: 40px; padding: 0 !important; border-radius: 999px; background: var(--yellow); color: var(--text); }
+.ouvidoria-contact-icon svg { width: 18px; height: 18px; }
+.ouvidoria-contact-copy { display: grid !important; gap: .2rem; min-width: 0; }
+.ouvidoria-contact-copy strong { color: var(--text); font-size: .95rem; }
+.ouvidoria-contact-copy span, .ouvidoria-contact-copy small, .ouvidoria-contact-copy a { color: rgb(var(--text-rgb) / .62); font-size: .78rem; font-weight: 400; }
+.ouvidoria-contact-copy a { text-decoration: none; }
+.ouvidoria-page .ouvidoria-hero-actions { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; width: 100% !important; }
+@media (max-width: 900px) { .ouvidoria-page .ouvidoria-hero-actions { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+@media (max-width: 560px) { .ouvidoria-page .ouvidoria-hero-actions { grid-template-columns: 1fr !important; } }
+.ouvidoria-access-card { display: flex; flex-direction: column; height: 100%; }
+.ouvidoria-access-actions { width: 100%; margin-top: auto; }
+.ouvidoria-single-card { display: grid; gap: 1rem; }
+.ouvidoria-single-card .requirement-source-link { justify-self: start; }
+@media (max-width: 560px) { .ouvidoria-single-card .requirement-source-link { width: 100%; justify-self: stretch; text-align: center; } }
+.ouvidoria-content-panel { outline: none; }
+.ouvidoria-content-panel:focus-visible { box-shadow: 0 0 0 3px #1d70b8; border-radius: 1rem; }
+.ouvidoria-guidance-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.ouvidoria-guidance-grid .requirement-panel { display: flex; flex-direction: column; align-items: flex-start; }
+.ouvidoria-guidance-grid .requirement-source-link { margin-top: auto; }
+@media (max-width: 800px) { .ouvidoria-guidance-grid { grid-template-columns: 1fr; } }

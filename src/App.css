@@ -3521,9 +3521,19 @@ span.social-icon-link {
 
 .concursos-filter-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(220px, 0.8fr);
+  grid-template-columns: minmax(0, 1.6fr) minmax(220px, 0.8fr) auto;
   gap: 18px;
   align-items: end;
+}
+
+.concursos-filter-grid > button {
+  align-self: end;
+  background: var(--yellow);
+  color: var(--text);
+  height: 46px;
+  min-height: 46px;
+  box-shadow: none;
+  white-space: nowrap;
 }
 
 .concursos-filter label {
@@ -3551,7 +3561,7 @@ span.social-icon-link {
   font-family: Inter, sans-serif;
   font-size: 13px;
   padding: 0 18px;
-  box-shadow: 0 10px 24px rgb(var(--text-rgb) / .06);
+  box-shadow: none;
 }
 
 .concursos-input {
@@ -3589,6 +3599,43 @@ span.social-icon-link {
   gap: 14px;
 }
 
+.site-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.site-pagination button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  border: 1px solid rgb(var(--text-rgb) / .12);
+  border-radius: 9999px;
+  background: var(--white);
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.site-pagination button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.site-pagination .site-pagination-active {
+  border-color: var(--yellow);
+  background: var(--yellow);
+}
+
+.site-pagination-pages {
+  display: flex;
+  gap: 6px;
+}
+
 .concursos-result-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -3601,6 +3648,7 @@ span.social-icon-link {
   padding: 18px 24px;
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  text-align: left;
 }
 
 .concursos-result-card:hover {
@@ -4383,6 +4431,116 @@ span.social-icon-link {
   padding-top: 24px;
   border-top: 1px solid rgb(var(--text-rgb) / .08);
 }
+
+.licitacao-detail-documents > h2 {
+  margin-bottom: 14px;
+}
+
+.licitacao-detail-documents .site-action-button-muted {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  width: auto;
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgb(var(--text-rgb) / .12);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.licitacao-detail-documents {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.licitacao-detail-documents > h2 {
+  grid-column: 1 / -1;
+}
+
+.licitacao-detail-documents .site-action-button-muted:hover,
+.licitacao-detail-documents .site-action-button-muted:focus-visible {
+  background: var(--green-dark);
+  color: var(--white);
+  border-color: var(--green-dark);
+}
+
+.licitacao-detail-documents .site-action-button-muted svg {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  .licitacao-detail-documents {
+    grid-template-columns: 1fr;
+  }
+}
+
+.diario-content { padding-top: 28px; padding-bottom: 56px; }
+.diario-hero .site-title, .diario-hero .site-subtitle { color: var(--white); }
+.diario-recent-panel, .diario-filter-panel, .diario-calendar-panel, .diario-more-panel { background: var(--white); border: 1px solid var(--border); border-radius: 10px; }
+.diario-recent-panel { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.diario-recent-panel h2, .diario-more-panel h2 { margin: 0 0 14px; font: 800 14px Poppins, sans-serif; color: var(--text); }
+.diario-editions-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.diario-edition-card { display: grid; justify-items: center; gap: 7px; min-height: 132px; padding: 16px 10px 12px; border: 1px solid var(--border); border-radius: 12px; text-align: center; background: var(--white); box-shadow: 0 8px 20px rgb(var(--text-rgb) / .05); }
+.diario-edition-icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: rgb(var(--green-rgb) / .12); color: var(--green-dark); }
+.diario-edition-icon svg { width: 13px; height: 13px; }
+.diario-edition-card strong { font: 700 11px Poppins, sans-serif; color: var(--text); }
+.diario-edition-card time { font-size: 10px; color: var(--muted); }
+.diario-view-button, .diario-search-button, .diario-clear-button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 28px; padding: 5px 10px; border-radius: 8px; font: 700 10px Poppins, sans-serif; text-decoration: none; cursor: pointer; }
+.diario-view-button, .diario-search-button { background: var(--yellow); color: var(--text); border: 1px solid var(--yellow); }
+.diario-view-button:hover, .diario-search-button:hover { background: var(--yellow-dark); color: var(--text); }
+.diario-filter-panel { margin: 28px 0; padding: 0; }
+.diario-filter-panel.diario-filter-panel { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.diario-filter-grid { grid-template-columns: minmax(0, .9fr) minmax(0, .9fr) minmax(0, 1.5fr) auto; gap: 18px; }
+.diario-filter-grid > label:nth-child(1) .site-caps-title { font-size: 0; }
+.diario-filter-grid > label:nth-child(1) .site-caps-title::after { content: "PERÍODO INICIAL"; font-size: 10px; }
+.diario-filter-grid > label:nth-child(2) .site-caps-title { font-size: 0; }
+.diario-filter-grid > label:nth-child(2) .site-caps-title::after { content: "PERÍODO FINAL"; font-size: 10px; }
+.diario-filter-grid > label:nth-child(3) .site-caps-title { font-size: 10px; }
+.diario-filter-panel label { display: grid; gap: 5px; color: var(--white); font: 700 11px Poppins, sans-serif; }
+.diario-filter-panel .site-caps-title { color: var(--white); }
+.diario-filter-panel input { width: 100%; min-height: 46px; padding: 0 16px; border: 0; border-radius: 999px; outline: 0; background: var(--white); color: var(--text); font: 400 12px Poppins, sans-serif; box-shadow: none; }
+.diario-filter-panel input:focus-visible { outline: 3px solid rgb(var(--green-rgb) / .22); }
+.diario-filter-panel .concursos-input input { padding-left: 44px; }
+.diario-filter-actions { display: flex; gap: 7px; }
+.diario-filter-actions .site-action-button { min-height: 46px; }
+.diario-filter-actions .site-action-button.button-yellow { background: var(--yellow) !important; color: var(--text) !important; border-color: var(--yellow) !important; box-shadow: none !important; }
+.diario-filter-actions .site-action-button.button-yellow:hover { background: var(--yellow-dark) !important; color: var(--text) !important; }
+.diario-search-button svg, .diario-clear-button svg { width: 13px; height: 13px; }
+.diario-clear-button { min-height: 46px; border: 1px solid var(--green); border-radius: 999px; background: transparent; color: var(--green-dark); white-space: nowrap; }
+.diario-clear-button:hover { background: rgb(var(--green-rgb) / .08); }
+.diario-main-layout { display: grid; grid-template-columns: 214px minmax(0, 1fr); gap: 20px; align-items: start; }
+.diario-calendar-panel, .diario-more-panel { padding: 16px; }
+.diario-calendar-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.diario-calendar-heading h2 { margin: 0; text-transform: capitalize; font: 800 12px Poppins, sans-serif; }
+.diario-calendar-heading button { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 8px; background: var(--white); color: var(--green-dark); cursor: pointer; }
+.diario-calendar-heading svg { width: 15px; height: 15px; }
+.diario-weekdays, .diario-calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.diario-weekdays { margin-bottom: 5px; color: var(--muted); font: 800 9px Poppins, sans-serif; }
+.diario-calendar-days button, .diario-calendar-days span { display: grid; place-items: center; min-height: 24px; border: 0; border-radius: 50%; background: transparent; color: var(--text); font: 400 10px Poppins, sans-serif; }
+.diario-calendar-days button { cursor: pointer; }
+.diario-calendar-days button:hover { background: rgb(var(--yellow-rgb) / .28); }
+.diario-calendar-days .diario-calendar-event { background: var(--green-dark); color: var(--white); font-weight: 700; }
+.diario-more-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.diario-more-panel { padding: 0; border: 0; background: transparent; }
+.diario-modal-backdrop { position: fixed; inset: 0; z-index: 50000; display: grid; place-items: center; padding: 24px; background: rgb(0 0 0 / .68); }
+.diario-modal { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; width: min(1100px, 100%); height: min(820px, 92vh); overflow: hidden; border-radius: 14px; background: var(--white); box-shadow: 0 24px 70px rgb(0 0 0 / .35); }
+.diario-modal header, .diario-modal footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; }
+.diario-modal header { border-bottom: 1px solid var(--border); }
+.diario-modal header h2 { margin: 0; color: var(--text); font: 800 16px/1.35 Poppins, sans-serif; }
+.diario-modal header button { display: grid; place-items: center; border: 0; background: transparent; color: var(--text); cursor: pointer; }
+.diario-modal header button svg { width: 22px; height: 22px; }
+.diario-modal iframe { width: 100%; height: 100%; border: 0; background: var(--surface); }
+.diario-modal footer { border-top: 1px solid var(--border); color: var(--muted); font: 400 12px/1.45 Inter, sans-serif; }
+.diario-modal footer a { color: var(--green-dark); font-weight: 800; text-decoration: underline; }
+@media (max-width: 800px) { .diario-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .diario-filter-actions { grid-column: 1 / -1; } .diario-main-layout { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .diario-editions-grid, .diario-more-grid, .diario-filter-grid { grid-template-columns: 1fr 1fr; } .diario-filter-actions { grid-column: 1 / -1; } }
+@media (max-width: 700px) { .diario-modal-backdrop { padding: 10px; } .diario-modal { height: 94vh; } .diario-modal footer { align-items: flex-start; flex-direction: column; } }
 
 .licitacao-related-panel {
   position: sticky;
@@ -7198,6 +7356,7 @@ span.social-icon-link {
 .faq-page .faq-item { border: 0; border-radius: 14px; background: transparent; box-shadow: none; }
 .faq-page .faq-item summary { grid-template-columns: minmax(0, 1fr) 24px; min-height: 50px; padding: 15px 20px; border-radius: 14px; background: var(--green-dark); color: var(--white); }
 .faq-page .faq-question-text strong { color: var(--white); font-size: 13px; }
+.faq-page .faq-question { color: var(--white); font-size: 13px; }
 .faq-page .faq-arrow { color: var(--white); font: 800 14px Poppins, sans-serif; transform: none; }
 .faq-page .faq-item[open] .faq-arrow { transform: none; font-size: 0; }
 .faq-page .faq-item[open] .faq-arrow::after { content: "−"; font-size: 14px; }
@@ -7213,3 +7372,22 @@ span.social-icon-link {
 .secretaria-detail-contact-info p { display: flex; align-items: center; gap: 8px; }
 .secretaria-detail-contact-info svg { flex: 0 0 auto; width: 16px; height: 16px; color: var(--green); }
 @media (max-width: 700px) { .secretaria-detail-news-item { flex-direction: column; gap: 8px; } .secretaria-detail-table { min-width: 680px; } }
+.sx-40 { color: var(--text) !important; }
+.mobile-submenu { display: flex; flex-direction: column; background: var(--white); border-top: 1px solid var(--border); }
+.mobile-submenu a { color: var(--text); padding: 12px 18px 12px 34px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.diario-page .diario-filter-panel.concursos-filter .site-caps-title,
+.diario-page .diario-filter-panel.concursos-filter .site-caps-title::after {
+  color: var(--white) !important;
+}
+.legislation-document-modal-backdrop { position: fixed; inset: 0; z-index: 50000; display: grid; place-items: center; padding: 24px; background: rgb(0 0 0 / .68); }
+.legislation-document-modal { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; width: min(1100px, 100%); height: min(820px, 92vh); overflow: hidden; border-radius: 14px; background: var(--white); box-shadow: 0 24px 70px rgb(0 0 0 / .35); }
+.legislation-document-modal header, .legislation-document-modal footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; }
+.legislation-document-modal header { border-bottom: 1px solid var(--border); }
+.legislation-document-modal header h2 { margin: 0; color: var(--text); font: 800 16px/1.35 Poppins, sans-serif; }
+.legislation-document-modal header button { display: grid; place-items: center; border: 0; background: transparent; color: var(--text); cursor: pointer; }
+.legislation-document-modal iframe { width: 100%; height: 100%; border: 0; background: var(--surface); }
+.legislation-document-modal footer { justify-content: flex-end; border-top: 1px solid var(--border); }
+.legislation-document-modal footer a { color: var(--green-dark); font: 800 12px Poppins, sans-serif; text-decoration: underline; }
+.legislation-document-empty { display: grid; place-items: center; color: var(--muted); font: 500 13px Poppins, sans-serif; }
+.concurso-detail-object + .concurso-detail-object { margin-top: 20px; }
+@media (max-width: 700px) { .legislation-document-modal-backdrop { padding: 10px; } .legislation-document-modal { height: 94vh; } }

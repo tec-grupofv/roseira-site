@@ -1,6 +1,11 @@
-import RequirementPage, { type RequirementPageConfig } from "./RequirementPage";
+import { useEffect } from "react";
 
-export default function ServicosCidadaoPage({ page, onBackHome }: { page: RequirementPageConfig; onBackHome: () => void }) {
-  return <RequirementPage page={page} slug="servicos-cidadao" onBackHome={onBackHome} />;
+const SERVICOS_CIDADAO_URL = "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/portal/";
+
+export default function ServicosCidadaoPage() {
+  useEffect(() => {
+    window.location.replace(SERVICOS_CIDADAO_URL);
+  }, []);
+
+  return null;
 }
-

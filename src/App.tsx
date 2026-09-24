@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import type React from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
-import { FileText, Info, Landmark, Newspaper, ShieldCheck, UsersRound } from "lucide-react";
-import ConcursosPage from "./pages/ConcursosPage";
-import LicitacoesPage, { LicitacaoDetailPage } from "./pages/LicitacoesPage";
+import { FileText, Info, Landmark, ShieldCheck, UsersRound } from "lucide-react";
+import ConcursosPage, { ConcursoDetailPage, CONCURSOS_PAGE_ITEMS } from "./pages/ConcursosPage";
+import LicitacoesPage, { LicitacaoDetailPage, LICITACOES_PAGE_CONFIGS } from "./pages/LicitacoesPage";
 import LeisMunicipaisPage, { LeiMunicipalDetailPage, type LegislacaoPageConfig } from "./pages/LeisMunicipaisPage";
 import NoticiasPage, { NoticiaDetailPage } from "./pages/NoticiasPage";
 import SecretariaDetailPage, { SecretariasDirectoryPage } from "./pages/SecretariaDetailPage";
@@ -68,8 +68,6 @@ import PncpPage from "./pages/PncpPage";
 import CodigoTributarioPage from "./pages/CodigoTributarioPage";
 import PlanoDiretorPage from "./pages/PlanoDiretorPage";
 import LeiOrganicaMunicipalPage from "./pages/LeiOrganicaMunicipalPage";
-import DiarioOficialPage from "./pages/DiarioOficialPage";
-import AtosOficiaisPage from "./pages/AtosOficiaisPage";
 import OuvidoriaPage from "./pages/OuvidoriaPage";
 import EsicPage from "./pages/EsicPage";
 import EnderecoTelefonesPage from "./pages/EnderecoTelefonesPage";
@@ -92,6 +90,7 @@ type RequirementPageConfig = {
   columns: string[];
   rows: string[][];
   hideHeroMeta?: boolean;
+  hideHeroCategory?: boolean;
   hideSummaryPanels?: boolean;
   hideRequirementNote?: boolean;
 };
@@ -154,15 +153,15 @@ const I = {
 const NAV_ITEMS = [
   {
     label: "A Prefeitura",
-    children: ["História de Roseira", "Prefeito e Vice-prefeito", "Gabinete", "Estrutura Administrativa", "Telefones e Endereços", "Horário de Atendimento", "Símbolos Municipais", "Conselhos Municipais", "Mapa do Site", "Galeria de Fotos", "Termos de Uso", "Política de Cookies", "LGPD"],
+    children: ["História de Roseira", "Prefeito e Vice-prefeito", "Gabinete", "Estrutura Administrativa", "Telefones e Endereços", "Símbolos Municipais", "Conselhos Municipais", "Mapa do Site", "Galeria de Fotos", "Termos de Uso", "Política de Cookies", "LGPD", "Lei Aldir Blanc 2"],
   },
   {
     label: "Secretarias",
-    children: ["Esporte", "Saúde", "Conselho Municipal de Educação", "Educação", "FUNDEB", "Conselho de Alimentação Escolar", "Vagas em Creche", "Turismo e Cultura", "Meio Ambiente", "Cadastro de Inscrição Municipal"],
+    children: ["Esporte", "Saúde", "Conselho Municipal de Educação", "Educação", "FUNDEB", "Conselho de Alimentação Escolar", "Vagas em Creche", "Turismo e Cultura", "Meio Ambiente"],
   },
   {
     label: "Serviços",
-    children: ["Carta de Serviços", "Serviços ao Cidadão", "Serviços à Empresa", "Serviços ao Servidor", "Protocolos", "Emissão de Guias", "IPTU", "Dívida Ativa", "ITBI", "Nota Fiscal Eletrônica", "Cadastro de Inscrição Municipal", "Bolsa Família", "Banco do Povo", "Acessa SP", "Conselho Tutelar", "Junta Militar", "COVID-19", "Portal da Educação", "Plano Municipal de Arborização Urbana", "Centro de Esterilização de Animais", "Lei Aldir Blanc 2", "Vagas de Emprego", "Agendamento", "Perguntas Frequentes"],
+    children: ["Carta de Serviços", "Serviços ao Cidadão", "2ª Via IPTU / Taxas Imobiliárias", "IPTU", "Dívida Ativa", "Emissão Guias de ITBI", "Cadastro de Inscrição Municipal", "Acessa SP", "Portal da Educação", "RH Online", "Veracidade do Holerite", "Audiências Públicas", "Agendamento", "Perguntas Frequentes"],
   },
   {
     label: "Notícias",
@@ -170,7 +169,7 @@ const NAV_ITEMS = [
   },
   {
     label: "Licitações",
-    children: ["Licitações em Aberto", "Licitações Encerradas", "Concorrência Pública", "Chamada Pública", "Pregão Presencial", "Tomada de Preços", "Leilão", "Dispensas e Inexigibilidades", "Contratos", "Aditivos", "Atas de Registro de Preços", "Fornecedores", "PNCP"],
+    children: ["Licitações", "Concorrência Pública", "Chamada Pública", "Pregão Presencial", "Tomada de Preços", "Leilão", "Dispensas e Inexigibilidades", "Contratos", "Aditivos", "Atas de Registro de Preços", "Fornecedores", "PNCP"],
   },
   { label: "Concursos", children: [] },
   {
@@ -179,15 +178,37 @@ const NAV_ITEMS = [
   },
   {
     label: "Legislação",
-    children: ["Leis Municipais", "Decretos", "Portarias", "Código Tributário", "Plano Diretor", "Lei Orgânica Municipal", "Diário Oficial", "Atos Oficiais"],
+    children: ["Leis Municipais", "Decretos", "Portarias", "Resoluções", "Instruções", "Código Tributário", "Plano Diretor", "Lei Orgânica Municipal", "Atos Normativos"],
   },
   {
     label: "Contato",
-    children: ["Fale Conosco", "Ouvidoria", "e-SIC", "Endereço e Telefones", "Horários de Atendimento", "Mapa de Localização", "Redes Sociais"],
+    children: ["Fale Conosco", "Ouvidoria", "e-SIC", "Endereço e Telefones"],
   },
 ];
 
+const LICITACOES_EXTERNAL_LINKS: Record<string, string> = {
+  "Licitações em Aberto": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/licitacoes",
+  "Licitações Encerradas": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/licitacoes",
+  "Chamada Pública": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/chamamentos",
+  "Concorrência Pública": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/chamamentos",
+  "Dispensas e Inexigibilidades": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/dispensas",
+  "Contratos": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/contratos",
+  "Atas de Registro de Preços": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/atas",
+};
+
+const TRANSPARENCIA_EXTERNAL_LINKS: Record<string, string> = {
+  "Receitas": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/execucao/receita/proprias",
+  "Despesas": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/execucao/despesas-fonte-aplicacao",
+  "Diárias e Passagens": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/execucao/diarias",
+  "Contratos": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/contratos",
+  "Convênios e Repasses": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/convenios",
+  "Radar da Transparência / Matriz Atricon": "https://radardatransparencia.atricon.org.br/",
+};
+
 const EXTERNAL_LINKS = {
+
+
+
   transparencia: CONTACT_INFO.transparencyPortalUrl,
   iptu: "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/2via/index.php",
   iss: "https://pmroseira.geosiap.net.br:8443/pmroseira/issonline/iss.login.php",
@@ -206,14 +227,27 @@ function getPortalLinkProps(label: string) {
 }
 
 function getChildHref(section: string, label: string) {
+  if (section === "Transparência" && TRANSPARENCIA_EXTERNAL_LINKS[label]) return TRANSPARENCIA_EXTERNAL_LINKS[label];
+  if (section === "Licitações" && label === "Licitações") return "/licitacoes/licitacoes";
+  if (section === "Licitações" && ["Licitações em Aberto", "Licitações Encerradas"].includes(label)) return "/licitacoes/licitacoes";
+  if (section === "Licitações" && NAVIGATION_REQUIREMENT_SLUGS[label]) return requirementPath(NAVIGATION_REQUIREMENT_SLUGS[label]);
   if (section === "Secretarias" && label === "Educação") return "/secretarias/educacao";
   if (label === "Portal da Transparência") return EXTERNAL_LINKS.transparencia;
+  if (section === "Serviços" && label === "Dívida Ativa") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/geda/geda_consulta.php";
+  if (section === "Serviços" && label === "2ª Via IPTU / Taxas Imobiliárias") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/2via/index.php";
+  if (section === "Serviços" && label === "Serviços ao Cidadão") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/portal/";
+  if (section === "Serviços" && label === "Audiências Públicas") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/portal/";
+  if (section === "Serviços" && label === "RH Online") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/recursos_humanos/grh/grh_rh_online.php";
+  if (section === "Serviços" && label === "Veracidade do Holerite") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/recursos_humanos/fol/veracidade_holerith.php";
+  if (section === "Serviços" && label === "Emissão Guias de ITBI") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/itbi/itbi_login.php";
   if (section === "Secretarias" && SECRETARIA_MENU_SLUGS[label]) return `/secretarias/${encodeURIComponent(SECRETARIA_MENU_SLUGS[label])}`;
   if (section === "A Prefeitura" && label === "História de Roseira") return PAGE_PATHS["historia-roseira"];
   if (section === "Notícias" && label === "Últimas Notícias") return "/noticias/ultimas-noticias";
   if (section === "Contato" && label === "Fale Conosco") return "/contato/fale-conosco";
   if (section === "Serviços" && label === "Perguntas Frequentes") return PAGE_PATHS.faq;
   if (section === "Legislação" && ["Leis Municipais", "Decretos", "Portarias"].includes(label)) return `/legislacao/${label.toLowerCase().replace(/ /g, "-")}`;
+  if (section === "Legislação" && ["Resoluções", "Instruções"].includes(label)) return `/legislacao/${label === "Resoluções" ? "resolucoes" : "instrucoes"}`;
+  if (section === "Legislação" && { "Código Tributário": "codigo-tributario", "Lei Orgânica Municipal": "lei-organica-municipal", "Atos Normativos": "atos-normativos" }[label]) return `/legislacao/${({ "Código Tributário": "codigo-tributario", "Lei Orgânica Municipal": "lei-organica-municipal", "Atos Normativos": "atos-normativos" } as Record<string, string>)[label]}`;
   const slug = NAVIGATION_REQUIREMENT_SLUGS[label];
   return slug ? requirementPath(slug) : "#conteudo-principal";
 }
@@ -318,15 +352,6 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     columns: ["Serviço", "Público-alvo", "Documentos", "Prazo", "Canal"],
     rows: [["Solicitação de serviço", "Cidadão", "Não declarado", "Não declarado", "Não declarado"], ["Emissão de guia", "Cidadão/empresa", "Não declarado", "Não declarado", "Não declarado"]],
   },
-  "servicos-cidadao": {
-    title: "Serviços ao Cidadão",
-    subtitle: "Área para reunir IPTU, Bolsa Familia, Junta Militar, Conselho Tutelar, Educação e demais acessos.",
-    category: "Serviços",
-    kind: "service",
-    requiredElements: ["Serviço", "Descrição", "Link de acesso", "Unidade responsável"],
-    columns: ["Serviço", "Descrição", "Link", "Responsável"],
-    rows: [["2a via IPTU / Taxas Imobiliarias", "Acesso externo", EXTERNAL_LINKS.iptu, "Finanças"], ["Bolsa Familia", "Atendimento social", "Não declarado", "Assistência Social"]],
-  },
   "servicos-empresa": {
     title: "Serviços a Empresa",
     subtitle: "Acessos para inscrição municipal, ISS Online, NFS-e, licitacoes e canais empresariais.",
@@ -388,8 +413,10 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
   agendamento: {
     title: "Agendamento",
     subtitle: "Página para organizar atendimentos por unidade, assunto, data e situação.",
-    category: "Serviços",
+    category: "Atendimento",
     kind: "table",
+    hideHeroCategory: true,
+    hideSummaryPanels: true,
     requiredElements: ["Unidade", "Serviço", "Agenda", "Canal de atendimento"],
     columns: ["Unidade", "Serviço", "Agenda", "Canal"],
     rows: [["Prefeitura", "Atendimento geral", "Não declarado", "Presencial"], ["Secretaria", "Atendimento setorial", "Não declarado", "Não declarado"]],
@@ -651,17 +678,8 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     columns: ["Documento", "Descrição", "Data", "Arquivo"],
     rows: [["Lei Orgânica", "Texto consolidado", "Não declarado", "Não declarado"], ["Emendas", "Histórico", "Não declarado", "Não declarado"]],
   },
-  "diario-oficial": {
-    title: "Diario Oficial",
-    subtitle: "Edicoes do diario oficial, busca por período, tipo de ato e arquivo.",
-    category: "Publicações",
-    kind: "table",
-    requiredElements: ["Edição", "Data", "Tipo de ato", "Arquivo"],
-    columns: ["Edição", "Data", "Tipo", "Arquivo"],
-    rows: [["000/2026", "Não declarado", "Atos oficiais", "Não declarado"], ["001/2026", "Não declarado", "Publicação", "Não declarado"]],
-  },
-  "atos-oficiais": {
-    title: "Atos Oficiais",
+  "atos-normativos": {
+    title: "Atos Normativos",
     subtitle: "Publicações oficiais diversas com classificação, data, setor e arquivo.",
     category: "Publicações",
     kind: "table",
@@ -854,7 +872,7 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     columns: ["Processo", "Objeto", "Data", "Situação"],
     rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Pendente"]],
   },
-  "cadastro-inscrição-municipal": {
+  "cadastro-inscricao-municipal": {
     title: "Cadastro de Inscrição Municipal",
     subtitle: "Orientações e acesso para inscrição municipal de empresas e prestadores.",
     category: "Serviços a Empresa",
@@ -907,7 +925,7 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     sourceUrl: "https://www.roseira.sp.gov.br/cria/conselho-tutelar",
     requiredElements: ["Contato", "Endereço", "Horário", "Plantão"],
     columns: ["Canal", "Descrição", "Contato"],
-    rows: [["Atendimento", "Conselho Tutelar", "Não declarado"]],
+    rows: [["Atendimento", "Não declarado"]],
   },
   "junta-militar": {
     title: "Junta Militar",
@@ -1074,26 +1092,6 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     columns: ["Vaga", "Requisitos", "Contato", "Situação"],
     rows: [["Vaga demonstrativa", "Não declarado", "Não declarado", "Aberta"]],
   },
-  "divida-ativa": {
-    title: "Dívida Ativa",
-    subtitle: "Consulta, orientações, quitação e regularização de débitos inscritos em dívida ativa.",
-    category: "Tributos",
-    kind: "service",
-    sourceLabel: "Portal da Transparência",
-    sourceUrl: EXTERNAL_LINKS.transparencia,
-    requiredElements: ["Consulta", "Quitação", "Parcelamento", "Contato fiscal"],
-    columns: ["Serviço", "Descrição", "Canal"],
-    rows: [["Quitação de Dívida Ativa", "Consulta e regularização", "Não declarado"]],
-  },
-  itbi: {
-    title: "ITBI",
-    subtitle: "Orientações para solicitação, cálculo, emissão e acompanhamento de ITBI.",
-    category: "Tributos",
-    kind: "service",
-    requiredElements: ["Solicitação", "Documentos", "Cálculo", "Emissão de guia"],
-    columns: ["Serviço", "Descrição", "Canal"],
-    rows: [["ITBI", "Solicitação e emissão", "Não declarado"]],
-  },
 };
 
 const NAVIGATION_REQUIREMENT_SLUGS: Record<string, string> = {
@@ -1106,8 +1104,7 @@ const NAVIGATION_REQUIREMENT_SLUGS: Record<string, string> = {
   "Código Tributário": "codigo-tributario",
   "Plano Diretor": "plano-diretor",
   "Lei Orgânica Municipal": "lei-organica-municipal",
-  "Diário Oficial": "diario-oficial",
-  "Atos Oficiais": "atos-oficiais",
+  "Atos Normativos": "atos-normativos",
   "Licitações em Aberto": "em-aberto",
   "Licitações Encerradas": "encerradas",
   "Concorrência Pública": "concorrencia-publica",
@@ -1141,9 +1138,9 @@ const NAVIGATION_REQUIREMENT_SLUGS: Record<string, string> = {
   "Emissão de Guias": "emissão-guias",
   "IPTU": "iptu",
   "Dívida Ativa": "divida-ativa",
-  "ITBI": "itbi",
+  "Emissão Guias de ITBI": "itbi",
   "Nota Fiscal Eletrônica": "nota-fiscal-eletronica",
-  "Cadastro de Inscrição Municipal": "cadastro-inscrição-municipal",
+  "Cadastro de Inscrição Municipal": "cadastro-inscricao-municipal",
   "Bolsa Família": "bolsa-familia",
   "Banco do Povo": "banco-povo",
   "Acessa SP": "acessa-sp",
@@ -1206,6 +1203,16 @@ const PORTARIAS = [
   { num: "108-2026", desc: "Designa fiscal para execução de serviço público municipal", date: "03/06/2026", status: "Ativo" },
   { num: "107-2026", desc: "Atualiza composição de equipe técnica para programas municipais", date: "27/05/2026", status: "Ativo" },
 ];
+const RESOLUCOES = [
+  { num: "18-2026", desc: "Estabelece diretrizes para a execução de programas municipais", date: "26/06/2026", status: "Ativo" },
+  { num: "17-2026", desc: "Aprova procedimentos administrativos e normas de atendimento", date: "12/06/2026", status: "Ativo" },
+  { num: "16-2025", desc: "Regulamenta ações do conselho municipal para o exercício anterior", date: "18/12/2025", status: "Ativo" },
+];
+const INSTRUCOES = [
+  { num: "9-2026", desc: "Orienta os procedimentos para tramitação de processos internos", date: "23/06/2026", status: "Ativo" },
+  { num: "8-2026", desc: "Define rotinas para publicação e organização de documentos municipais", date: "09/06/2026", status: "Ativo" },
+  { num: "7-2025", desc: "Estabelece instruções para execução de serviços administrativos", date: "16/12/2025", status: "Ativo" },
+];
 const DECRETOS_CONFIG: LegislacaoPageConfig = {
   pageTitle: "Decretos",
   pageSubtitle: "Consulte decretos municipais públicados pela Prefeitura Municipal de Roseira.",
@@ -1236,6 +1243,27 @@ const PORTARIAS_CONFIG: LegislacaoPageConfig = {
   relatedTitle: "Outras Portarias",
   documentLabel: "Portaria",
 };
+const CODIGO_TRIBUTARIO = [
+  { num: "1-2026", desc: "Código Tributário Municipal - consulta consolidada", date: "10/01/2026", status: "Ativo" },
+  { num: "45-2025", desc: "Atualiza regras de lançamento e arrecadação tributária", date: "18/12/2025", status: "Ativo" },
+];
+const LEI_ORGANICA_MUNICIPAL = [
+  { num: "1-1990", desc: "Lei Orgânica do Município de Roseira - texto consolidado", date: "05/04/1990", status: "Ativo" },
+  { num: "12-2024", desc: "Emenda à Lei Orgânica Municipal", date: "20/09/2024", status: "Ativo" },
+];
+const ATOS_OFICIAIS = [
+  { num: "2036-2026", tipo: "Decreto", desc: "Ato oficial publicado pelo Município de Roseira", date: "25/06/2026", status: "Ativo" },
+  { num: "2035-2026", tipo: "Portaria", desc: "Ato administrativo de interesse público", date: "19/06/2026", status: "Ativo" },
+  { num: "2034-2025", tipo: "Resolução", desc: "Ato normativo municipal publicado no exercício anterior", date: "19/06/2025", status: "Ativo" },
+  { num: "2033-2024", tipo: "Instrução", desc: "Ato normativo municipal publicado no histórico", date: "19/06/2024", status: "Ativo" },
+];
+const LEGISLACAO_ESPECIAL: Record<string, { leis: typeof CODIGO_TRIBUTARIO; config: LegislacaoPageConfig }> = {
+  "codigo-tributario": { leis: CODIGO_TRIBUTARIO, config: { pageTitle: "Código Tributário Municipal", pageSubtitle: "Consulte o Código Tributário Municipal, suas normas complementares e atualizações.", itemLabel: "Código Tributário", summaryLabel: "Código Tributário Municipal", activeSummaryLabel: "Normas Vigentes", extraSummaryLabel: "Atualizações Tributárias", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar código tributário municipal", foundLabel: "normas tributárias encontradas", detailInfoTitle: "Informações do Código Tributário Municipal", detailTitlePrefix: "Código Tributário Municipal Nº", relatedTitle: "Outras Normas Tributárias", documentLabel: "Código Tributário Municipal" } },
+  "lei-organica-municipal": { leis: LEI_ORGANICA_MUNICIPAL, config: { pageTitle: "Lei Orgânica Municipal", pageSubtitle: "Consulte o texto consolidado e as emendas à Lei Orgânica Municipal.", itemLabel: "Lei Orgânica", summaryLabel: "Lei Orgânica", activeSummaryLabel: "Texto Vigente", extraSummaryLabel: "Emendas", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar lei orgânica municipal", foundLabel: "publicações encontradas", detailInfoTitle: "Informações da Lei Orgânica", detailTitlePrefix: "Lei Orgânica Municipal Nº", relatedTitle: "Outras Publicações", documentLabel: "Lei Orgânica" } },
+  "atos-normativos": { leis: ATOS_OFICIAIS, config: { pageTitle: "Atos Normativos", pageSubtitle: "Consulte portarias, resoluções, instruções e decretos expedidos pelo Município.", itemLabel: "Ato Normativo", summaryLabel: "Atos Normativos", activeSummaryLabel: "Atos Vigentes", extraSummaryLabel: "Publicações Recentes", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar atos normativos por tipo, número ou ementa", foundLabel: "atos normativos encontrados", detailInfoTitle: "Informações do Ato Normativo", detailTitlePrefix: "Ato Normativo Nº", relatedTitle: "Outros Atos Normativos", documentLabel: "Documento do Ato Normativo" } },
+  "resolucoes": { leis: RESOLUCOES, config: { pageTitle: "Resoluções", pageSubtitle: "Consulte as resoluções expedidas pelo Município de Roseira.", itemLabel: "Resolução", summaryLabel: "Resoluções", activeSummaryLabel: "Resoluções Vigentes", extraSummaryLabel: "Publicações Recentes", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar resoluções por número ou ementa", foundLabel: "resoluções encontradas", detailInfoTitle: "Informações da Resolução", detailTitlePrefix: "Resolução Nº", relatedTitle: "Outras Resoluções", documentLabel: "Resolução" } },
+  "instrucoes": { leis: INSTRUCOES, config: { pageTitle: "Instruções", pageSubtitle: "Consulte as instruções expedidas pelo Município de Roseira.", itemLabel: "Instrução", summaryLabel: "Instruções", activeSummaryLabel: "Instruções Vigentes", extraSummaryLabel: "Publicações Recentes", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar instruções por número ou ementa", foundLabel: "instruções encontradas", detailInfoTitle: "Informações da Instrução", detailTitlePrefix: "Instrução Nº", relatedTitle: "Outras Instruções", documentLabel: "Instrução" } },
+};
 const LICITACOES = [
   { num: "23-2025", desc: "Manutenção preventiva e corretiva de veículos da frota municipal", date: "01/06/2026", status: "Encerrado" },
   { num: "32-2025", desc: "Aquisição de gêneros alimentícios para a merenda escolar", date: "03/03/2026", status: "Encerrado" },
@@ -1264,9 +1292,9 @@ const NOTICIAS = [
 
 type QuickAccessCategory = "cidadao" | "empresa" | "principais";
 const QUICK_ACCESS_TABS: { key: QuickAccessCategory; label: string; items: string[] }[] = [
-  { key: "cidadao", label: "Cidadão", items: ["Portal da Transparência", "Bolsa Família", "Conselho Tutelar", "e-SUS", "Junta Militar", "Portal da Educação", "SIC - Acesso à Informação", "Vagas de Emprego", "Concursos", "Educação"] },
+  { key: "cidadao", label: "Cidadão", items: ["Portal da Transparência", "e-SUS", "Portal da Educação", "SIC - Acesso à Informação", "Concursos", "Educação"] },
   { key: "empresa", label: "Empresa", items: ["Cadastro de Inscrição Municipal", "ISS Online", "NFS-e", "Licitações", "Portal da Transparência", "Portal de Compras"] },
-  { key: "principais", label: "Principais Serviços", items: ["2ª Via IPTU / Taxas Imobiliárias", "Bolsa Família", "Cadastro Inscrição Municipal", "e-SUS", "ISS Online", "NFS-e", "Portal da Transparência", "RH Online", "SIC", "Veracidade do Holerite", "Ouvidoria Municipal"] },
+  { key: "principais", label: "Principais Serviços", items: ["2ª Via IPTU / Taxas Imobiliárias", "Cadastro Inscrição Municipal", "e-SUS", "ISS Online", "NFS-e", "Portal da Transparência", "RH Online", "SIC", "Veracidade do Holerite", "Ouvidoria Municipal"] },
 ];
 
 const SECRETARIAS = [
@@ -1833,10 +1861,11 @@ function SearchBar({ results }: { results: SearchResult[] }) {
 // -----------------------------------------------------------------------------
 // NAVIGATION
 // -----------------------------------------------------------------------------
-type AppPage = "home" | "historia-roseira" | "contato" | "fale-conosco" | "concursos" | "licitacoes" | "licitacao-detail" | "leis-municipais" | "lei-detail" | "decretos" | "decreto-detail" | "portarias" | "portaria-detail" | "noticias" | "ultimas-noticias" | "noticia-detail" | "secretarias" | "secretaria-detail" | "faq" | "accessibility" | "requirement-page";
+type AppPage = "home" | "historia-roseira" | "contato" | "fale-conosco" | "concursos" | "concurso-detail" | "licitacoes" | "licitacao-detail" | "leis-municipais" | "lei-detail" | "decretos" | "decreto-detail" | "portarias" | "portaria-detail" | "legislacao-special" | "legislacao-special-detail" | "noticias" | "ultimas-noticias" | "noticia-detail" | "secretarias" | "secretaria-detail" | "faq" | "accessibility" | "requirement-page";
 
 function NavBar({ menuOpen, setMenuOpen, currentPage, activeSecretariaSlug, activeRequirementSlug, onNavigate, onOpenRequirement, onSelectSecretaria }: { menuOpen: boolean; setMenuOpen: (v: boolean) => void; currentPage: AppPage; activeSecretariaSlug: string; activeRequirementSlug: string; onNavigate: (page: AppPage) => void; onOpenRequirement: (slug: string) => void; onSelectSecretaria: (slug: string) => void }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [mobileOpenIdx, setMobileOpenIdx] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const menuKey = (label: string) => label.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase();
 
@@ -1891,6 +1920,14 @@ function NavBar({ menuOpen, setMenuOpen, currentPage, activeSecretariaSlug, acti
                   {item.children.map(child => (
                     <a key={child} href={getChildHref(item.label, child)} title={child}
                       onClick={(event) => {
+                        if (item.label === "Transparência" && TRANSPARENCIA_EXTERNAL_LINKS[child]) {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Licitações" && LICITACOES_EXTERNAL_LINKS[child]) {
+                          setOpenIdx(null);
+                          return;
+                        }
                         if (item.label === "Secretarias" && child === "Educação") {
                           event.preventDefault();
                           onSelectSecretaria("educacao");
@@ -1898,6 +1935,34 @@ function NavBar({ menuOpen, setMenuOpen, currentPage, activeSecretariaSlug, acti
                           return;
                         }
                         if (child === "Portal da Transparência") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Dívida Ativa") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "2ª Via IPTU / Taxas Imobiliárias") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Serviços ao Cidadão") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Audiências Públicas") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "RH Online") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Veracidade do Holerite") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Emissão Guias de ITBI") {
                           setOpenIdx(null);
                           return;
                         }
@@ -1967,71 +2032,34 @@ function NavBar({ menuOpen, setMenuOpen, currentPage, activeSecretariaSlug, acti
 
       {/* Mobile */}
       {menuOpen && (
-        <div  className="lg:hidden sx-38">
-          {NAV_ITEMS.map((item) => (
-            <div key={item.label}  className="sx-39">
-              <a
-                href="#conteudo-principal"
-                title={item.label}
-                onClick={(event) => {
-                  if (item.label === "Concursos") {
-                    event.preventDefault();
-                    onNavigate("concursos");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Licitações") {
-                    event.preventDefault();
-                    onNavigate("licitacoes");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Notícias") {
-                    event.preventDefault();
-                    onNavigate("noticias");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Secretarias") {
-                    event.preventDefault();
-                    onNavigate("secretarias");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Legislação") {
-                    event.preventDefault();
-                    onNavigate("leis-municipais");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "A Prefeitura") {
-                    event.preventDefault();
-                    onNavigate("historia-roseira");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Contato") {
-                    event.preventDefault();
-                    onNavigate("contato");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Secretarias") {
-                    event.preventDefault();
-                    onNavigate("secretarias");
-                    setMenuOpen(false);
-                    return;
-                  }
-                  const firstRequirement = item.children.map(child => NAVIGATION_REQUIREMENT_SLUGS[child]).find(Boolean);
-                  if (firstRequirement) {
-                    event.preventDefault();
-                    onOpenRequirement(firstRequirement);
-                    setMenuOpen(false);
-                  }
-                }}
-                className={["sx-40", isActiveItem(item.label) ? "site-nav-active" : ""].filter(Boolean).join(" ")}
-                aria-current={isActiveItem(item.label) ? "page" : undefined}
-              >
-                {item.label} {item.children.length > 0 && I.chevRight}
-              </a>
+        <div className="lg:hidden sx-38">
+          {NAV_ITEMS.map((item, idx) => (
+            <div key={item.label} className="sx-39">
+              <button type="button" title={item.label} onClick={(event) => {
+                event.preventDefault();
+                if (item.children.length > 0) { setMobileOpenIdx(current => current === idx ? null : idx); return; }
+                if (item.label === "Concursos") onNavigate("concursos");
+                else if (item.label === "Licitações") onNavigate("licitacoes");
+                else if (item.label === "Notícias") onNavigate("noticias");
+                else if (item.label === "Secretarias") onNavigate("secretarias");
+                else if (item.label === "Legislação") onNavigate("leis-municipais");
+                else if (item.label === "A Prefeitura") onNavigate("historia-roseira");
+                else if (item.label === "Contato") onNavigate("contato");
+                setMenuOpen(false);
+              }} className={["sx-40", isActiveItem(item.label) ? "site-nav-active" : ""].filter(Boolean).join(" ")} aria-current={isActiveItem(item.label) ? "page" : undefined} aria-expanded={item.children.length > 0 ? mobileOpenIdx === idx : undefined}>
+                {item.label} {item.children.length > 0 && (mobileOpenIdx === idx ? I.chevDown : I.chevRight)}
+              </button>
+              {mobileOpenIdx === idx && item.children.length > 0 && (
+                <div className="mobile-submenu" role="menu" aria-label={"Submenu " + item.label}>
+                  {item.children.map(child => <a key={child} href={getChildHref(item.label, child)} title={child} role="menuitem" onClick={() => setMenuOpen(false)}>{child}</a>)}
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
     </nav>
+
   );
 }
 
@@ -2500,7 +2528,6 @@ function Transparencia() {
     { lbl: "Contas Públicas", desc: "Balanços e relatórios de execução orçamentária", Icon: Landmark },
     { lbl: "Licitações e Contratos", desc: "Editais, resultados e atas de sessão", Icon: FileText },
     { lbl: "Lei de Acesso à Informação", desc: "Solicite informações via e-SIC", Icon: Info },
-    { lbl: "Diário Oficial", desc: "Atos e públicações da administração", Icon: Newspaper },
     { lbl: "Audiências Públicas", desc: "Pautas, atas e transmissões ao vivo", Icon: UsersRound },
   ];
 
@@ -2822,7 +2849,7 @@ function Footer({ onOpenAccessibility }: { onOpenAccessibility: () => void }) {
   const COLS = [
     { title: "A Prefeitura", links: ["História do Município", "Galeria de Prefeitos", "Estrutura Organizacional", "Secretarias Municipais", "Câmara Municipal", "Plano Diretor"] },
     { title: "Serviços Online", links: ["2ª Via IPTU / Taxas", "Quitação Dívida Ativa", "ITBI", "NFS-e", "ISS Online", "RH Online", "Veracidade do Holerite", "Acessa SP"] },
-    { title: "Cidadão", links: ["Portal da Transparência", "SIC - Acesso à Informação", "Ouvidoria Municipal", "Bolsa Família", "Banco do Povo Paulista", "Conselho Tutelar", "Junta Militar"] },
+    { title: "Cidadão", links: ["Portal da Transparência", "SIC - Acesso à Informação", "Ouvidoria Municipal", "Banco do Povo Paulista", "Junta Militar"] },
     { title: "Empresa", links: ["Cadastro Inscrição Municipal", "ISS Online", "NFS-e", "Licitações", "Portal de Compras", "Sebrae"] },
   ];
 
@@ -2990,7 +3017,8 @@ const PAGE_PATHS: Record<AppPage, string> = {
   contato: "/contato",
   "fale-conosco": "/contato/fale-conosco",
   concursos: "/concursos",
-  licitacoes: "/licitacoes",
+  "concurso-detail": "/concursos",
+  licitacoes: "/licitacoes/licitacoes",
   "licitacao-detail": "/licitacoes/detalhe",
   "leis-municipais": "/legislacao/leis-municipais",
   "lei-detail": "/legislacao/leis-municipais/detalhe",
@@ -3003,7 +3031,7 @@ const PAGE_PATHS: Record<AppPage, string> = {
   "noticia-detail": "/noticias/detalhe",
   secretarias: "/secretarias",
   "secretaria-detail": "/secretarias/detalhe",
-  faq: "/perguntas-frequentes",
+  faq: "/servicos/perguntas-frequentes",
   accessibility: "/acessibilidade",
   "requirement-page": "/servicos/requisito",
 };
@@ -3014,10 +3042,17 @@ function pageFromPath(pathname: string): AppPage {
   if (pathname.startsWith("/contato/") && pathname !== "/contato/fale-conosco") return "requirement-page";
   if (pathname === "/noticias/ultimas-noticias") return "ultimas-noticias";
   if (pathname.startsWith("/noticias/") && pathname !== "/noticias/detalhe") return "requirement-page";
-  if (pathname.startsWith("/licitacoes/") && pathname !== "/licitacoes/detalhe") return "requirement-page";
+  if (pathname.startsWith("/licitacoes/") && pathname !== "/licitacoes/detalhe") {
+    const slug = requirementSlugFromPath(pathname);
+    if (LICITACOES_PAGE_CONFIGS[slug]) return "licitacoes";
+    return "requirement-page";
+  }
+  if (pathname.startsWith("/legislacao/")) {
+    const slug = legislacaoSpecialSlugFromPath(pathname);
+    if (LEGISLACAO_ESPECIAL[slug]) return pathname.endsWith("/detalhe") ? "legislacao-special-detail" : "legislacao-special";
+  }
   if (pathname === "/servicos/educacao" || pathname === "/servicos/educação") return "secretaria-detail";
-  if (pathname === "/secretarias/cadastro-inscricao-municipal") return "requirement-page";
-  if (pathname.startsWith("/secretarias/") && pathname !== "/secretarias/detalhe") {
+    if (pathname.startsWith("/secretarias/") && pathname !== "/secretarias/detalhe") {
     const slug = secretariaSlugFromPath(pathname);
     return SECRETARIA_DETAILS.some(secretaria => secretaria.slug === slug) ? "secretaria-detail" : "requirement-page";
   }
@@ -3030,6 +3065,15 @@ function pageFromPath(pathname: string): AppPage {
 function requirementSlugFromPath(pathname: string) {
   const slug = decodeURIComponent(pathname.split("/").filter(Boolean).pop() ?? "");
   return slug || "portal-transparencia";
+}
+function legislacaoSpecialSlugFromPath(pathname: string) {
+  const parts = pathname.split("/").filter(Boolean);
+  return parts[1] === "detalhe" ? parts[0] : parts[1] ?? "codigo-tributario";
+}
+
+function licitacoesSlugFromPath(pathname: string) {
+  const slug = requirementSlugFromPath(pathname);
+  return ["em-aberto", "encerradas"].includes(slug) ? "licitacoes" : slug;
 }
 
 function requirementPath(slug: string) {
@@ -3054,8 +3098,6 @@ const REQUIREMENT_PAGE_COMPONENTS: Record<string, typeof RequirementPageExternal
   "codigo-tributario": CodigoTributarioPage,
   "plano-diretor": PlanoDiretorPage,
   "lei-organica-municipal": LeiOrganicaMunicipalPage,
-  "diario-oficial": DiarioOficialPage,
-  "atos-oficiais": AtosOficiaisPage,
   "em-aberto": LicitacoesAbertasPage,
   "encerradas": LicitacoesEncerradasPage,
   "concorrencia-publica": ConcorrenciaPublicaPage,
@@ -3118,9 +3160,13 @@ export default function App() {
   const [page, setPage] = useState<AppPage>(() => pageFromPath(window.location.pathname));
   const [activeNoticiaIndex, setActiveNoticiaIndex] = useState(0);
   const [activeLicitacaoIndex, setActiveLicitacaoIndex] = useState(0);
+  const [activeConcursoIndex, setActiveConcursoIndex] = useState(0);
+  const [activeLicitacaoSlug, setActiveLicitacaoSlug] = useState(() => licitacoesSlugFromPath(window.location.pathname));
   const [activeLeiIndex, setActiveLeiIndex] = useState(0);
   const [activeDecretoIndex, setActiveDecretoIndex] = useState(0);
   const [activePortariaIndex, setActivePortariaIndex] = useState(0);
+  const [activeLegislacaoSpecialSlug, setActiveLegislacaoSpecialSlug] = useState(() => legislacaoSpecialSlugFromPath(window.location.pathname));
+  const [activeLegislacaoSpecialIndex, setActiveLegislacaoSpecialIndex] = useState(0);
   const [activeSecretariaSlug, setActiveSecretariaSlug] = useState(() => secretariaSlugFromPath(window.location.pathname) || SECRETARIA_DETAILS[0].slug);
   const [activeRequirementSlug, setActiveRequirementSlug] = useState(() => requirementSlugFromPath(window.location.pathname));
 
@@ -3138,7 +3184,7 @@ export default function App() {
 
     observer.observe(root, { childList: true, subtree: true });
     return () => observer.disconnect();
-  }, [fontScale, page, menuOpen, activeNoticiaIndex, activeLicitacaoIndex, activeLeiIndex, activeDecretoIndex, activePortariaIndex, activeSecretariaSlug, activeRequirementSlug]);
+  }, [fontScale, page, menuOpen, activeNoticiaIndex, activeLicitacaoIndex, activeLicitacaoSlug, activeLeiIndex, activeDecretoIndex, activePortariaIndex, activeSecretariaSlug, activeRequirementSlug]);
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -3176,7 +3222,9 @@ export default function App() {
     const handlePopState = () => {
       const nextPage = pageFromPath(window.location.pathname);
       setPage(nextPage);
-      if (nextPage === "requirement-page") setActiveRequirementSlug(requirementSlugFromPath(window.location.pathname));
+       if (nextPage === "requirement-page") setActiveRequirementSlug(requirementSlugFromPath(window.location.pathname));
+      if (nextPage === "licitacoes") setActiveLicitacaoSlug(licitacoesSlugFromPath(window.location.pathname));
+      if (nextPage === "legislacao-special" || nextPage === "legislacao-special-detail") setActiveLegislacaoSpecialSlug(legislacaoSpecialSlugFromPath(window.location.pathname));
       if (nextPage === "secretaria-detail") setActiveSecretariaSlug(secretariaSlugFromPath(window.location.pathname));
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -3212,6 +3260,18 @@ export default function App() {
   const openPortaria = (index: number) => {
     setActivePortariaIndex(index);
     navigate("portaria-detail");
+  };
+  const openConcurso = (index: number) => {
+    setActiveConcursoIndex(index);
+    navigate("concurso-detail");
+  };
+  const openLegislacaoSpecial = (slug: string, index = 0, detail = false) => {
+    setActiveLegislacaoSpecialSlug(slug);
+    setActiveLegislacaoSpecialIndex(index);
+    const path = `/legislacao/${slug}`;
+    window.history.pushState({ page: detail ? "legislacao-special-detail" : "legislacao-special", slug }, "", path);
+    setPage(detail ? "legislacao-special-detail" : "legislacao-special");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const openSecretaria = (slug: string) => {
     if (slug === "cadastro-inscricao-municipal") {
@@ -3344,15 +3404,17 @@ export default function App() {
       {page === "home" && <AlertBanner />}
       <main id="conteudo-principal" tabIndex={-1}>
         {page === "concursos" ? (
-          <ConcursosPage onBackHome={() => navigate("home")} />
+          <ConcursosPage onBackHome={() => navigate("home")} onSelectConcurso={openConcurso} />
+        ) : page === "concurso-detail" ? (
+          <ConcursoDetailPage item={CONCURSOS_PAGE_ITEMS[activeConcursoIndex] ?? CONCURSOS_PAGE_ITEMS[0]} onBackHome={() => navigate("home")} onBackList={() => navigate("concursos")} onSelectConcurso={openConcurso} />
         ) : page === "historia-roseira" ? (
           <HistoriaRoseiraPage onBackHome={() => navigate("home")} />
         ) : page === "contato" || page === "fale-conosco" ? (
           <ContatoPage onBackHome={() => navigate("home")} />
         ) : page === "licitacoes" ? (
-          <LicitacoesPage licitacoes={LICITACOES} onBackHome={() => navigate("home")} onSelectLicitacao={openLicitacao} />
+          <LicitacoesPage licitacoes={LICITACOES} config={LICITACOES_PAGE_CONFIGS[activeLicitacaoSlug] ?? LICITACOES_PAGE_CONFIGS.licitacoes} onBackHome={() => navigate("home")} onSelectLicitacao={openLicitacao} />
         ) : page === "licitacao-detail" ? (
-          <LicitacaoDetailPage licitacao={activeLicitacao} licitacoes={LICITACOES} onBackHome={() => navigate("home")} onBackList={() => navigate("licitacoes")} onSelectLicitacao={openLicitacao} />
+          <LicitacaoDetailPage licitacao={activeLicitacao} licitacoes={LICITACOES} config={LICITACOES_PAGE_CONFIGS[activeLicitacaoSlug] ?? LICITACOES_PAGE_CONFIGS.licitacoes} onBackHome={() => navigate("home")} onBackList={() => navigate("licitacoes")} onSelectLicitacao={openLicitacao} />
         ) : page === "leis-municipais" ? (
           <LeisMunicipaisPage leis={LEGISLACAO} onBackHome={() => navigate("home")} onSelectLei={openLei} />
         ) : page === "lei-detail" ? (
@@ -3365,6 +3427,10 @@ export default function App() {
           <LeisMunicipaisPage leis={PORTARIAS} config={PORTARIAS_CONFIG} onBackHome={() => navigate("home")} onSelectLei={openPortaria} />
         ) : page === "portaria-detail" ? (
           <LeiMunicipalDetailPage lei={activePortaria} leis={PORTARIAS} config={PORTARIAS_CONFIG} onBackHome={() => navigate("home")} onBackList={() => navigate("portarias")} onSelectLei={openPortaria} />
+        ) : page === "legislacao-special" ? (
+          <LeisMunicipaisPage leis={LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.leis ?? CODIGO_TRIBUTARIO} config={LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.config} onBackHome={() => navigate("home")} onSelectLei={(index) => openLegislacaoSpecial(activeLegislacaoSpecialSlug, index, true)} />
+        ) : page === "legislacao-special-detail" ? (
+          <LeiMunicipalDetailPage lei={(LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.leis ?? CODIGO_TRIBUTARIO)[activeLegislacaoSpecialIndex] ?? (LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.leis ?? CODIGO_TRIBUTARIO)[0]} leis={LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.leis ?? CODIGO_TRIBUTARIO} config={LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.config} onBackHome={() => navigate("home")} onBackList={() => openLegislacaoSpecial(activeLegislacaoSpecialSlug)} onSelectLei={(index) => openLegislacaoSpecial(activeLegislacaoSpecialSlug, index, true)} />
         ) : page === "noticias" || page === "ultimas-noticias" ? (
           <NoticiasPage noticias={NOTICIAS} onBackHome={() => navigate("home")} onSelectNoticia={openNoticia} />
         ) : page === "noticia-detail" ? (

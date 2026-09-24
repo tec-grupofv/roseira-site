@@ -1,12 +1,16 @@
-import { CalendarDays, ChevronRight, FileText, Search, Scale, ScrollText } from "lucide-react";
+import { ChevronRight, FileText, Scale, ScrollText, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import SiteBreadcrumb from "../components/SiteBreadcrumb";
+import SearchYearFilter from "../components/SearchYearFilter";
+import Pagination from "../components/Pagination";
 
 export type LeiMunicipal = {
   num: string;
   desc: string;
   date: string;
   status: string;
+  tipo?: string;
+  documentUrl?: string;
 };
 
 export type LegislacaoPageConfig = {
@@ -57,8 +61,11 @@ export default function LeisMunicipaisPage({
   config?: LegislacaoPageConfig;
 }) {
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchYear, setSearchYear] = useState("");
   const [query, setQuery] = useState("");
   const [year, setYear] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const summaryItems = [
     { label: config.summaryLabel, Icon: Scale, tone: "yellow" },
     { label: config.activeSummaryLabel, status: "Ativo", Icon: ScrollText, tone: "green" },
@@ -69,9 +76,11 @@ export default function LeisMunicipaisPage({
   const filteredItems = leis.filter((item) => {
     const matchesStatus = !activeStatus || item.status === activeStatus;
     const matchesYear = !year || item.date.endsWith(year);
-    const searchText = `${item.num} ${item.desc} ${item.status}`.toLowerCase();
+    const searchText = `${item.num} ${item.tipo ?? ""} ${item.desc} ${item.status}`.toLowerCase();
     return matchesStatus && matchesYear && searchText.includes(query.trim().toLowerCase());
   });
+  const pageSize = 6;
+  const paginatedItems = filteredItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="concursos-view leis-view">
@@ -96,7 +105,7 @@ export default function LeisMunicipaisPage({
                   title={label}
                   aria-pressed={activeStatus === status}
                   className={`concursos-summary-card ${activeStatus === status ? "concursos-summary-card-active" : ""}`}
-                  onClick={() => setActiveStatus((current) => current === status ? null : status)}
+                  onClick={() => { setActiveStatus((current) => current === status ? null : status); setCurrentPage(1); }}
                 >
                   <span className={`concursos-summary-icon concursos-summary-icon-${tone}`}>
                     <Icon aria-hidden="true" />
@@ -115,31 +124,19 @@ export default function LeisMunicipaisPage({
 
       <section className="concursos-results">
         <div className="max-w-7xl mx-auto px-4">
-          <form className="concursos-filter" aria-label={config.searchAriaLabel}>
-            <div className="concursos-filter-grid">
-              <label>
-                <span className="site-caps-title">Número / Descrição</span>
-                <div className="concursos-input">
-                  <Search aria-hidden="true" />
-                  <input
-                    type="search"
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Buscar por número ou descrição..."
-                  />
-                </div>
-              </label>
-              <label>
-                <span className="site-caps-title">Ano</span>
-                <select value={year} onChange={(event) => setYear(event.target.value)}>
-                  <option value="">Todos os anos</option>
-                  {years.map((itemYear) => (
-                    <option key={itemYear}>{itemYear}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </form>
+          <SearchYearFilter
+            query={searchQuery}
+            onQueryChange={setSearchQuery}
+            year={searchYear}
+            onYearChange={setSearchYear}
+            years={years}
+            ariaLabel={config.searchAriaLabel}
+            onSubmit={() => {
+              setQuery(searchQuery);
+              setYear(searchYear);
+              setCurrentPage(1);
+            }}
+          />
 
           <div className="licitacoes-heading">
             <h2 className="site-card-title">{filteredItems.length} {config.foundLabel}</h2>
@@ -147,7 +144,7 @@ export default function LeisMunicipaisPage({
           </div>
 
           <div className="concursos-list">
-            {filteredItems.map((item) => {
+            {paginatedItems.map((item) => {
               const itemIndex = leis.indexOf(item);
               return (
               <button
@@ -169,7 +166,7 @@ export default function LeisMunicipaisPage({
                     <span className={`concursos-status concursos-status-${statusClass(item.status)}`}>{item.status}</span>
                   </div>
                   <h3 className="site-card-title">{item.desc}</h3>
-                  <p className="site-text">Publicação: {item.date}</p>
+                  <p className="site-text">Publicação: {item.date} | Tipo: {item.tipo ?? config.itemLabel}</p>
                 </div>
                 <div className="concursos-views licitacoes-action" aria-hidden="true">
                   <ChevronRight />
@@ -178,6 +175,7 @@ export default function LeisMunicipaisPage({
               );
             })}
           </div>
+          <Pagination currentPage={currentPage} totalItems={filteredItems.length} pageSize={pageSize} onPageChange={setCurrentPage} />
         </div>
       </section>
     </div>
@@ -200,6 +198,7 @@ export function LeiMunicipalDetailPage({
   config?: LegislacaoPageConfig;
 }) {
   const relatedItems = leis.filter((item) => item.num !== lei.num).slice(0, 4);
+  const [documentOpen, setDocumentOpen] = useState(false);
 
   return (
     <div className="concursos-view leis-view">
@@ -236,6 +235,10 @@ export function LeiMunicipalDetailPage({
                   <span className="site-caps-title">Publicação</span>
                   <strong className="site-card-title">{lei.date}</strong>
                 </div>
+                <div>
+                  <span className="site-caps-title">Tipo</span>
+                  <strong className="site-card-title">{lei.tipo ?? config.itemLabel}</strong>
+                </div>
               </div>
               <div className="licitacao-detail-object">
                 <span className="site-caps-title">Descrição</span>
@@ -243,14 +246,10 @@ export function LeiMunicipalDetailPage({
               </div>
               <div className="licitacao-detail-documents">
                 <h2 className="site-panel-title">Documentos</h2>
-                <a href="#" title={config.documentLabel} className="site-action-button button-yellow">
+                <button type="button" title={config.documentLabel} className="site-action-button button-yellow" onClick={() => setDocumentOpen(true)}>
                   <FileText aria-hidden="true" />
                   {config.documentLabel}
-                </a>
-                <a href="#" title="Publicações" className="site-action-button-muted">
-                  <CalendarDays aria-hidden="true" />
-                  Publicações
-                </a>
+                </button>
               </div>
             </article>
 
@@ -272,6 +271,18 @@ export function LeiMunicipalDetailPage({
           </div>
         </div>
       </section>
+      {documentOpen && (
+        <div className="legislation-document-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setDocumentOpen(false); }}>
+          <section className="legislation-document-modal" role="dialog" aria-modal="true" aria-labelledby="legislation-document-modal-title">
+            <header>
+              <h2 id="legislation-document-modal-title">{config.documentLabel} - Nº {lei.num}</h2>
+              <button type="button" onClick={() => setDocumentOpen(false)} aria-label="Fechar documento"><X aria-hidden="true" /></button>
+            </header>
+            {lei.documentUrl ? <iframe src={lei.documentUrl} title={`Visualização de ${config.documentLabel} Nº ${lei.num}`} /> : <div className="legislation-document-empty">Documento ainda não informado.</div>}
+            {lei.documentUrl && <footer><a href={lei.documentUrl} target="_blank" rel="noreferrer">Abrir em nova aba</a></footer>}
+          </section>
+        </div>
+      )}
     </div>
   );
 }
