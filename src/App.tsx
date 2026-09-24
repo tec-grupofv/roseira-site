@@ -1,15 +1,81 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import type React from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
-import { FileText, Info, Landmark, Newspaper, ShieldCheck, UsersRound } from "lucide-react";
-import ConcursosPage from "./pages/ConcursosPage";
-import LicitacoesPage, { LicitacaoDetailPage } from "./pages/LicitacoesPage";
+import { FileText, Info, Landmark, ShieldCheck, UsersRound } from "lucide-react";
+import ConcursosPage, { ConcursoDetailPage, CONCURSOS_PAGE_ITEMS } from "./pages/ConcursosPage";
+import LicitacoesPage, { LicitacaoDetailPage, LICITACOES_PAGE_CONFIGS } from "./pages/LicitacoesPage";
 import LeisMunicipaisPage, { LeiMunicipalDetailPage, type LegislacaoPageConfig } from "./pages/LeisMunicipaisPage";
 import NoticiasPage, { NoticiaDetailPage } from "./pages/NoticiasPage";
 import SecretariaDetailPage, { SecretariasDirectoryPage } from "./pages/SecretariaDetailPage";
 import HistoriaRoseiraPage from "./pages/HistoriaRoseiraPage";
 import ContatoPage from "./pages/ContatoPage";
+import AccessibilityPageExternal from "./pages/AccessibilityPage";
+import FAQPageExternal from "./pages/FAQPage";
+import RequirementPageExternal from "./pages/RequirementPage";
+import HomePage from "./pages/HomePage";
+import PrefeitoVicePage from "./pages/PrefeitoVicePage";
+import GabinetePage from "./pages/GabinetePage";
+import EstruturaAdministrativaPage from "./pages/EstruturaAdministrativaPage";
+import TelefonesEnderecosPage from "./pages/TelefonesEnderecosPage";
+import HorarioAtendimentoPage from "./pages/HorarioAtendimentoPage";
+import SimbolosMunicipaisPage from "./pages/SimbolosMunicipaisPage";
+import ConselhosMunicipaisPage from "./pages/ConselhosMunicipaisPage";
+import MapaSitePage from "./pages/MapaSitePage";
+import GaleriaFotosPage from "./pages/GaleriaFotosPage";
+import TermosUsoPage from "./pages/TermosUsoPage";
+import PoliticaCookiesPage from "./pages/PoliticaCookiesPage";
+import LgpdPage from "./pages/LgpdPage";
+import CartaServicosPage from "./pages/CartaServicosPage";
+import ServicosCidadaoPage from "./pages/ServicosCidadaoPage";
+import ServicosEmpresaPage from "./pages/ServicosEmpresaPage";
+import ServicosServidorPage from "./pages/ServicosServidorPage";
+import ProtocolosPage from "./pages/ProtocolosPage";
+import EmissaoGuiasPage from "./pages/EmissaoGuiasPage";
+import IptuPage from "./pages/IptuPage";
+import DividaAtivaPage from "./pages/DividaAtivaPage";
+import ItbiPage from "./pages/ItbiPage";
+import NotaFiscalEletronicaPage from "./pages/NotaFiscalEletronicaPage";
+import CadastroInscricaoMunicipalPage from "./pages/CadastroInscricaoMunicipalPage";
+import BolsaFamiliaPage from "./pages/BolsaFamiliaPage";
+import BancoPovoPage from "./pages/BancoPovoPage";
+import AcessaSpPage from "./pages/AcessaSpPage";
+import ConselhoTutelarPage from "./pages/ConselhoTutelarPage";
+import JuntaMilitarPage from "./pages/JuntaMilitarPage";
+import CovidPage from "./pages/CovidPage";
+import PortalEducacaoPage from "./pages/PortalEducacaoPage";
+import PlanoArborizacaoPage from "./pages/PlanoArborizacaoPage";
+import CentroEsterilizacaoPage from "./pages/CentroEsterilizacaoPage";
+import LeiAldirBlancPage from "./pages/LeiAldirBlancPage";
+import VagasEmpregoPage from "./pages/VagasEmpregoPage";
+import AgendamentoPage from "./pages/AgendamentoPage";
+import ComunicadosPage from "./pages/ComunicadosPage";
+import AgendaEventosPage from "./pages/AgendaEventosPage";
+import CampanhasPage from "./pages/CampanhasPage";
+import BoletinsOficiaisPage from "./pages/BoletinsOficiaisPage";
+import LicitacoesAbertasPage from "./pages/LicitacoesAbertasPage";
+import LicitacoesEncerradasPage from "./pages/LicitacoesEncerradasPage";
+import ConcorrenciaPublicaPage from "./pages/ConcorrenciaPublicaPage";
+import ChamadaPublicaPage from "./pages/ChamadaPublicaPage";
+import PregaoPresencialPage from "./pages/PregaoPresencialPage";
+import TomadaPrecosPage from "./pages/TomadaPrecosPage";
+import LeilaoPage from "./pages/LeilaoPage";
+import DispensasInexigibilidadesPage from "./pages/DispensasInexigibilidadesPage";
+import ContratosLicitacoesPage from "./pages/ContratosLicitacoesPage";
+import AditivosPage from "./pages/AditivosPage";
+import AtasRegistroPrecosPage from "./pages/AtasRegistroPrecosPage";
+import FornecedoresPage from "./pages/FornecedoresPage";
+import PncpPage from "./pages/PncpPage";
+import CodigoTributarioPage from "./pages/CodigoTributarioPage";
+import PlanoDiretorPage from "./pages/PlanoDiretorPage";
+import LeiOrganicaMunicipalPage from "./pages/LeiOrganicaMunicipalPage";
+import OuvidoriaPage from "./pages/OuvidoriaPage";
+import EsicPage from "./pages/EsicPage";
+import EnderecoTelefonesPage from "./pages/EnderecoTelefonesPage";
+import HorariosAtendimentoPage from "./pages/HorariosAtendimentoPage";
+import MapaLocalizacaoPage from "./pages/MapaLocalizacaoPage";
+import RedesSociaisPage from "./pages/RedesSociaisPage";
 import SiteBreadcrumb from "./components/SiteBreadcrumb";
-import { loadPortalSnapshot, type PortalSnapshot } from "./services/transparenciaApi";
+import { CONTACT_INFO, createSocialLinks } from "./siteContact";
 
 type RequirementPageKind = "table" | "documents" | "service" | "external" | "statement";
 
@@ -23,8 +89,32 @@ type RequirementPageConfig = {
   requiredElements: string[];
   columns: string[];
   rows: string[][];
-  apiSource?: "licitacoes" | "contratos";
+  hideHeroMeta?: boolean;
+  hideHeroCategory?: boolean;
+  hideSummaryPanels?: boolean;
+  hideRequirementNote?: boolean;
 };
+
+type SearchResult = {
+  title: string;
+  category: string;
+  description: string;
+  keywords: string;
+  action: () => void;
+  externalUrl?: string;
+};
+
+declare global {
+  interface Window {
+    VLibras?: {
+      Widget: new (baseUrl: string) => unknown;
+    };
+    VLibrasWidget?: {
+      open?: () => void;
+    };
+    roseiraVLibrasWidgetReady?: boolean;
+  }
+}
 
 // -----------------------------------------------------------------------------
 // ICONS
@@ -63,15 +153,15 @@ const I = {
 const NAV_ITEMS = [
   {
     label: "A Prefeitura",
-    children: ["História de Roseira", "Prefeito e Vice-prefeito", "Gabinete", "Estrutura Administrativa", "Telefones e Endereços", "Horário de Atendimento", "Símbolos Municipais", "Conselhos Municipais", "Mapa do Site", "Galeria de Fotos", "Termos de Uso", "Política de Cookies", "LGPD"],
+    children: ["História de Roseira", "Prefeito e Vice-prefeito", "Gabinete", "Estrutura Administrativa", "Telefones e Endereços", "Símbolos Municipais", "Conselhos Municipais", "Mapa do Site", "Galeria de Fotos", "Termos de Uso", "Política de Cookies", "LGPD", "Lei Aldir Blanc 2"],
   },
   {
     label: "Secretarias",
-    children: ["Administração", "Assistência Social", "Educação", "Saúde", "Obras e Serviços Municipais", "Agricultura e Meio Ambiente", "Cultura, Esporte e Turismo", "Fazenda / Finanças", "Planejamento", "Procuradoria / Jurídico"],
+    children: ["Esporte", "Saúde", "Conselho Municipal de Educação", "Educação", "FUNDEB", "Conselho de Alimentação Escolar", "Vagas em Creche", "Turismo e Cultura", "Meio Ambiente"],
   },
   {
     label: "Serviços",
-    children: ["Carta de Serviços", "Serviços ao Cidadão", "Serviços à Empresa", "Serviços ao Servidor", "Protocolos", "Emissão de Guias", "IPTU", "Dívida Ativa", "ITBI", "Nota Fiscal Eletrônica", "Cadastro de Inscrição Municipal", "Bolsa Família", "Banco do Povo", "Acessa SP", "Conselho Tutelar", "Junta Militar", "COVID-19", "Portal da Educação", "Conselho Municipal de Educação", "Conselho de Alimentação Escolar", "Vagas em Creche", "Educação - Página Temática", "Saúde - Página Temática", "Esporte - Página Temática", "Turismo e Cultura", "Meio Ambiente", "Plano Municipal de Arborização Urbana", "Centro de Esterilização de Animais", "Lei Aldir Blanc 2", "Vagas de Emprego", "Agendamento", "Perguntas Frequentes"],
+    children: ["Carta de Serviços", "Serviços ao Cidadão", "2ª Via IPTU / Taxas Imobiliárias", "IPTU", "Dívida Ativa", "Emissão Guias de ITBI", "Cadastro de Inscrição Municipal", "Acessa SP", "Portal da Educação", "RH Online", "Veracidade do Holerite", "Audiências Públicas", "Agendamento", "Perguntas Frequentes"],
   },
   {
     label: "Notícias",
@@ -79,7 +169,7 @@ const NAV_ITEMS = [
   },
   {
     label: "Licitações",
-    children: ["Licitações em Aberto", "Licitações Encerradas", "Concorrência Pública", "Chamada Pública", "Pregão Presencial", "Tomada de Preços", "Leilão", "Dispensas e Inexigibilidades", "Contratos", "Aditivos", "Atas de Registro de Preços", "Fornecedores", "PNCP"],
+    children: ["Licitações", "Concorrência Pública", "Chamada Pública", "Pregão Presencial", "Tomada de Preços", "Leilão", "Dispensas e Inexigibilidades", "Contratos", "Aditivos", "Atas de Registro de Preços", "Fornecedores", "PNCP"],
   },
   { label: "Concursos", children: [] },
   {
@@ -88,23 +178,89 @@ const NAV_ITEMS = [
   },
   {
     label: "Legislação",
-    children: ["Leis Municipais", "Decretos", "Portarias", "Código Tributário", "Plano Diretor", "Lei Orgânica Municipal", "Diário Oficial", "Atos Oficiais"],
+    children: ["Leis Municipais", "Decretos", "Portarias", "Resoluções", "Instruções", "Código Tributário", "Plano Diretor", "Lei Orgânica Municipal", "Atos Normativos"],
   },
   {
     label: "Contato",
-    children: ["Fale Conosco", "Ouvidoria", "e-SIC", "Endereço e Telefones", "Horários de Atendimento", "Mapa de Localização", "Redes Sociais"],
+    children: ["Fale Conosco", "Ouvidoria", "e-SIC", "Endereço e Telefones"],
   },
 ];
 
+const LICITACOES_EXTERNAL_LINKS: Record<string, string> = {
+  "Licitações em Aberto": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/licitacoes",
+  "Licitações Encerradas": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/licitacoes",
+  "Chamada Pública": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/chamamentos",
+  "Concorrência Pública": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/chamamentos",
+  "Dispensas e Inexigibilidades": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/dispensas",
+  "Contratos": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/contratos",
+  "Atas de Registro de Preços": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/atas",
+};
+
+const TRANSPARENCIA_EXTERNAL_LINKS: Record<string, string> = {
+  "Receitas": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/execucao/receita/proprias",
+  "Despesas": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/execucao/despesas-fonte-aplicacao",
+  "Diárias e Passagens": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/execucao/diarias",
+  "Contratos": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/contratos",
+  "Convênios e Repasses": "https://pmroseira.geosiap.net.br:8443/portal-transparencia/licitacoes/convenios",
+  "Radar da Transparência / Matriz Atricon": "https://radardatransparencia.atricon.org.br/",
+};
+
 
 const EXTERNAL_LINKS = {
-  transparencia: "https://pmroseira.geosiap.net.br:8443/portal-transparencia/home",
+
+
+
+  transparencia: CONTACT_INFO.transparencyPortalUrl,
   iptu: "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/2via/index.php",
   iss: "https://pmroseira.geosiap.net.br:8443/pmroseira/issonline/iss.login.php",
   nfse: "https://www.nfse.gov.br/EmissorNacional/Login?ReturnUrl=%2fEmissorNacional",
   rh: "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/recursos_humanos/grh/grh_rh_online.php",
   holerite: "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/recursos_humanos/fol/veracidade_holerith.php",
+  sic: "https://www.roseira.sp.gov.br/sic-servico-de-informacao-ao-cidadao",
+  mapaSite: "https://www.roseira.sp.gov.br/mapa-site/",
 };
+
+function getPortalLinkProps(label: string) {
+  const requirementSlug = NAVIGATION_REQUIREMENT_SLUGS[label];
+  if (requirementSlug) return { href: requirementPath(requirementSlug) };
+  if (label !== "Portal da Transparência") return { href: "#conteudo-principal" };
+  return { href: EXTERNAL_LINKS.transparencia, target: "_blank", rel: "noreferrer" };
+}
+
+function getChildHref(section: string, label: string) {
+  if (section === "Transparência" && TRANSPARENCIA_EXTERNAL_LINKS[label]) return TRANSPARENCIA_EXTERNAL_LINKS[label];
+  if (section === "Licitações" && label === "Licitações") return "/licitacoes/licitacoes";
+  if (section === "Licitações" && ["Licitações em Aberto", "Licitações Encerradas"].includes(label)) return "/licitacoes/licitacoes";
+  if (section === "Licitações" && NAVIGATION_REQUIREMENT_SLUGS[label]) return requirementPath(NAVIGATION_REQUIREMENT_SLUGS[label]);
+  if (section === "Secretarias" && label === "Educação") return "/secretarias/educacao";
+  if (label === "Portal da Transparência") return EXTERNAL_LINKS.transparencia;
+  if (section === "Serviços" && label === "Dívida Ativa") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/geda/geda_consulta.php";
+  if (section === "Serviços" && label === "2ª Via IPTU / Taxas Imobiliárias") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/2via/index.php";
+  if (section === "Serviços" && label === "Serviços ao Cidadão") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/portal/";
+  if (section === "Serviços" && label === "Audiências Públicas") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/portal/";
+  if (section === "Serviços" && label === "RH Online") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/recursos_humanos/grh/grh_rh_online.php";
+  if (section === "Serviços" && label === "Veracidade do Holerite") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/recursos_humanos/fol/veracidade_holerith.php";
+  if (section === "Serviços" && label === "Emissão Guias de ITBI") return "https://pmroseira.geosiap.net.br:8443/pmroseira/websis/siapegov/arrecadacao/itbi/itbi_login.php";
+  if (section === "Secretarias" && SECRETARIA_MENU_SLUGS[label]) return `/secretarias/${encodeURIComponent(SECRETARIA_MENU_SLUGS[label])}`;
+  if (section === "A Prefeitura" && label === "História de Roseira") return PAGE_PATHS["historia-roseira"];
+  if (section === "Notícias" && label === "Últimas Notícias") return "/noticias/ultimas-noticias";
+  if (section === "Contato" && label === "Fale Conosco") return "/contato/fale-conosco";
+  if (section === "Serviços" && label === "Perguntas Frequentes") return PAGE_PATHS.faq;
+  if (section === "Legislação" && ["Leis Municipais", "Decretos", "Portarias"].includes(label)) return `/legislacao/${label.toLowerCase().replace(/ /g, "-")}`;
+  if (section === "Legislação" && ["Resoluções", "Instruções"].includes(label)) return `/legislacao/${label === "Resoluções" ? "resolucoes" : "instrucoes"}`;
+  if (section === "Legislação" && { "Código Tributário": "codigo-tributario", "Lei Orgânica Municipal": "lei-organica-municipal", "Atos Normativos": "atos-normativos" }[label]) return `/legislacao/${({ "Código Tributário": "codigo-tributario", "Lei Orgânica Municipal": "lei-organica-municipal", "Atos Normativos": "atos-normativos" } as Record<string, string>)[label]}`;
+  const slug = NAVIGATION_REQUIREMENT_SLUGS[label];
+  return slug ? requirementPath(slug) : "#conteudo-principal";
+}
+
+const { socialLinks: SOCIAL_LINKS, headerSocialLinks: HEADER_SOCIAL_LINKS } = createSocialLinks({
+  FacebookIcon: FaFacebookF,
+  YouTubeIcon: FaYoutube,
+  InstagramIcon: FaInstagram,
+  facebookSvg: I.fb,
+  youtubeSvg: I.yt,
+  instagramSvg: I.ig,
+});
 
 const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
   "prefeito-vice": {
@@ -120,6 +276,8 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
   },
   gabinete: {
     title: "Gabinete",
+    hideSummaryPanels: true,
+    hideHeroMeta: true,
     subtitle: "Página de referência para competencias, equipe responsável, atendimento e documentos do gabinete.",
     category: "Institucional",
     kind: "documents",
@@ -129,6 +287,9 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
   },
   "estrutura-administrativa": {
     title: "Estrutura Administrativa",
+    hideHeroCategory: true,
+    hideSummaryPanels: true,
+    sectionMenu: ["Organograma", "Departamentos", "Competências"],
     subtitle: "Organograma, secretarias, competências e responsáveis da administração municipal.",
     category: "Institucional",
     kind: "table",
@@ -140,6 +301,9 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
   },
   "telefones-enderecos": {
     title: "Telefones e Endereços",
+    hideRequirementNote: true,
+    hideHeroMeta: true,
+    hideSummaryPanels: true,
     subtitle: "Lista estruturada dos setores, telefones, e-mails, enderecos e horarios de atendimento.",
     category: "Atendimento",
     kind: "table",
@@ -188,15 +352,6 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     requiredElements: ["Serviço", "Público-alvo", "Documentos", "Prazo", "Canal digital ou presencial"],
     columns: ["Serviço", "Público-alvo", "Documentos", "Prazo", "Canal"],
     rows: [["Solicitação de serviço", "Cidadão", "Não declarado", "Não declarado", "Não declarado"], ["Emissão de guia", "Cidadão/empresa", "Não declarado", "Não declarado", "Não declarado"]],
-  },
-  "servicos-cidadao": {
-    title: "Serviços ao Cidadão",
-    subtitle: "Área para reunir IPTU, Bolsa Familia, Junta Militar, Conselho Tutelar, Educação e demais acessos.",
-    category: "Serviços",
-    kind: "service",
-    requiredElements: ["Serviço", "Descrição", "Link de acesso", "Unidade responsável"],
-    columns: ["Serviço", "Descrição", "Link", "Responsável"],
-    rows: [["2a via IPTU / Taxas Imobiliarias", "Acesso externo", EXTERNAL_LINKS.iptu, "Finanças"], ["Bolsa Familia", "Atendimento social", "Não declarado", "Assistência Social"]],
   },
   "servicos-empresa": {
     title: "Serviços a Empresa",
@@ -259,8 +414,10 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
   agendamento: {
     title: "Agendamento",
     subtitle: "Página para organizar atendimentos por unidade, assunto, data e situação.",
-    category: "Serviços",
+    category: "Atendimento",
     kind: "table",
+    hideHeroCategory: true,
+    hideSummaryPanels: true,
     requiredElements: ["Unidade", "Serviço", "Agenda", "Canal de atendimento"],
     columns: ["Unidade", "Serviço", "Agenda", "Canal"],
     rows: [["Prefeitura", "Atendimento geral", "Não declarado", "Presencial"], ["Secretaria", "Atendimento setorial", "Não declarado", "Não declarado"]],
@@ -320,8 +477,7 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     category: "Compras Públicas",
     kind: "table",
     sourceLabel: "Dispensa de Licitação antiga",
-    sourceUrl: "https://pmroseira.geosiap.net.br:8443/portal-transparencia/api/licitacoes/licitacoes/index?id_entidade=2",
-    apiSource: "licitacoes",
+    sourceUrl: "https://www.roseira.sp.gov.br/licitacao/categoria/17/dispensa-de-licitacao/",
     requiredElements: ["Número", "Objeto", "Fundamento", "Documentos da fase interna e externa"],
     columns: ["Processo", "Objeto", "Fundamento", "Documentos"],
     rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Edital, parecer, termo e públicação"], ["001/2026", "Objeto demonstrativo", "Não declarado", "Documentos pendentes"]],
@@ -333,7 +489,6 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     kind: "table",
     sourceLabel: "Portal da Transparência",
     sourceUrl: EXTERNAL_LINKS.transparencia,
-    apiSource: "contratos",
     requiredElements: ["Contrato", "Fornecedor", "Objeto", "Valor", "Vigencia", "Fiscal", "Inteiro teor"],
     columns: ["Contrato", "Fornecedor", "Objeto", "Valor", "Fiscal"],
     rows: [["000/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Não declarado"], ["001/2026", "Não declarado", "Objeto demonstrativo", "Não declarado", "Não declarado"]],
@@ -524,17 +679,8 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     columns: ["Documento", "Descrição", "Data", "Arquivo"],
     rows: [["Lei Orgânica", "Texto consolidado", "Não declarado", "Não declarado"], ["Emendas", "Histórico", "Não declarado", "Não declarado"]],
   },
-  "diario-oficial": {
-    title: "Diario Oficial",
-    subtitle: "Edicoes do diario oficial, busca por período, tipo de ato e arquivo.",
-    category: "Publicações",
-    kind: "table",
-    requiredElements: ["Edição", "Data", "Tipo de ato", "Arquivo"],
-    columns: ["Edição", "Data", "Tipo", "Arquivo"],
-    rows: [["000/2026", "Não declarado", "Atos oficiais", "Não declarado"], ["001/2026", "Não declarado", "Publicação", "Não declarado"]],
-  },
-  "atos-oficiais": {
-    title: "Atos Oficiais",
+  "atos-normativos": {
+    title: "Atos Normativos",
     subtitle: "Publicações oficiais diversas com classificação, data, setor e arquivo.",
     category: "Publicações",
     kind: "table",
@@ -568,6 +714,9 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
   },
   "endereco-telefones": {
     title: "Endereço e Telefones",
+    hideRequirementNote: true,
+    hideHeroMeta: true,
+    hideSummaryPanels: true,
     subtitle: "Contatos por setor, mapa, telefones, e-mails e horarios.",
     category: "Atendimento",
     kind: "table",
@@ -628,6 +777,7 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     title: "Termos de Uso",
     subtitle: "Regras de uso do portal, responsabilidades, direitos do usuário e condições gerais.",
     category: "Legal",
+    hideHeroCategory: true,
     kind: "documents",
     sourceLabel: "Termos de uso antigos",
     sourceUrl: "https://www.roseira.sp.gov.br/termos-e-condições-gerais-de-uso/",
@@ -723,7 +873,7 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     columns: ["Processo", "Objeto", "Data", "Situação"],
     rows: [["000/2026", "Objeto demonstrativo", "Não declarado", "Pendente"]],
   },
-  "cadastro-inscrição-municipal": {
+  "cadastro-inscricao-municipal": {
     title: "Cadastro de Inscrição Municipal",
     subtitle: "Orientações e acesso para inscrição municipal de empresas e prestadores.",
     category: "Serviços a Empresa",
@@ -776,7 +926,7 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     sourceUrl: "https://www.roseira.sp.gov.br/cria/conselho-tutelar",
     requiredElements: ["Contato", "Endereço", "Horário", "Plantão"],
     columns: ["Canal", "Descrição", "Contato"],
-    rows: [["Atendimento", "Conselho Tutelar", "Não declarado"]],
+    rows: [["Atendimento", "Não declarado"]],
   },
   "junta-militar": {
     title: "Junta Militar",
@@ -943,29 +1093,32 @@ const REQUIREMENT_PAGES: Record<string, RequirementPageConfig> = {
     columns: ["Vaga", "Requisitos", "Contato", "Situação"],
     rows: [["Vaga demonstrativa", "Não declarado", "Não declarado", "Aberta"]],
   },
-  "divida-ativa": {
-    title: "Dívida Ativa",
-    subtitle: "Consulta, orientações, quitação e regularização de débitos inscritos em dívida ativa.",
-    category: "Tributos",
-    kind: "service",
-    sourceLabel: "Portal da Transparência",
-    sourceUrl: EXTERNAL_LINKS.transparencia,
-    requiredElements: ["Consulta", "Quitação", "Parcelamento", "Contato fiscal"],
-    columns: ["Serviço", "Descrição", "Canal"],
-    rows: [["Quitação de Dívida Ativa", "Consulta e regularização", "Não declarado"]],
-  },
-  itbi: {
-    title: "ITBI",
-    subtitle: "Orientações para solicitação, cálculo, emissão e acompanhamento de ITBI.",
-    category: "Tributos",
-    kind: "service",
-    requiredElements: ["Solicitação", "Documentos", "Cálculo", "Emissão de guia"],
-    columns: ["Serviço", "Descrição", "Canal"],
-    rows: [["ITBI", "Solicitação e emissão", "Não declarado"]],
-  },
 };
 
 const NAVIGATION_REQUIREMENT_SLUGS: Record<string, string> = {
+  "Ouvidoria": "ouvidoria",
+  "e-SIC": "e-sic",
+  "Endereço e Telefones": "endereco-telefones",
+  "Horários de Atendimento": "horarios-atendimento",
+  "Mapa de Localização": "mapa-localizacao",
+  "Redes Sociais": "redes-sociais",
+  "Código Tributário": "codigo-tributario",
+  "Plano Diretor": "plano-diretor",
+  "Lei Orgânica Municipal": "lei-organica-municipal",
+  "Atos Normativos": "atos-normativos",
+  "Licitações em Aberto": "em-aberto",
+  "Licitações Encerradas": "encerradas",
+  "Concorrência Pública": "concorrencia-publica",
+  "Chamada Pública": "chamada-publica",
+  "Pregão Presencial": "pregao-presencial",
+  "Tomada de Preços": "tomada-de-precos",
+  "Leilão": "leilao",
+  "Dispensas e Inexigibilidades": "dispensas-inexigibilidades",
+  "Contratos": "contratos",
+  "Aditivos": "aditivos",
+  "Atas de Registro de Preços": "atas-registro-precos",
+  "Fornecedores": "fornecedores",
+  "PNCP": "pncp",
   "Prefeito e Vice-prefeito": "prefeito-vice",
   "Gabinete": "gabinete",
   "Estrutura Administrativa": "estrutura-administrativa",
@@ -986,9 +1139,9 @@ const NAVIGATION_REQUIREMENT_SLUGS: Record<string, string> = {
   "Emissão de Guias": "emissão-guias",
   "IPTU": "iptu",
   "Dívida Ativa": "divida-ativa",
-  "ITBI": "itbi",
+  "Emissão Guias de ITBI": "itbi",
   "Nota Fiscal Eletrônica": "nota-fiscal-eletronica",
-  "Cadastro de Inscrição Municipal": "cadastro-inscrição-municipal",
+  "Cadastro de Inscrição Municipal": "cadastro-inscricao-municipal",
   "Bolsa Família": "bolsa-familia",
   "Banco do Povo": "banco-povo",
   "Acessa SP": "acessa-sp",
@@ -1013,18 +1166,6 @@ const NAVIGATION_REQUIREMENT_SLUGS: Record<string, string> = {
   "Comunicados": "comunicados",
   "Agenda de Eventos": "eventos",
   "Campanhas": "campanhas",
-  "Boletins Oficiais": "boletins-oficiais",
-  "Dispensas e Inexigibilidades": "dispensas-inexigibilidades",
-  "Concorrência Pública": "concorrencia-pública",
-  "Chamada Pública": "chamada-pública",
-  "Pregão Presencial": "pregao-presencial",
-  "Tomada de Preços": "tomada-precos",
-  "Leilão": "leilao",
-  "Contratos": "contratos",
-  "Aditivos": "aditivos",
-  "Atas de Registro de Preços": "atas-registro-precos",
-  "Fornecedores": "fornecedores",
-  "PNCP": "pncp",
   "Portal da Transparência": "portal-transparencia",
   "Receitas": "receitas",
   "Despesas": "despesas",
@@ -1038,18 +1179,6 @@ const NAVIGATION_REQUIREMENT_SLUGS: Record<string, string> = {
   "Prestação de Contas": "prestacao-contas",
   "Parecer do Tribunal de Contas": "parecer-tce",
   "Dados Abertos": "dados-abertos",
-  "Radar da Transparência / Matriz Atricon": "radar-transparencia",
-  "Código Tributário": "codigo-tributario",
-  "Plano Diretor": "plano-diretor",
-  "Lei Orgânica Municipal": "lei-organica",
-  "Diário Oficial": "diario-oficial",
-  "Atos Oficiais": "atos-oficiais",
-  "Ouvidoria": "ouvidoria",
-  "e-SIC": "e-sic",
-  "Endereço e Telefones": "endereco-telefones",
-  "Horários de Atendimento": "horarios-atendimento-contato",
-  "Mapa de Localização": "mapa-localizacao",
-  "Redes Sociais": "redes-sociais",
 };
 const LEGISLACAO = [
   { num: "2036-2026", desc: "Horário de funcionamento durante jogos da Seleção - Copa 2026", date: "25/06/2026", status: "Ativo" },
@@ -1074,6 +1203,16 @@ const PORTARIAS = [
   { num: "109-2026", desc: "Dispõe sobre escala de trabalho em setor administrativo", date: "10/06/2026", status: "Ativo" },
   { num: "108-2026", desc: "Designa fiscal para execução de serviço público municipal", date: "03/06/2026", status: "Ativo" },
   { num: "107-2026", desc: "Atualiza composição de equipe técnica para programas municipais", date: "27/05/2026", status: "Ativo" },
+];
+const RESOLUCOES = [
+  { num: "18-2026", desc: "Estabelece diretrizes para a execução de programas municipais", date: "26/06/2026", status: "Ativo" },
+  { num: "17-2026", desc: "Aprova procedimentos administrativos e normas de atendimento", date: "12/06/2026", status: "Ativo" },
+  { num: "16-2025", desc: "Regulamenta ações do conselho municipal para o exercício anterior", date: "18/12/2025", status: "Ativo" },
+];
+const INSTRUCOES = [
+  { num: "9-2026", desc: "Orienta os procedimentos para tramitação de processos internos", date: "23/06/2026", status: "Ativo" },
+  { num: "8-2026", desc: "Define rotinas para publicação e organização de documentos municipais", date: "09/06/2026", status: "Ativo" },
+  { num: "7-2025", desc: "Estabelece instruções para execução de serviços administrativos", date: "16/12/2025", status: "Ativo" },
 ];
 const DECRETOS_CONFIG: LegislacaoPageConfig = {
   pageTitle: "Decretos",
@@ -1105,6 +1244,27 @@ const PORTARIAS_CONFIG: LegislacaoPageConfig = {
   relatedTitle: "Outras Portarias",
   documentLabel: "Portaria",
 };
+const CODIGO_TRIBUTARIO = [
+  { num: "1-2026", desc: "Código Tributário Municipal - consulta consolidada", date: "10/01/2026", status: "Ativo" },
+  { num: "45-2025", desc: "Atualiza regras de lançamento e arrecadação tributária", date: "18/12/2025", status: "Ativo" },
+];
+const LEI_ORGANICA_MUNICIPAL = [
+  { num: "1-1990", desc: "Lei Orgânica do Município de Roseira - texto consolidado", date: "05/04/1990", status: "Ativo" },
+  { num: "12-2024", desc: "Emenda à Lei Orgânica Municipal", date: "20/09/2024", status: "Ativo" },
+];
+const ATOS_OFICIAIS = [
+  { num: "2036-2026", tipo: "Decreto", desc: "Ato oficial publicado pelo Município de Roseira", date: "25/06/2026", status: "Ativo" },
+  { num: "2035-2026", tipo: "Portaria", desc: "Ato administrativo de interesse público", date: "19/06/2026", status: "Ativo" },
+  { num: "2034-2025", tipo: "Resolução", desc: "Ato normativo municipal publicado no exercício anterior", date: "19/06/2025", status: "Ativo" },
+  { num: "2033-2024", tipo: "Instrução", desc: "Ato normativo municipal publicado no histórico", date: "19/06/2024", status: "Ativo" },
+];
+const LEGISLACAO_ESPECIAL: Record<string, { leis: typeof CODIGO_TRIBUTARIO; config: LegislacaoPageConfig }> = {
+  "codigo-tributario": { leis: CODIGO_TRIBUTARIO, config: { pageTitle: "Código Tributário Municipal", pageSubtitle: "Consulte o Código Tributário Municipal, suas normas complementares e atualizações.", itemLabel: "Código Tributário", summaryLabel: "Código Tributário Municipal", activeSummaryLabel: "Normas Vigentes", extraSummaryLabel: "Atualizações Tributárias", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar código tributário municipal", foundLabel: "normas tributárias encontradas", detailInfoTitle: "Informações do Código Tributário Municipal", detailTitlePrefix: "Código Tributário Municipal Nº", relatedTitle: "Outras Normas Tributárias", documentLabel: "Código Tributário Municipal" } },
+  "lei-organica-municipal": { leis: LEI_ORGANICA_MUNICIPAL, config: { pageTitle: "Lei Orgânica Municipal", pageSubtitle: "Consulte o texto consolidado e as emendas à Lei Orgânica Municipal.", itemLabel: "Lei Orgânica", summaryLabel: "Lei Orgânica", activeSummaryLabel: "Texto Vigente", extraSummaryLabel: "Emendas", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar lei orgânica municipal", foundLabel: "publicações encontradas", detailInfoTitle: "Informações da Lei Orgânica", detailTitlePrefix: "Lei Orgânica Municipal Nº", relatedTitle: "Outras Publicações", documentLabel: "Lei Orgânica" } },
+  "atos-normativos": { leis: ATOS_OFICIAIS, config: { pageTitle: "Atos Normativos", pageSubtitle: "Consulte portarias, resoluções, instruções e decretos expedidos pelo Município.", itemLabel: "Ato Normativo", summaryLabel: "Atos Normativos", activeSummaryLabel: "Atos Vigentes", extraSummaryLabel: "Publicações Recentes", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar atos normativos por tipo, número ou ementa", foundLabel: "atos normativos encontrados", detailInfoTitle: "Informações do Ato Normativo", detailTitlePrefix: "Ato Normativo Nº", relatedTitle: "Outros Atos Normativos", documentLabel: "Documento do Ato Normativo" } },
+  "resolucoes": { leis: RESOLUCOES, config: { pageTitle: "Resoluções", pageSubtitle: "Consulte as resoluções expedidas pelo Município de Roseira.", itemLabel: "Resolução", summaryLabel: "Resoluções", activeSummaryLabel: "Resoluções Vigentes", extraSummaryLabel: "Publicações Recentes", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar resoluções por número ou ementa", foundLabel: "resoluções encontradas", detailInfoTitle: "Informações da Resolução", detailTitlePrefix: "Resolução Nº", relatedTitle: "Outras Resoluções", documentLabel: "Resolução" } },
+  "instrucoes": { leis: INSTRUCOES, config: { pageTitle: "Instruções", pageSubtitle: "Consulte as instruções expedidas pelo Município de Roseira.", itemLabel: "Instrução", summaryLabel: "Instruções", activeSummaryLabel: "Instruções Vigentes", extraSummaryLabel: "Publicações Recentes", extraSummaryTone: "yellow", searchAriaLabel: "Filtrar instruções por número ou ementa", foundLabel: "instruções encontradas", detailInfoTitle: "Informações da Instrução", detailTitlePrefix: "Instrução Nº", relatedTitle: "Outras Instruções", documentLabel: "Instrução" } },
+};
 const LICITACOES = [
   { num: "23-2025", desc: "Manutenção preventiva e corretiva de veículos da frota municipal", date: "01/06/2026", status: "Encerrado" },
   { num: "32-2025", desc: "Aquisição de gêneros alimentícios para a merenda escolar", date: "03/03/2026", status: "Encerrado" },
@@ -1131,21 +1291,18 @@ const NOTICIAS = [
   { cat: "Administração", catColor: "#1351B4", date: "30/01/2026", views: 34987, title: "Convocação: Concurso Público e Processo Seletivo 2025 - candidatos devem se apresentar", desc: "A Prefeitura convoca aprovados para entrega de documentação e início do processo de admissão.", img: "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=600&h=360&fit=crop&auto=format" },
 ];
 
-const ACESSO_CIDADAO = ["Portal da Transparência", "Bolsa Família", "Conselho Tutelar", "e-SUS", "Junta Militar", "Portal da Educação", "SIC - Acesso à Informação", "Covid-19", "Banco do Povo Paulista", "Educação"];
-const ACESSO_EMPRESA = ["Cadastro de Inscrição Municipal", "ISS Online", "NFS-e", "Licitações", "Portal da Transparência", "Portal de Compras"];
-const ACESSO_PRINCIPAIS = ["2ª Via IPTU / Taxas Imobiliárias", "Bolsa Família", "Cadastro Inscrição Municipal", "e-SUS", "ISS Online", "NFS-e", "Licitações", "Portal da Transparência", "RH Online", "SIC", "Veracidade do Holerite", "Ouvidoria Municipal"];
-
-const HEADER_SOCIAL_LINKS = [
-  { label: "Facebook", Icon: FaFacebookF },
-  { label: "YouTube", Icon: FaYoutube },
-  { label: "Instagram", Icon: FaInstagram },
+type QuickAccessCategory = "cidadao" | "empresa" | "principais";
+const QUICK_ACCESS_TABS: { key: QuickAccessCategory; label: string; items: string[] }[] = [
+  { key: "cidadao", label: "Cidadão", items: ["Portal da Transparência", "e-SUS", "Portal da Educação", "SIC - Acesso à Informação", "Concursos", "Educação"] },
+  { key: "empresa", label: "Empresa", items: ["Cadastro de Inscrição Municipal", "ISS Online", "NFS-e", "Licitações", "Portal da Transparência", "Portal de Compras"] },
+  { key: "principais", label: "Principais Serviços", items: ["2ª Via IPTU / Taxas Imobiliárias", "Cadastro Inscrição Municipal", "e-SUS", "ISS Online", "NFS-e", "Portal da Transparência", "RH Online", "SIC", "Veracidade do Holerite", "Ouvidoria Municipal"] },
 ];
 
 const SECRETARIAS = [
   { nome: "Diretoria de Administração", diretor: "Isaac Pontes", horario: "08h às 17h", end: "Praça Sant'Ana, 201, Centro - Roseira/SP", tel: "Não declarado", email: "administracao@roseira.sp.gov.br" },
   { nome: "Diretoria de Cultura", diretor: "Wladimir Roberto Garcia de Paula Santos", horario: "08h às 17h", end: "Praça Sant'Ana, 201", tel: "(12) 3646-9900 / 202", email: "turismo@roseira.sp.gov.br" },
   { nome: "Diretoria de Esporte, Turismo e Lazer", diretor: "Zaneth de Sousa Miranda", horario: "08h às 17h", end: "R. Dep. Antônio Silvio Cunha Bueno - Nova Era", tel: "(12) 3646-3394", email: "secesportesroseira@gmail.com" },
-  { nome: "Diretoria de Educação", diretor: "Leonaria Rodrigues de Sousa Corrêa", horario: "08h00 às 17h00", end: "Extensão da Praça Sant'Ana, 02 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "educação@roseira.sp.gov.br" },
+  { nome: "Secretaria da Educação", diretor: "Leonaria Rodrigues de Sousa Corrêa", horario: "08h00 às 17h00", end: "Extensão da Praça Sant'Ana, 02 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "educação@roseira.sp.gov.br" },
   { nome: "Secretaria de Assistência Social", diretor: "Fabiana Caltabiano de Souza Siqueira", horario: "07h30 às 16h00", end: "Rua Cel. Rodophiano de Barros, 97 - Centro - Roseira/SP", tel: "Não declarado", email: "psroseira@yahoo.com.br" },
   { nome: "Diretoria de Finanças", diretor: "Luiz Carlos Rodrigues", horario: "8h às 17h", end: "Praça Sant'Ana, 201 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "lcarlos@roseira.sp.gov.br" },
 ];
@@ -1168,19 +1325,34 @@ export type Secretaria = {
 const SECRETARIA_DETAILS: Secretaria[] = [
   { slug: "administracao", nome: "Diretoria de Administração", shortName: "Administração", diretor: "Isaac Pontes", cargo: "Diretor de Administração", horario: "08h às 17h", end: "Praça Sant'Ana, 201, Centro - Roseira/SP", tel: "Não declarado", email: "administracao@roseira.sp.gov.br", summary: "Coordena as rotinas administrativas, a gestão interna e o suporte às demais áreas da Prefeitura.", sobre: "A Diretoria de Administração organiza processos internos, documentos, patrimônio, compras administrativas e apoio aos setores municipais. Sua atuação busca garantir eficiência, transparência e continuidade aos serviços públicos.", competencias: ["Gestão de recursos humanos e folha de pagamento", "Administração de patrimônio público e bens móveis", "Compras, licitações e contratos administrativos", "Protocolo, arquivo e gestão documental", "Serviços de tecnologia da informação", "Gestão do diário oficial e públicações legais"] },
   { slug: "assistencia-social", nome: "Secretaria de Assistência Social", shortName: "Assistência Social", diretor: "Fabiana Caltabiano de Souza Siqueira", cargo: "Secretária de Assistência Social", horario: "07h30 às 16h00", end: "Rua Cel. Rodophiano de Barros, 97 - Centro - Roseira/SP", tel: "Não declarado", email: "psroseira@yahoo.com.br", summary: "Atende famílias, indivíduos e grupos em situação de vulnerabilidade social.", sobre: "A Secretaria de Assistência Social organiza serviços de proteção social, atendimento às famílias, programas de transferência de renda e acompanhamento de situações de vulnerabilidade.", competencias: ["Proteção social básica e especial", "Atendimento às famílias e indivíduos", "Gestão de benefícios e programas sociais", "Acompanhamento do Cadastro Único", "Articulação com conselhos e rede socioassistencial"] },
-  { slug: "educação", nome: "Diretoria de Educação", shortName: "Educação", diretor: "Leonaria Rodrigues de Sousa Corrêa", cargo: "Diretora de Educação", horario: "08h00 às 17h00", end: "Extensão da Praça Sant'Ana, 02 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "educação@roseira.sp.gov.br", summary: "Coordena ações pedagógicas, administrativas e de apoio escolar na rede municipal.", sobre: "A Diretoria de Educação coordena ações pedagógicas, administrativas e de apoio escolar, buscando fortalecer a aprendizagem, a permanência dos alunos e a qualidade da rede municipal.", competencias: ["Gestão da rede municipal de ensino", "Acompanhamento pedagógico das escolas", "Transporte, merenda e apoio escolar", "Formação de profissionais da educação", "Atendimento às famílias e estudantes"] },
+  { slug: "educacao", nome: "Secretaria da Educação", shortName: "Educação", diretor: "Leonaria Rodrigues de Sousa Corrêa", cargo: "Responsável pela Secretaria da Educação", horario: "08h00 às 17h00", end: "Extensão da Praça Sant'Ana, 02 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "educação@roseira.sp.gov.br", summary: "Coordena ações pedagógicas, administrativas e de apoio escolar na rede municipal.", sobre: "A Diretoria de Educação coordena ações pedagógicas, administrativas e de apoio escolar, buscando fortalecer a aprendizagem, a permanência dos alunos e a qualidade da rede municipal.", competencias: ["Gestão da rede municipal de ensino", "Acompanhamento pedagógico das escolas", "Transporte, merenda e apoio escolar", "Formação de profissionais da educação", "Atendimento às famílias e estudantes"] },
   { slug: "saude", nome: "Diretoria de Saúde", shortName: "Saúde", diretor: "João Bosco de Almeida Maia", cargo: "Diretor de Saúde", horario: "08h às 17h", end: "Roque Vieira da Silva Nº197", tel: "(12) 3646-1210", email: "sms@roseira.sp.gov.br", summary: "Organiza a atenção à saúde, os serviços municipais e as ações de prevenção.", sobre: "A Diretoria de Saúde planeja e acompanha os serviços de saúde do município, incluindo atendimento à população, programas preventivos, vigilância e suporte às unidades municipais.", competencias: ["Atenção básica e atendimento à população", "Programas de prevenção e promoção da saúde", "Vigilância em saúde", "Gestão das unidades e equipes municipais", "Acompanhamento de demandas e encaminhamentos"] },
   { slug: "obras-infraestrutura", nome: "Obras e Serviços Municipais", shortName: "Obras e Serviços", diretor: "Não declarado", cargo: "Responsável pela área", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Cuida da manutenção urbana, infraestrutura e serviços operacionais do município.", sobre: "A área de Obras e Serviços Municipais acompanha demandas de manutenção urbana, conservação de vias, infraestrutura pública e apoio operacional aos serviços municipais.", competencias: ["Manutenção de vias e espaços públicos", "Apoio a obras e infraestrutura", "Conservação urbana", "Serviços operacionais", "Atendimento de demandas da população"] },
   { slug: "esporte-turismo-lazer", nome: "Diretoria de Esporte, Turismo e Lazer", shortName: "Esporte, Turismo e Lazer", diretor: "Zaneth de Sousa Miranda", cargo: "Diretora de Esporte, Turismo e Lazer", horario: "08h às 17h", end: "R. Dep. Antônio Silvio Cunha Bueno - Nova Era", tel: "(12) 3646-3394", email: "secesportesroseira@gmail.com", summary: "Promove atividades esportivas, ações de turismo e iniciativas de lazer.", sobre: "A Diretoria de Esporte, Turismo e Lazer desenvolve atividades esportivas, eventos, programas de incentivo à prática física e ações de valorização turística e cultural do município.", competencias: ["Eventos esportivos e recreativos", "Apoio a equipes e atletas", "Promoção do turismo local", "Projetos de lazer comunitário", "Gestão de espaços esportivos"] },
   { slug: "financas", nome: "Diretoria de Finanças", shortName: "Finanças", diretor: "Luiz Carlos Rodrigues", cargo: "Diretor de Finanças", horario: "8h às 17h", end: "Praça Sant'Ana, 201 - Centro - Roseira/SP", tel: "(12) 3646-9900", email: "lcarlos@roseira.sp.gov.br", summary: "Coordena orçamento, receitas, despesas e controle financeiro municipal.", sobre: "A Diretoria de Finanças acompanha a gestão orçamentária, financeira e contábil do município, com foco no equilíbrio das contas públicas e no cumprimento das obrigações legais.", competencias: ["Gestão orçamentária e financeira", "Controle de receitas e despesas", "Acompanhamento contábil", "Planejamento fiscal", "Prestação de informações financeiras"] },
   { slug: "cultura", nome: "Diretoria de Cultura", shortName: "Cultura", diretor: "Wladimir Roberto Garcia de Paula Santos", cargo: "Diretor de Cultura", horario: "08h às 17h", end: "Praça Sant'Ana, 201", tel: "(12) 3646-9900 / 202", email: "turismo@roseira.sp.gov.br", summary: "Promove ações culturais, eventos e valorização da memória local.", sobre: "A Diretoria de Cultura organiza iniciativas culturais, eventos públicos e ações de valorização da identidade, da memória e da participação comunitária.", competencias: ["Promoção de eventos culturais", "Apoio a artistas e grupos locais", "Valorização da memória municipal", "Projetos de formação cultural", "Articulação de ações comunitárias"] },
+  { slug: "esporte", nome: "Secretaria de Esporte", shortName: "Esporte", diretor: "Não declarado", cargo: "Responsável pela área", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Promove esporte, atividade física e lazer para a comunidade.", sobre: "A Secretaria de Esporte organiza programas, eventos e atividades esportivas, incentivando hábitos saudáveis e a participação da comunidade.", competencias: ["Programas esportivos", "Eventos e competições", "Apoio a atletas e equipes", "Atividades físicas comunitárias"] },
+  { slug: "conselho-educacao", nome: "Conselho Municipal de Educação", shortName: "Conselho de Educação", diretor: "Não declarado", cargo: "Responsável pelo conselho", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Acompanha e participa das políticas públicas municipais de educação.", sobre: "O Conselho Municipal de Educação atua na participação social, no acompanhamento das políticas educacionais e na articulação com a rede municipal de ensino.", competencias: ["Participação e controle social", "Acompanhamento das políticas educacionais", "Análise de propostas e normas", "Articulação com a comunidade escolar"] },
+  { slug: "fundeb", nome: "FUNDEB", shortName: "FUNDEB", diretor: "Não declarado", cargo: "Responsável pelo conselho", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Acompanha a aplicação dos recursos destinados à educação básica.", sobre: "O FUNDEB reúne informações e ações de acompanhamento e controle social dos recursos vinculados à manutenção e ao desenvolvimento da educação básica.", competencias: ["Acompanhamento da aplicação dos recursos", "Controle social", "Análise de prestações de contas", "Transparência das informações educacionais"] },
+  { slug: "conselho-alimentacao-escolar", nome: "Conselho de Alimentação Escolar", shortName: "Alimentação Escolar", diretor: "Não declarado", cargo: "Responsável pelo conselho", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Acompanha a execução da alimentação escolar na rede municipal.", sobre: "O Conselho de Alimentação Escolar acompanha a qualidade, a execução e o controle social das ações de alimentação oferecidas aos estudantes.", competencias: ["Acompanhamento da alimentação escolar", "Controle social do programa", "Análise da qualidade das refeições", "Participação em visitas e relatórios"] },
+  { slug: "vagas-creche", nome: "Vagas em Creche", shortName: "Vagas em Creche", diretor: "Não declarado", cargo: "Responsável pela área", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Orienta famílias sobre cadastro e acompanhamento de vagas em creches.", sobre: "A área de Vagas em Creche organiza orientações e informações para solicitação, cadastro e acompanhamento de vagas na educação infantil municipal.", competencias: ["Orientação às famílias", "Cadastro e atualização de solicitações", "Acompanhamento da demanda", "Informações sobre unidades municipais"] },
+  { slug: "turismo-cultura", nome: "Secretaria de Turismo e Cultura", shortName: "Turismo e Cultura", diretor: "Não declarado", cargo: "Responsável pela área", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Valoriza o patrimônio, a cultura e o potencial turístico de Roseira.", sobre: "A Secretaria de Turismo e Cultura desenvolve ações de valorização da identidade local, do patrimônio, dos eventos e dos atrativos turísticos do município.", competencias: ["Promoção do turismo local", "Valorização do patrimônio cultural", "Organização de eventos", "Apoio a iniciativas culturais"] },
+  { slug: "meio-ambiente", nome: "Secretaria de Meio Ambiente", shortName: "Meio Ambiente", diretor: "Não declarado", cargo: "Responsável pela área", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Promove ações de proteção ambiental e sustentabilidade no município.", sobre: "A Secretaria de Meio Ambiente acompanha políticas de conservação, educação ambiental, arborização e sustentabilidade em Roseira.", competencias: ["Educação ambiental", "Conservação e fiscalização", "Arborização urbana", "Ações de sustentabilidade"] },
+  { slug: "cadastro-inscricao-municipal", nome: "Cadastro de Inscrição Municipal", shortName: "Inscrição Municipal", diretor: "Não declarado", cargo: "Responsável pela área", horario: "Não declarado", end: "Não declarado", tel: "Não declarado", email: "Não declarado", summary: "Orienta empresas e profissionais sobre inscrição e cadastro municipal.", sobre: "A área de Cadastro de Inscrição Municipal presta orientações sobre cadastro, atualização e regularização de atividades econômicas no município.", competencias: ["Orientação cadastral", "Inscrição e atualização de dados", "Regularização de atividades", "Atendimento a empresas e profissionais"] },
 ];
 
 const SECRETARIA_MENU_SLUGS: Record<string, string> = {
-  "Administração": "administracao",
-  "Assistência Social": "assistencia-social",
-  "Educação": "educação",
+  "Esporte": "esporte",
   "Saúde": "saude",
+  "Conselho Municipal de Educação": "conselho-educacao",
+  "Educação": "educacao",
+  "FUNDEB": "fundeb",
+  "Conselho de Alimentação Escolar": "conselho-alimentacao-escolar",
+  "Vagas em Creche": "vagas-creche",
+  "Turismo e Cultura": "turismo-cultura",
+  "Meio Ambiente": "meio-ambiente",
+  "Cadastro de Inscrição Municipal": "cadastro-inscricao-municipal",
+  "Administração": "administracao",
   "Obras e Serviços Municipais": "obras-infraestrutura",
   "Agricultura e Meio Ambiente": "obras-infraestrutura",
   "Cultura, Esporte e Turismo": "esporte-turismo-lazer",
@@ -1216,12 +1388,12 @@ const GALERIA_FOTOS = [
 // HELPERS
 // -----------------------------------------------------------------------------
 const LANGS = [
-  { name: "Português", flagSrc: "https://flagcdn.com/w40/br.png", flagAlt: "Bandeira do Brasil" },
-  { name: "English", flagSrc: "https://flagcdn.com/w40/us.png", flagAlt: "Bandeira dos Estados Unidos" },
-  { name: "Español", flagSrc: "https://flagcdn.com/w40/es.png", flagAlt: "Bandeira da Espanha" },
-  { name: "Français", flagSrc: "https://flagcdn.com/w40/fr.png", flagAlt: "Bandeira da França" },
-  { name: "Deutsch", flagSrc: "https://flagcdn.com/w40/de.png", flagAlt: "Bandeira da Alemanha" },
-  { name: "Italiano", flagSrc: "https://flagcdn.com/w40/it.png", flagAlt: "Bandeira da Itália" },
+  { name: "Português", code: "pt-BR", flagSrc: "https://flagcdn.com/w40/br.png", flagAlt: "Bandeira do Brasil" },
+  { name: "English", code: "en", flagSrc: "https://flagcdn.com/w40/us.png", flagAlt: "Bandeira dos Estados Unidos" },
+  { name: "Español", code: "es", flagSrc: "https://flagcdn.com/w40/es.png", flagAlt: "Bandeira da Espanha" },
+  { name: "Français", code: "fr", flagSrc: "https://flagcdn.com/w40/fr.png", flagAlt: "Bandeira da França" },
+  { name: "Deutsch", code: "de", flagSrc: "https://flagcdn.com/w40/de.png", flagAlt: "Bandeira da Alemanha" },
+  { name: "Italiano", code: "it", flagSrc: "https://flagcdn.com/w40/it.png", flagAlt: "Bandeira da Itália" },
 ];
 
 function badgeToneClass(color: string) {
@@ -1244,6 +1416,114 @@ function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function applyAccessibleFontScale(root: HTMLElement | null, scale: number) {
+  if (!root || typeof window === "undefined") return;
+
+  const selector = "p, a, button, span, label, input, textarea, select, li, td, th, h1, h2, h3, h4, h5, h6, strong, small";
+  const elements = Array.from(root.querySelectorAll<HTMLElement>(selector));
+
+  elements.forEach((element) => {
+    if (!element.dataset.baseFontSize) {
+      element.dataset.baseFontSize = window.getComputedStyle(element).fontSize;
+    }
+
+    const baseFontSize = Number.parseFloat(element.dataset.baseFontSize);
+    if (!Number.isFinite(baseFontSize)) return;
+
+    if (scale === 1) {
+      element.style.removeProperty("font-size");
+      return;
+    }
+
+    element.style.fontSize = `${Math.round(baseFontSize * scale * 1000) / 1000}px`;
+  });
+}
+
+const FONT_SCALE_MIN = 90;
+const FONT_SCALE_MAX = 130;
+const FONT_SCALE_STEP = 5;
+
+function clampFontScale(value: number) {
+  return Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, value));
+}
+
+async function openVLibrasWidget() {
+  window.dispatchEvent(new CustomEvent("roseira-open-vlibras"));
+  if (window.VLibrasWidget?.open) {
+    window.VLibrasWidget.open();
+    return;
+  }
+
+  window.setTimeout(() => window.VLibrasWidget?.open?.(), 500);
+}
+
+function VLibrasWidget() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const accessButtonRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    containerRef.current?.setAttribute("vw", "");
+    accessButtonRef.current?.setAttribute("vw-access-button", "");
+    wrapperRef.current?.setAttribute("vw-plugin-wrapper", "");
+
+    const initializeWidget = () => {
+      if (!window.VLibras || window.roseiraVLibrasWidgetReady) return;
+      new window.VLibras.Widget("https://vlibras.gov.br/app");
+      window.roseiraVLibrasWidgetReady = true;
+    };
+
+    const activateFixedWidget = () => {
+      const startedAt = Date.now();
+      const tryActivate = () => {
+        const button = document.querySelector<HTMLElement>(".vlibras-button, [vlibras-button]")
+          ?? accessButtonRef.current?.querySelector<HTMLElement>("button, a, [role='button']")
+          ?? accessButtonRef.current;
+        if (button && window.roseiraVLibrasWidgetReady) {
+          const clickable = button.querySelector<HTMLElement>("button, a, [role='button']") ?? button;
+          clickable.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window }));
+          wrapperRef.current?.classList.add("active");
+          return;
+        }
+
+        if (Date.now() - startedAt < 10000) window.setTimeout(tryActivate, 100);
+      };
+
+      tryActivate();
+    };
+
+    window.addEventListener("roseira-open-vlibras", activateFixedWidget);
+
+    const existingScript = document.getElementById("vlibras-plugin-script") as HTMLScriptElement | null;
+    if (existingScript) {
+      if (existingScript.dataset.loaded === "true") initializeWidget();
+      else existingScript.addEventListener("load", initializeWidget, { once: true });
+      return () => window.removeEventListener("roseira-open-vlibras", activateFixedWidget);
+    }
+
+    const script = document.createElement("script");
+    script.id = "vlibras-plugin-script";
+    script.src = "https://vlibras.gov.br/app/vlibras-plugin.js";
+    script.async = true;
+    script.onload = () => {
+      script.dataset.loaded = "true";
+      initializeWidget();
+    };
+    document.body.appendChild(script);
+
+    return () => window.removeEventListener("roseira-open-vlibras", activateFixedWidget);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="enabled vlibras-widget-host">
+      <div ref={accessButtonRef} className="active vlibras-button" vlibras-button="" />
+      <div ref={wrapperRef}>
+        <div className="vw-plugin-top-wrapper" />
+      </div>
+    </div>
+  );
+}
+
 function Badge({ label, color }: { label: string; color: string }) {
   return (
     <span className={`sx-0 ${badgeToneClass(color)}`}>
@@ -1264,10 +1544,27 @@ function StatusBadge({ status }: { status: string }) {
 // -----------------------------------------------------------------------------
 // ACCESSIBILITY BAR
 // -----------------------------------------------------------------------------
-function AccessBar({ fontSize, setFontSize }: { fontSize: number; setFontSize: (n: number) => void }) {
+function AccessBar({
+  fontSize,
+  setFontSize,
+  highContrast,
+  setHighContrast,
+  onOpenAccessibility,
+}: {
+  fontSize: number;
+  setFontSize: (n: number) => void;
+  highContrast: boolean;
+  setHighContrast: (enabled: boolean) => void;
+  onOpenAccessibility: () => void;
+}) {
   const [lang, setLang] = useState("Português");
   const [showLang, setShowLang] = useState(false);
+  const [supportPanel, setSupportPanel] = useState<"vlibras" | "qr" | null>(null);
   const currentLang = LANGS.find(l => l.name === lang) ?? LANGS[0];
+
+  useEffect(() => {
+    document.documentElement.lang = currentLang.code;
+  }, [currentLang.code]);
 
   return (
     <div  className="sx-2">
@@ -1277,53 +1574,92 @@ function AccessBar({ fontSize, setFontSize }: { fontSize: number; setFontSize: (
           <div className="flex items-center gap-1">
             {I.clock}
             <span  className="sx-3">
-              Seg. a Sex. das 8h às 17h
+              {CONTACT_INFO.businessHoursShort}
             </span>
           </div>
           <span  className="sx-4">|</span>
-          <a href="#"  className="hover:text-white sx-5">Mapa do Site</a>
-          <a href="#"  className="hover:text-white sx-6">Acesso à Informação (SIC)</a>
+          <a href={EXTERNAL_LINKS.mapaSite} title="Mapa do Site" className="hover:text-white sx-5">Mapa do Site</a>
         </div>
         {/* Right */}
         <div className="flex items-center gap-3">
           {/* Font size */}
           <div className="flex items-center gap-1">
             <span  className="sx-7">Fonte:</span>
-            {[{ lbl: "A-", val: -1 }, { lbl: "A", val: 0 }, { lbl: "A+", val: 1 }].map(({ lbl, val }) => (
-              <button
-                key={lbl}
-                onClick={() => setFontSize(val)}
-
-               className={`sx-8 ${fontSize === val ? "font-button-active" : "font-button-muted"}`}>
-                {lbl}
-              </button>
-            ))}
+            <button
+              type="button"
+              onClick={() => setFontSize(clampFontScale(fontSize - FONT_SCALE_STEP))}
+              disabled={fontSize <= FONT_SCALE_MIN}
+              aria-label="Diminuir fonte em 5 por cento"
+              title="Diminuir fonte"
+              className="sx-8 font-button-muted"
+            >
+              A-
+            </button>
+            <label htmlFor="font-size-control" className="font-size-slider-label">
+              <span className="sr-only">Escolher tamanho da fonte</span>
+              <input
+                id="font-size-control"
+                type="range"
+                min={FONT_SCALE_MIN}
+                max={FONT_SCALE_MAX}
+                step={FONT_SCALE_STEP}
+                value={fontSize}
+                onChange={(event) => setFontSize(clampFontScale(Number(event.target.value)))}
+                aria-label="Escolher tamanho da fonte"
+                title="Tamanho da fonte"
+                aria-valuetext={`${fontSize}%`}
+                className="font-size-slider"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => setFontSize(100)}
+              aria-label="Voltar fonte para o tamanho original"
+              title="Fonte original"
+              aria-pressed={fontSize === 100}
+              className={`sx-8 ${fontSize === 100 ? "font-button-active" : "font-button-muted"}`}
+            >
+              A
+            </button>
+            <span className="font-size-current" aria-live="polite">{fontSize}%</span>
+            <button
+              type="button"
+              onClick={() => setFontSize(clampFontScale(fontSize + FONT_SCALE_STEP))}
+              disabled={fontSize >= FONT_SCALE_MAX}
+              aria-label="Aumentar fonte em 5 por cento"
+              title="Aumentar fonte"
+              className="sx-8 font-button-muted"
+            >
+              A+
+            </button>
           </div>
+          <button type="button" onClick={onOpenAccessibility} title="Acessibilidade" className="sx-11">Acessibilidade</button>
           <span  className="sx-9">|</span>
-          <button  className="sx-10">
-            Alto Contraste
+          <button type="button" onClick={() => setHighContrast(!highContrast)} title="Alto Contraste" aria-pressed={highContrast} className={`sx-10 ${highContrast ? "access-action-active" : ""}`}>
+            {highContrast ? "Desativar Alto Contraste" : "Alto Contraste"}
           </button>
-          <button  className="sx-11">
+          <button type="button" onClick={async () => { await openVLibrasWidget(); setSupportPanel(null); }} title="VLibras" aria-expanded="false" className="sx-11">
             {I.accessible} VLibras
-          </button>
-          <button  className="sx-12">
-            {I.qr} QR Code
           </button>
           <span  className="sx-13">|</span>
           {/* Language */}
           <div  className="sx-14">
             <button
+              type="button"
               onClick={() => setShowLang(!showLang)}
+              title="Idioma"
+              aria-expanded={showLang}
+              aria-haspopup="menu"
 
              className="sx-15">
               <img className="language-flag-image" src={currentLang.flagSrc} alt={currentLang.flagAlt} />
-              <span>{currentLang.name}</span>
-              {I.chevDown}
             </button>
             {showLang && (
-              <div  className="sx-16">
+              <div className="sx-16" role="menu" aria-label="Selecionar idioma do documento">
                 {LANGS.map(l => (
-                  <button key={l.name} onClick={() => { setLang(l.name); setShowLang(false); }}
+                  <button key={l.name} type="button" onClick={() => { setLang(l.name); setShowLang(false); }} title={l.name}
+                    role="menuitemradio"
+                    aria-checked={lang === l.name}
                     className="gray-hover sx-17">
 
                     <img className="language-flag-image" src={l.flagSrc} alt={l.flagAlt} />
@@ -1335,14 +1671,37 @@ function AccessBar({ fontSize, setFontSize }: { fontSize: number; setFontSize: (
           </div>
           {/* Social */}
           <div className="social-icon-list">
-            {HEADER_SOCIAL_LINKS.map(({ label, Icon }) => (
-              <a key={label} href="#" aria-label={label} className="social-icon-link">
-                <Icon aria-hidden="true" />
+            {HEADER_SOCIAL_LINKS.map(({ label, href, title, Icon }) => (
+              <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label} title={title} className="social-icon-link">
+                {Icon ? <Icon aria-hidden="true" /> : null}
               </a>
             ))}
           </div>
         </div>
       </div>
+      {supportPanel && (
+        <div id="access-support-panel" className="access-support-panel" role="status" aria-live="polite">
+          {supportPanel === "vlibras" ? (
+            <>
+              <strong>VLibras</strong>
+              <span>O widget oficial VLibras está instalado no portal. Use o botão flutuante de acessibilidade para abrir a tradução em Libras.</span>
+              <a href="https://www.gov.br/governodigital/pt-br/vlibras" target="_blank" rel="noreferrer" title="VLibras">Abrir página oficial do VLibras {I.ext}</a>
+            </>
+          ) : (
+            <>
+              <strong>QR Code da página</strong>
+              <span>Abra o gerador de QR Code com o endereço desta página para compartilhar o acesso em outro dispositivo.</span>
+              <a href={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noreferrer" title="QR Code">Abrir QR Code {I.ext}</a>
+            </>
+          )}
+          <button type="button" onClick={() => setSupportPanel(null)} aria-label="Fechar painel de acessibilidade" title="Fechar">Fechar</button>
+        </div>
+      )}
+      {lang !== "Português" && (
+        <div className="access-language-note" role="status" aria-live="polite">
+          Idioma do documento definido como {currentLang.name}. Conteúdo traduzido automaticamente ainda não está disponível.
+        </div>
+      )}
     </div>
   );
 }
@@ -1351,49 +1710,24 @@ function AccessBar({ fontSize, setFontSize }: { fontSize: number; setFontSize: (
 // HEADER
 // -----------------------------------------------------------------------------
 function Header({ menuOpen, setMenuOpen, onNavigateHome }: { menuOpen: boolean; setMenuOpen: (v: boolean) => void; onNavigateHome: () => void }) {
-  const [weather, setWeather] = useState({ current: null as number | null, min: null as number | null, max: null as number | null });
-
+  const [weather, setWeather] = useState({ current: 24, maximum: 31 });
   useEffect(() => {
     const controller = new AbortController();
-    const loadWeather = async () => {
-      try {
-        const params = new URLSearchParams({
-          latitude: "-22.8989",
-          longitude: "-45.3058",
-          current: "temperature_2m",
-          daily: "temperature_2m_min,temperature_2m_max",
-          temperature_unit: "celsius",
-          timezone: "America/Sao_Paulo",
-          forecast_days: "1",
-        });
-        const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: controller.signal });
-        if (!response.ok) throw new Error(`Weather request failed: ${response.status}`);
-        const data = await response.json();
-        setWeather({
-          current: Number.isFinite(data.current?.temperature_2m) ? data.current.temperature_2m : null,
-          min: Number.isFinite(data.daily?.temperature_2m_min?.[0]) ? data.daily.temperature_2m_min[0] : null,
-          max: Number.isFinite(data.daily?.temperature_2m_max?.[0]) ? data.daily.temperature_2m_max[0] : null,
-        });
-      } catch (error) {
-        if ((error as Error).name !== "AbortError") console.warn("Clima de Roseira indisponível.", error);
-      }
-    };
-
-    loadWeather();
-    const refresh = window.setInterval(loadWeather, 10 * 60 * 1000);
-    return () => {
-      controller.abort();
-      window.clearInterval(refresh);
-    };
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=-22.8956&longitude=-45.3053&current=temperature_2m&daily=temperature_2m_max&forecast_days=1&timezone=America%2FSao_Paulo", { signal: controller.signal })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("weather request failed")))
+      .then((data: { current?: { temperature_2m?: number }; daily?: { temperature_2m_max?: number[] } }) => {
+        const current = data.current?.temperature_2m;
+        const maximum = data.daily?.temperature_2m_max?.[0];
+        if (typeof current === "number" && typeof maximum === "number") setWeather({ current: Math.round(current), maximum: Math.round(maximum) });
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
   }, []);
-
-  const formatTemperature = (value: number | null) => value === null ? "--°" : `${Math.round(value)}°`;
-
   return (
     <div  className="sx-19">
       <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
         {/* Logo */}
-        <button type="button" onClick={onNavigateHome} className="brand-home-link flex items-center gap-3 flex-shrink-0" aria-label="Ir para a página inicial">
+        <button type="button" onClick={onNavigateHome} title="Início" className="brand-home-link flex items-center gap-3 flex-shrink-0" aria-label="Ir para a página inicial">
           <div  className="sx-20">
             <img src="/prefeitura-de-roseira-logo.png" alt="Brasão da Prefeitura Municipal de Roseira" className="brand-logo" />
           </div>
@@ -1409,12 +1743,17 @@ function Header({ menuOpen, setMenuOpen, onNavigateHome }: { menuOpen: boolean; 
         {/* Quick links (desktop) */}
         <div className="hidden lg:flex items-center gap-2 flex-wrap">
           {[
-            { lbl: "Portal da Transparência", color: "#1351B4" },
+            { lbl: "Portal da Transparência", color: "#1351B4", href: EXTERNAL_LINKS.transparencia },
             { lbl: "Ouvidoria", color: "#168821" },
-            { lbl: "SIC", color: "#0C326F" },
-            { lbl: "Webmail / Servidor", color: "#505C6D" },
-          ].map(({ lbl, color }) => (
-            <a key={lbl} href="#"
+            { lbl: "SIC", color: "#0C326F", href: "/contato/e-sic" },
+            { lbl: "Webmail / Servidor", color: "#505C6D", href: CONTACT_INFO.webmailUrl },
+          ].map(({ lbl, color, href }) => (
+            <a
+              key={lbl}
+              href={href ?? "#conteudo-principal"}
+              target={href?.startsWith("http") ? "_blank" : undefined}
+              rel={href?.startsWith("http") ? "noreferrer" : undefined}
+              title={lbl}
 
               className={`hover:opacity-80 sx-23 ${quickPillClass(color)}`}
             >
@@ -1424,16 +1763,14 @@ function Header({ menuOpen, setMenuOpen, onNavigateHome }: { menuOpen: boolean; 
         </div>
 
         {/* Weather */}
-        <div className="hidden md:flex items-center gap-1.5 sx-24" title="Clima atual de Roseira">
+        <div className="hidden md:flex items-center gap-1.5 sx-24" >
           {I.sun}
-          <span className="sx-25" aria-label={`Temperatura atual: ${formatTemperature(weather.current)}`}>{formatTemperature(weather.current)}</span>
-          <span className="sx-26" aria-label={`Mínima e máxima de hoje: ${formatTemperature(weather.min)} / ${formatTemperature(weather.max)}`}>
-            / {formatTemperature(weather.max)}
-          </span>
+          <span className="sx-25">{weather.current}°</span>
+          <span className="sx-26">/ {weather.maximum}°</span>
         </div>
 
         {/* Mobile hamburger */}
-        <button type="button" className="lg:hidden sx-27" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={menuOpen}>
+        <button type="button" className="lg:hidden sx-27" onClick={() => setMenuOpen(!menuOpen)} title="Menu" aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={menuOpen}>
           {menuOpen ? I.close : I.menu}
         </button>
       </div>
@@ -1441,25 +1778,82 @@ function Header({ menuOpen, setMenuOpen, onNavigateHome }: { menuOpen: boolean; 
   );
 }
 
-function SearchBar() {
+function normalizeSearchText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function SearchBar({ results }: { results: SearchResult[] }) {
   const [search, setSearch] = useState("");
+  const searchAreaRef = useRef<HTMLDivElement>(null);
+  const query = normalizeSearchText(search);
+  const filteredResults = query
+    ? results
+        .filter((result) => normalizeSearchText(`${result.title} ${result.category} ${result.description} ${result.keywords}`).includes(query))
+        .slice(0, 8)
+    : [];
+
+  const openResult = (result: SearchResult) => {
+    result.action();
+    setSearch("");
+  };
+
+  const submitSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (filteredResults[0]) openResult(filteredResults[0]);
+  };
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (searchAreaRef.current && !searchAreaRef.current.contains(event.target as Node)) {
+        setSearch("");
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
 
   return (
-    <div className="sx-28">
+    <div id="busca-portal" ref={searchAreaRef} className="sx-28" tabIndex={-1}>
       <div className="max-w-7xl mx-auto px-4 py-2">
-        <div className="sx-29">
+        <form className="sx-29 site-search-form" role="search" onSubmit={submitSearch}>
           <div className="sx-30" aria-hidden="true">{I.search}</div>
           <input
             value={search}
-            onChange={e => setSearch(e.target.value)}
             aria-label="Buscar no portal"
+            onChange={e => setSearch(e.target.value)}
+            autoComplete="off"
             placeholder="Buscar no portal - serviços, notícias, decretos, licitações..."
             className="sx-31"
           />
-          <button type="button" className="sx-32">
+          <button type="submit" title="Buscar" className="sx-32">
             Buscar
           </button>
-        </div>
+        </form>
+        {search.trim() && (
+          <div className="site-search-results" role="listbox" aria-label="Resultados da busca">
+            {filteredResults.length ? (
+              filteredResults.map((result) => (
+                <button
+                  key={`${result.category}-${result.title}`}
+                  type="button"
+                  title={result.title}
+                  className="site-search-result"
+                  onClick={() => openResult(result)}
+                >
+                  <span style={{ color: "var(--green-dark)" }}>{result.category}</span>
+                  <strong>{result.title}</strong>
+                  <small>{result.description}</small>
+                </button>
+              ))
+            ) : (
+              <p className="site-search-empty">Nenhum resultado encontrado.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1468,11 +1862,13 @@ function SearchBar() {
 // -----------------------------------------------------------------------------
 // NAVIGATION
 // -----------------------------------------------------------------------------
-type AppPage = "home" | "historia-roseira" | "contato" | "concursos" | "licitacoes" | "licitacao-detail" | "leis-municipais" | "lei-detail" | "decretos" | "decreto-detail" | "portarias" | "portaria-detail" | "noticias" | "noticia-detail" | "secretarias" | "secretaria-detail" | "faq" | "requirement-page";
+type AppPage = "home" | "historia-roseira" | "contato" | "fale-conosco" | "concursos" | "concurso-detail" | "licitacoes" | "licitacao-detail" | "leis-municipais" | "lei-detail" | "decretos" | "decreto-detail" | "portarias" | "portaria-detail" | "legislacao-special" | "legislacao-special-detail" | "noticias" | "ultimas-noticias" | "noticia-detail" | "secretarias" | "secretaria-detail" | "faq" | "accessibility" | "requirement-page";
 
-function NavBar({ menuOpen, setMenuOpen, currentPage, onNavigate, onOpenRequirement, onSelectSecretaria }: { menuOpen: boolean; setMenuOpen: (v: boolean) => void; currentPage: AppPage; onNavigate: (page: AppPage) => void; onOpenRequirement: (slug: string) => void; onSelectSecretaria: (slug: string) => void }) {
+function NavBar({ menuOpen, setMenuOpen, currentPage, activeSecretariaSlug, activeRequirementSlug, onNavigate, onOpenRequirement, onSelectSecretaria }: { menuOpen: boolean; setMenuOpen: (v: boolean) => void; currentPage: AppPage; activeSecretariaSlug: string; activeRequirementSlug: string; onNavigate: (page: AppPage) => void; onOpenRequirement: (slug: string) => void; onSelectSecretaria: (slug: string) => void }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [mobileOpenIdx, setMobileOpenIdx] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const menuKey = (label: string) => label.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase();
 
   useEffect(() => {
     function handle(e: MouseEvent) {
@@ -1483,26 +1879,27 @@ function NavBar({ menuOpen, setMenuOpen, currentPage, onNavigate, onOpenRequirem
   }, []);
 
   const isActiveItem = (label: string) => {
-    if (label === "Concursos") return currentPage === "concursos";
-    if (label === "Licitações") return currentPage === "licitacoes" || currentPage === "licitacao-detail";
-    if (label === "Notícias") return currentPage === "noticias" || currentPage === "noticia-detail";
-    if (label === "Secretarias") return currentPage === "secretarias" || currentPage === "secretaria-detail";
-    if (label === "Legislação") return currentPage === "leis-municipais" || currentPage === "lei-detail" || currentPage === "decretos" || currentPage === "decreto-detail" || currentPage === "portarias" || currentPage === "portaria-detail";
-    if (label === "A Prefeitura") return currentPage === "historia-roseira";
-    if (label === "Contato") return currentPage === "contato";
-    if (label === "Serviços") return currentPage === "requirement-page" || currentPage === "faq";
-    if (label === "Transparência") return currentPage === "requirement-page";
+    const key = menuKey(label);
+    if (key.startsWith("concurso")) return currentPage === "concursos";
+    if (key.startsWith("licita")) return currentPage === "licitacoes" || currentPage === "licitacao-detail";
+    if (key.startsWith("not")) return currentPage === "noticias" || currentPage === "noticia-detail" || currentPage === "ultimas-noticias";
+    if (key.startsWith("secret")) return currentPage === "secretarias" || currentPage === "secretaria-detail";
+    if (key.startsWith("legis")) return currentPage === "leis-municipais" || currentPage === "lei-detail" || currentPage === "decretos" || currentPage === "decreto-detail" || currentPage === "portarias" || currentPage === "portaria-detail";
+    if (key.startsWith("a prefeitura")) return currentPage === "historia-roseira";
+    if (key.startsWith("contato")) return currentPage === "contato" || currentPage === "fale-conosco" || (currentPage === "requirement-page" && ["endereco-telefones", "horarios-atendimento", "mapa-localizacao", "redes-sociais", "ouvidoria", "esic"].includes(activeRequirementSlug));
+    if (key.startsWith("servi")) return currentPage === "faq" || (currentPage === "requirement-page" && ["carta-servicos", "servicos-cidadao", "servicos-empresa", "servicos-servidor", "protocolos", "emissao-guias", "iptu", "divida-ativa", "itbi", "nota-fiscal-eletronica", "cadastro-inscricao-municipal", "bolsa-familia", "banco-povo", "acessa-sp", "conselho-tutelar", "junta-militar", "covid-19", "portal-educacao", "plano-arborizacao", "centro-esterilizacao", "lei-aldir-blanc", "vagas-emprego", "agendamento"].includes(activeRequirementSlug));
+    if (key.startsWith("transpar")) return currentPage === "requirement-page" && !["endereco-telefones", "horarios-atendimento", "mapa-localizacao", "redes-sociais", "ouvidoria", "esic", "carta-servicos", "servicos-cidadao", "servicos-empresa", "servicos-servidor", "protocolos", "emissao-guias", "iptu", "divida-ativa", "itbi", "nota-fiscal-eletronica", "cadastro-inscricao-municipal", "bolsa-familia", "banco-povo", "acessa-sp", "conselho-tutelar", "junta-militar", "covid-19", "portal-educacao", "plano-arborizacao", "centro-esterilizacao", "lei-aldir-blanc", "vagas-emprego", "agendamento"].includes(activeRequirementSlug);
     return false;
   };
 
   return (
-    <nav  ref={ref} className="sx-33">
+    <nav id="menu-principal" ref={ref} className="sx-33" tabIndex={-1}>
       {/* Desktop */}
       <div className="hidden lg:block max-w-7xl mx-auto px-4">
         <div className="flex items-center">
           {NAV_ITEMS.map((item, idx) => (
             <div key={item.label} onMouseLeave={() => setOpenIdx(null)} className="sx-34">
-              <button
+              <button type="button" title={item.label}
                 onMouseEnter={() => item.children.length ? setOpenIdx(idx) : setOpenIdx(null)}
                 onClick={() => {
                   if (item.label === "Concursos") onNavigate("concursos");
@@ -1511,6 +1908,7 @@ function NavBar({ menuOpen, setMenuOpen, currentPage, onNavigate, onOpenRequirem
                 }}
 
                 className={[openIdx === idx ? "bg-white/15" : "hover:bg-white/10", isActiveItem(item.label) ? "nav-item-active" : "", "sx-35"].filter(Boolean).join(" ")}
+                style={isActiveItem(item.label) ? { borderBottom: "4px solid var(--yellow)" } : undefined}
               >
                 {item.label}
                 {item.children.length > 0 && I.chevDown}
@@ -1521,22 +1919,65 @@ function NavBar({ menuOpen, setMenuOpen, currentPage, onNavigate, onOpenRequirem
 
                  className="sx-36">
                   {item.children.map(child => (
-                    <a key={child} href="#"
+                    <a key={child} href={getChildHref(item.label, child)} title={child}
                       onClick={(event) => {
+                        if (item.label === "Transparência" && TRANSPARENCIA_EXTERNAL_LINKS[child]) {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Licitações" && LICITACOES_EXTERNAL_LINKS[child]) {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Secretarias" && child === "Educação") {
+                          event.preventDefault();
+                          onSelectSecretaria("educacao");
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (child === "Portal da Transparência") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Dívida Ativa") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "2ª Via IPTU / Taxas Imobiliárias") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Serviços ao Cidadão") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Audiências Públicas") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "RH Online") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Veracidade do Holerite") {
+                          setOpenIdx(null);
+                          return;
+                        }
+                        if (item.label === "Serviços" && child === "Emissão Guias de ITBI") {
+                          setOpenIdx(null);
+                          return;
+                        }
                         const secretariaSlug = SECRETARIA_MENU_SLUGS[child];
                         if (item.label === "Secretarias" && secretariaSlug) {
                           event.preventDefault();
-                          onSelectSecretaria(secretariaSlug);
+                          if (SECRETARIA_DETAILS.some(secretaria => secretaria.slug === secretariaSlug)) onSelectSecretaria(secretariaSlug);
+                          else onOpenRequirement(secretariaSlug);
                           setOpenIdx(null);
+                          return;
                         }
                         if (item.label === "Notícias" && child === "Últimas Notícias") {
                           event.preventDefault();
-                          onNavigate("noticias");
-                          setOpenIdx(null);
-                        }
-                        if (item.label === "Licitações") {
-                          event.preventDefault();
-                          onNavigate("licitacoes");
+                          onNavigate("ultimas-noticias");
                           setOpenIdx(null);
                         }
                         if (item.label === "Legislação" && child === "Leis Municipais") {
@@ -1561,7 +2002,7 @@ function NavBar({ menuOpen, setMenuOpen, currentPage, onNavigate, onOpenRequirem
                         }
                         if (item.label === "Contato" && child === "Fale Conosco") {
                           event.preventDefault();
-                          onNavigate("contato");
+                          onNavigate("fale-conosco");
                           setOpenIdx(null);
                         }
                         if (item.label === "Serviços" && child === "Perguntas Frequentes") {
@@ -1577,7 +2018,8 @@ function NavBar({ menuOpen, setMenuOpen, currentPage, onNavigate, onOpenRequirem
                           setOpenIdx(null);
                         }
                       }}
-                      className="gray-hover sx-37"
+                      className={["gray-hover", "sx-37", item.label === "Secretarias" && SECRETARIA_MENU_SLUGS[child] === activeSecretariaSlug ? "submenu-item-active" : ""].filter(Boolean).join(" ")}
+                      aria-current={item.label === "Secretarias" && SECRETARIA_MENU_SLUGS[child] === activeSecretariaSlug ? "page" : undefined}
                     >
                       {child}
                     </a>
@@ -1591,63 +2033,34 @@ function NavBar({ menuOpen, setMenuOpen, currentPage, onNavigate, onOpenRequirem
 
       {/* Mobile */}
       {menuOpen && (
-        <div  className="lg:hidden sx-38">
-          {NAV_ITEMS.map((item) => (
-            <div key={item.label}  className="sx-39">
-              <a
-                href="#"
-                onClick={(event) => {
-                  if (item.label === "Concursos") {
-                    event.preventDefault();
-                    onNavigate("concursos");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Licitações") {
-                    event.preventDefault();
-                    onNavigate("licitacoes");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Notícias") {
-                    event.preventDefault();
-                    onNavigate("noticias");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Secretarias") {
-                    event.preventDefault();
-                    onNavigate("secretarias");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Legislação") {
-                    event.preventDefault();
-                    onNavigate("leis-municipais");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "A Prefeitura") {
-                    event.preventDefault();
-                    onNavigate("historia-roseira");
-                    setMenuOpen(false);
-                  }
-                  if (item.label === "Contato") {
-                    event.preventDefault();
-                    onNavigate("contato");
-                    setMenuOpen(false);
-                  }
-                  const firstRequirement = item.children.map(child => NAVIGATION_REQUIREMENT_SLUGS[child]).find(Boolean);
-                  if (firstRequirement) {
-                    event.preventDefault();
-                    onOpenRequirement(firstRequirement);
-                    setMenuOpen(false);
-                  }
-                }}
-                className="sx-40"
-              >
-                {item.label} {item.children.length > 0 && I.chevRight}
-              </a>
+        <div className="lg:hidden sx-38">
+          {NAV_ITEMS.map((item, idx) => (
+            <div key={item.label} className="sx-39">
+              <button type="button" title={item.label} onClick={(event) => {
+                event.preventDefault();
+                if (item.children.length > 0) { setMobileOpenIdx(current => current === idx ? null : idx); return; }
+                if (item.label === "Concursos") onNavigate("concursos");
+                else if (item.label === "Licitações") onNavigate("licitacoes");
+                else if (item.label === "Notícias") onNavigate("noticias");
+                else if (item.label === "Secretarias") onNavigate("secretarias");
+                else if (item.label === "Legislação") onNavigate("leis-municipais");
+                else if (item.label === "A Prefeitura") onNavigate("historia-roseira");
+                else if (item.label === "Contato") onNavigate("contato");
+                setMenuOpen(false);
+              }} className={["sx-40", isActiveItem(item.label) ? "site-nav-active" : ""].filter(Boolean).join(" ")} aria-current={isActiveItem(item.label) ? "page" : undefined} aria-expanded={item.children.length > 0 ? mobileOpenIdx === idx : undefined}>
+                {item.label} {item.children.length > 0 && (mobileOpenIdx === idx ? I.chevDown : I.chevRight)}
+              </button>
+              {mobileOpenIdx === idx && item.children.length > 0 && (
+                <div className="mobile-submenu" role="menu" aria-label={"Submenu " + item.label}>
+                  {item.children.map(child => <a key={child} href={getChildHref(item.label, child)} title={child} role="menuitem" onClick={() => setMenuOpen(false)}>{child}</a>)}
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
     </nav>
+
   );
 }
 
@@ -1664,10 +2077,10 @@ function AlertBanner() {
           <span  className="sx-42">AVISO</span>
           <p  className="sx-43">
             <strong  className="sx-44">Prazo para isenção de IPTU 2025</strong> - Contribuintes podem solicitar isenção até 31 de agosto.{" "}
-            <a href="#"  className="sx-45">Clique aqui para saber mais</a>
+            <a href="#conteudo-principal" title="Saiba mais" className="sx-45">Clique aqui para saber mais</a>
           </p>
         </div>
-        <button type="button" onClick={() => setShow(false)} aria-label="Fechar aviso" className="sx-46">{I.close}</button>
+        <button type="button" onClick={() => setShow(false)} title="Fechar" aria-label="Fechar aviso" className="sx-46">{I.close}</button>
       </div>
     </div>
   );
@@ -1696,7 +2109,7 @@ function HeroSlider() {
                 <div className="sx-51">
                   <Badge label={item.sub} color="#FFCD07" />
                   <h1 className="sx-52">{item.title}</h1>
-                  <a href="#" className="sx-53">
+                  <a href="#conteudo-principal" title="Leia mais" className="sx-53">
                     Leia mais {I.chevRight}
                   </a>
                 </div>
@@ -1708,17 +2121,17 @@ function HeroSlider() {
       {/* Dots */}
       <div  className="sx-54" aria-label="Selecionar destaque">
         {SLIDER_ITEMS.map((_, i) => (
-          <button key={i} type="button" onClick={() => setIdx(i)} aria-label={`Ir para destaque ${i + 1}`} aria-current={i === idx ? "true" : undefined}
+          <button key={i} type="button" onClick={() => setIdx(i)} title={`Destaque ${i + 1}`} aria-label={`Ir para destaque ${i + 1}`} aria-current={i === idx ? "true" : undefined}
 
            className={`sx-55 carousel-dot ${i === idx ? "carousel-dot-active" : "carousel-dot-idle"}`}/>
         ))}
       </div>
       {/* Arrows */}
-      <button type="button" aria-label="Destaque anterior" onClick={() => setIdx(i => (i - 1 + SLIDER_ITEMS.length) % SLIDER_ITEMS.length)}
+      <button type="button" aria-label="Destaque anterior" title="Anterior" onClick={() => setIdx(i => (i - 1 + SLIDER_ITEMS.length) % SLIDER_ITEMS.length)}
          className="sx-56 carousel-arrow">
         {I.chevLeft}
       </button>
-      <button type="button" aria-label="Próximo destaque" onClick={() => setIdx(i => (i + 1) % SLIDER_ITEMS.length)}
+      <button type="button" aria-label="Próximo destaque" title="Próximo" onClick={() => setIdx(i => (i + 1) % SLIDER_ITEMS.length)}
          className="sx-57 carousel-arrow">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="m9 18 6-6-6-6"/></svg>
       </button>
@@ -1730,9 +2143,8 @@ function HeroSlider() {
 // ACESSO RÁPIDO
 // -----------------------------------------------------------------------------
 function AcessoRapido() {
-  const [tab, setTab] = useState<"cidadao" | "empresa" | "principais">("cidadao");
-  const lists = { cidadao: ACESSO_CIDADAO, empresa: ACESSO_EMPRESA, principais: ACESSO_PRINCIPAIS };
-  const filtered = lists[tab];
+  const [tab, setTab] = useState<QuickAccessCategory>(QUICK_ACCESS_TABS[0].key);
+  const activeTab = QUICK_ACCESS_TABS.find((item) => item.key === tab) ?? QUICK_ACCESS_TABS[0];
 
   return (
     <section  className="py-10 sx-58">
@@ -1744,17 +2156,17 @@ function AcessoRapido() {
           </div>
           {/* Tabs */}
           <div className="quick-access-tabs" role="tablist" aria-label="Categorias de acesso rápido">
-            {([["cidadao", "Cidadão"], ["empresa", "Empresa"], ["principais", "Principais Serviços"]] as const).map(([k, lbl]) => (
-              <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
-                 className={`sx-66 ${tab === k ? "tab-pill-active" : "tab-pill-idle"}`}>
-                {lbl}
+            {QUICK_ACCESS_TABS.map(({ key, label }) => (
+              <button key={key} type="button" role="tab" aria-selected={tab === key} onClick={() => setTab(key)} title={label}
+                 className={`sx-66 ${tab === key ? "tab-pill-active" : "tab-pill-idle"}`}>
+                {label}
               </button>
             ))}
           </div>
         </div>
         <div className="quick-service-grid">
-          {filtered.map(s => (
-            <a key={s} href="#"
+          {activeTab.items.map(s => (
+            <a key={s} {...getPortalLinkProps(s)} title={s}
 
               className="sx-67 quick-service-card">
               <span className="quick-service-title">{s}</span>
@@ -1786,7 +2198,7 @@ function Publicacoes() {
           </div>
           <div  className="sx-71 publicacoes-tabs" role="tablist" aria-label="Categorias de publicações oficiais">
             {(["leg", "lic", "con"] as const).map(k => (
-              <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
+              <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)} title={labels[k]}
                  className={`sx-72 ${tab === k ? "tab-pill-active" : "tab-pill-idle"}`}>
                 {labels[k]}
               </button>
@@ -1807,10 +2219,10 @@ function Publicacoes() {
               {rows.map((r, i) => (
                 <tr key={r.num}  className="gray-hover-row sx-80">
                   <td  className="sx-81">
-                    <a href="#"  className="sx-82">{r.num}</a>
+                    <a href="#conteudo-principal" title={r.num} className="sx-82">{r.num}</a>
                   </td>
                   <td  className="sx-83">
-                    <a href="#"  className="gray-hover-text sx-84">{r.desc}</a>
+                    <a href="#conteudo-principal" title={r.desc} className="gray-hover-text sx-84">{r.desc}</a>
                   </td>
                   <td  className="sx-85">{r.date}</td>
                   <td  className="sx-86"><StatusBadge status={r.status} /></td>
@@ -1820,7 +2232,7 @@ function Publicacoes() {
           </table>
         </div>
         <div className="text-center mt-6">
-          <a href="#"  className="more-link">
+          <a href="#conteudo-principal" title={`Ver mais ${labels[tab]}`} className="more-link">
             Ver mais {labels[tab]} {I.chevRight}
           </a>
         </div>
@@ -1833,41 +2245,7 @@ function Publicacoes() {
 // NOTÍCIAS
 // -----------------------------------------------------------------------------
 function Noticias({ onSelectNoticia, onOpenNoticias }: { onSelectNoticia: (index: number) => void; onOpenNoticias: () => void }) {
-  const [idx, setIdx] = useState(0);
-  const [transitionOn, setTransitionOn] = useState(true);
-  const [paused, setPaused] = useState(false);
-  const newsTrack = Array.from({ length: 12 }, (_, offset) => NOTICIAS[offset % NOTICIAS.length]);
-  const loopPoint = Math.max(1, newsTrack.length - 3);
-
-  useEffect(() => {
-    if (paused || prefersReducedMotion()) return;
-    const t = setInterval(() => setIdx(i => i + 1), 5000);
-    return () => clearInterval(t);
-  }, [paused]);
-
-  useEffect(() => {
-    if (idx < loopPoint) return;
-    const t = window.setTimeout(() => {
-      setTransitionOn(false);
-      setIdx(0);
-      window.requestAnimationFrame(() => window.requestAnimationFrame(() => setTransitionOn(true)));
-    }, 520);
-    return () => window.clearTimeout(t);
-  }, [idx, loopPoint]);
-
-  const nextNews = () => setIdx(i => Math.min(i + 1, loopPoint));
-  const prevNews = () => {
-    if (idx > 0) {
-      setIdx(i => i - 1);
-      return;
-    }
-    setTransitionOn(false);
-    setIdx(loopPoint - 1);
-    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      setTransitionOn(true);
-      setIdx(loopPoint - 2);
-    }));
-  };
+  const visibleNews = NOTICIAS.slice(0, 6);
 
   return (
     <section  className="py-14 sx-88">
@@ -1878,17 +2256,9 @@ function Noticias({ onSelectNoticia, onOpenNoticias }: { onSelectNoticia: (index
             <h2  className="sx-90 section-title">Notícias</h2>
           </div>
         </div>
-        <div className="news-carousel">
-          <button type="button" onClick={prevNews} className="news-carousel-nav news-carousel-prev carousel-arrow" aria-label="Notícia anterior">
-            {I.chevLeft}
-          </button>
-          <div className="news-carousel-viewport">
-            <div
-              className={`news-carousel-grid ${transitionOn ? "" : "news-carousel-no-transition"}`}
-              style={{ "--news-index": idx } as React.CSSProperties}
-            >
-          {newsTrack.map((n, i) => (
-            <button key={`${n.title}-${i}`} type="button" onClick={() => onSelectNoticia(i % NOTICIAS.length)}
+        <div className="news-grid">
+          {visibleNews.map((n, i) => (
+            <button key={n.title} type="button" onClick={() => onSelectNoticia(i)} title={n.title}
 
               className="hover:shadow-lg hover:-translate-y-1 group sx-92">
               <div  className="sx-93">
@@ -1910,26 +2280,9 @@ function Noticias({ onSelectNoticia, onOpenNoticias }: { onSelectNoticia: (index
               </div>
             </button>
           ))}
-            </div>
-          </div>
-          <button type="button" onClick={nextNews} className="news-carousel-nav news-carousel-next carousel-arrow" aria-label="Próximas notícias">
-            {I.chevRight}
-          </button>
-        </div>
-        <div className="news-carousel-dots" aria-label="Páginas do carrossel de notícias">
-          {Array.from({ length: loopPoint }).map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setIdx(i)}
-              className={`carousel-dot ${i === idx % loopPoint ? "carousel-dot-active" : "carousel-dot-idle"}`}
-              aria-label={`Ir para página de notícias ${i + 1}`}
-              aria-current={i === idx % loopPoint ? "true" : undefined}
-            />
-          ))}
         </div>
         <div className="text-center mt-8">
-          <button type="button" onClick={onOpenNoticias} className="sx-101 more-link">
+          <button type="button" onClick={onOpenNoticias} title="Ver mais notícias" className="sx-101 more-link">
             Ver mais notícias {I.chevRight}
           </button>
         </div>
@@ -1953,10 +2306,10 @@ function Galeria() {
             <h2  className="sx-104 section-title">Galeria de Fotos e Vídeos</h2>
           </div>
           <div className="galeria-tabs" role="tablist" aria-label="Tipo de mídia da galeria">
-            <button type="button" role="tab" aria-selected={tab === "fotos"} onClick={() => setTab("fotos")} className={`sx-72 ${tab === "fotos" ? "tab-pill-active" : "tab-pill-idle"}`}>
+            <button type="button" role="tab" aria-selected={tab === "fotos"} onClick={() => setTab("fotos")} title="Fotos" className={`sx-72 ${tab === "fotos" ? "tab-pill-active" : "tab-pill-idle"}`}>
               Fotos
             </button>
-            <button type="button" role="tab" aria-selected={tab === "videos"} onClick={() => setTab("videos")} className={`sx-72 ${tab === "videos" ? "tab-pill-active" : "tab-pill-idle"}`}>
+            <button type="button" role="tab" aria-selected={tab === "videos"} onClick={() => setTab("videos")} title="Vídeos" className={`sx-72 ${tab === "videos" ? "tab-pill-active" : "tab-pill-idle"}`}>
               Vídeos
             </button>
           </div>
@@ -1972,10 +2325,10 @@ function Galeria() {
           ))}
         </div>
         <div className="text-center mt-6 flex gap-3 justify-center">
-          <a href="#"  className="more-link">
+          <a href="#conteudo-principal" title="Galeria de Fotos" className="more-link">
             {I.photo} Ver Galeria de Fotos
           </a>
-          <a href="#"  className="more-link">
+          <a href="#conteudo-principal" title="Galeria de Vídeos" className="more-link">
             {I.video} Ver Galeria de Vídeos
           </a>
         </div>
@@ -2036,7 +2389,7 @@ function Secretarias({ onSelectSecretaria, onOpenDirectory }: { onSelectSecretar
           </div>
         </div>
         <div className="secretarias-carousel">
-          <button type="button" onClick={prevPage} className="secretarias-nav secretarias-nav-left carousel-arrow" aria-label="Secretarias anteriores">
+          <button type="button" onClick={prevPage} title="Anterior" className="secretarias-nav secretarias-nav-left carousel-arrow" aria-label="Secretarias anteriores">
             {I.chevLeft}
           </button>
           <div className="secretarias-viewport">
@@ -2055,10 +2408,10 @@ function Secretarias({ onSelectSecretaria, onOpenDirectory }: { onSelectSecretar
                     <p><span aria-hidden="true">•</span>{s.diretor}</p>
                     <p><span aria-hidden="true">{I.clock}</span>{s.horario}</p>
                     <p><span aria-hidden="true">{I.map}</span>{s.end}</p>
-                    <p><span aria-hidden="true">{I.phone}</span><a href={`tel:${s.tel}`}>{s.tel}</a></p>
-                    <p><span aria-hidden="true">{I.mail}</span><a href={`mailto:${s.email}`}>{s.email}</a></p>
+                    <p><span aria-hidden="true">{I.phone}</span><a href={`tel:${s.tel}`} title="Telefone">{s.tel}</a></p>
+                    <p><span aria-hidden="true">{I.mail}</span><a href={`mailto:${s.email}`} title="E-mail">{s.email}</a></p>
                   </div>
-                  <button type="button" onClick={() => onSelectSecretaria(s.slug)} className="secretaria-profile more-link">
+                  <button type="button" onClick={() => onSelectSecretaria(s.slug)} title="Ver perfil" className="secretaria-profile more-link">
                     Ver perfil
                   </button>
                 </div>
@@ -2066,17 +2419,17 @@ function Secretarias({ onSelectSecretaria, onOpenDirectory }: { onSelectSecretar
             ))}
             </div>
           </div>
-          <button type="button" onClick={nextPage} className="secretarias-nav secretarias-nav-right carousel-arrow" aria-label="Próximas secretarias">
+          <button type="button" onClick={nextPage} title="Próximo" className="secretarias-nav secretarias-nav-right carousel-arrow" aria-label="Próximas secretarias">
             {I.chevRight}
           </button>
         </div>
         <div className="secretarias-dots" aria-label="Páginas do carrossel de secretarias">
           {SECRETARIA_DETAILS.map((_, i) => (
-            <button key={i} type="button" onClick={() => setIdx(i)} className={`carousel-dot ${i === activeDot ? "carousel-dot-active" : "carousel-dot-idle"}`} aria-label={`Ir para secretaria ${i + 1}`} />
+            <button key={i} type="button" onClick={() => setIdx(i)} title={`Secretaria ${i + 1}`} className={`carousel-dot ${i === activeDot ? "carousel-dot-active" : "carousel-dot-idle"}`} aria-label={`Ir para secretaria ${i + 1}`} />
           ))}
         </div>
         <div className="text-center mt-6">
-          <button type="button" onClick={onOpenDirectory} className="more-link">
+          <button type="button" onClick={onOpenDirectory} title="Ver mais secretarias" className="more-link">
             Ver mais secretarias {I.chevRight}
           </button>
         </div>
@@ -2103,11 +2456,11 @@ function CalendarioEventos() {
 
             {/* Month selector */}
             <div  className="sx-135">
-              <button onClick={() => setMonth(m => Math.max(0, m - 1))}  className="sx-136">
+              <button type="button" onClick={() => setMonth(m => Math.max(0, m - 1))} title="Mês anterior" className="sx-136">
                 {I.chevLeft}
               </button>
               <span  className="sx-137">{months[month]} 2026</span>
-              <button onClick={() => setMonth(m => Math.min(11, m + 1))}  className="sx-138">
+              <button type="button" onClick={() => setMonth(m => Math.min(11, m + 1))} title="Próximo mês" className="sx-138">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="m9 18 6-6-6-6"/></svg>
               </button>
             </div>
@@ -2143,7 +2496,7 @@ function CalendarioEventos() {
             <h2  className="sx-146 section-title">Eventos em Agosto</h2>
             <div className="space-y-3">
               {CALENDAR_EVENTS.map((ev) => (
-                <a key={ev.day} href="#"  className="gray-hover-card sx-147">
+                <a key={ev.day} href="#conteudo-principal" title={ev.title} className="gray-hover-card sx-147">
                   <div  className="sx-148">
                     <span  className="sx-149">{ev.day}</span>
                     <span  className="sx-150">{ev.month}</span>
@@ -2159,7 +2512,7 @@ function CalendarioEventos() {
             </div>
           </div>
         </div>
-        <a href="#" className="more-link calendar-more-link">
+        <a href="#conteudo-principal" title="Ver todos os eventos" className="more-link calendar-more-link">
           Ver todos os eventos {I.chevRight}
         </a>
       </div>
@@ -2176,7 +2529,6 @@ function Transparencia() {
     { lbl: "Contas Públicas", desc: "Balanços e relatórios de execução orçamentária", Icon: Landmark },
     { lbl: "Licitações e Contratos", desc: "Editais, resultados e atas de sessão", Icon: FileText },
     { lbl: "Lei de Acesso à Informação", desc: "Solicite informações via e-SIC", Icon: Info },
-    { lbl: "Diário Oficial", desc: "Atos e públicações da administração", Icon: Newspaper },
     { lbl: "Audiências Públicas", desc: "Pautas, atas e transmissões ao vivo", Icon: UsersRound },
   ];
 
@@ -2189,7 +2541,7 @@ function Transparencia() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map(({ Icon, ...it }) => (
-            <a key={it.lbl} href="#"
+            <a key={it.lbl} {...getPortalLinkProps(it.lbl)} title={it.lbl}
 
               className="sx-156 transparency-card">
               <div  className="sx-157">
@@ -2226,13 +2578,8 @@ function SocialNewsletter() {
               Fique por dentro das ações, eventos e serviços da Prefeitura pelas nossas redes sociais oficiais.
             </p>
             <div className="flex flex-wrap gap-3">
-              {[
-                { icon: I.fb, label: "Facebook", handle: "Prefeitura Municipal de Roseira" },
-                { icon: I.ig, label: "Instagram", handle: "Prefeitura Municipal de Roseira" },
-                { icon: I.yt, label: "YouTube", handle: "TV Prefeitura" },
-                { icon: I.msg, label: "Messenger", handle: "Messenger Oficial" },
-              ].map(s => (
-                <a key={s.label} href="#"
+              {Object.values(SOCIAL_LINKS).map(s => (
+                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} title={s.title}
 
                   className="hover:shadow-md hover:border-gray-300 sx-165">
                   <span className="social-icon-link">{s.icon}</span>
@@ -2269,12 +2616,7 @@ function SocialNewsletter() {
 
                    className="sx-176"/>
                 </div>
-                <div  className="sx-177">
-                  <input type="checkbox" id="captcha"   className="sx-178"/>
-                  <label htmlFor="captcha"  className="sx-179">Não sou um robô</label>
-                  <span  className="sx-180">Seguro</span>
-                </div>
-                <button type="submit"
+                <button type="submit" title="Cadastrar"
                    className="sx-181 button-yellow">
                   Cadastrar
                 </button>
@@ -2387,6 +2729,7 @@ function MapaTuristico() {
               className={`tourism-map-point ${activePoint?.name === point.name ? "tourism-map-point-active" : ""}`}
               style={{ left: `${point.x}%`, top: `${point.y}%` }}
               onClick={() => setActivePoint(point)}
+              title={point.name}
               aria-label={`Ver informações sobre ${point.name}`}
             >
               <span />
@@ -2394,7 +2737,7 @@ function MapaTuristico() {
           ))}
           {activePoint && (
             <article className="tourism-map-info-card" aria-live="polite">
-              <button type="button" className="tourism-map-close" onClick={() => setActivePoint(null)} aria-label="Fechar informações">
+              <button type="button" className="tourism-map-close" onClick={() => setActivePoint(null)} title="Fechar" aria-label="Fechar informações">
                 ×
               </button>
               <div className="tourism-map-info-content">
@@ -2405,8 +2748,8 @@ function MapaTuristico() {
                   <span>{activePoint.address}</span>
                 </div>
                 <div className="tourism-map-actions">
-                  <a href="#" className="site-action-button button-yellow">Como chegar</a>
-                  <a href="#" className="site-action-button-muted">Compartilhar</a>
+                  <a href="#conteudo-principal" title="Como chegar" className="site-action-button button-yellow">Como chegar</a>
+                  <a href="#conteudo-principal" title="Compartilhar" className="site-action-button-muted">Compartilhar</a>
                 </div>
               </div>
               <img src={activePoint.image} alt={activePoint.name} />
@@ -2432,16 +2775,20 @@ function FaleConosco() {
             <h2  className="sx-184 section-title">Fale com a Prefeitura</h2>
             <div className="space-y-4 mb-8">
               {[
-                { icon: I.phone, label: "Central de Atendimento", val: "(12) 3646-9900" },
-                { icon: I.mail, label: "E-mail institucional", val: "contato@roseira.sp.gov.br" },
-                { icon: I.map, label: "Endereço", val: "Praça Sant'Ana, 201, Centro - Roseira/SP - CEP 12580-017" },
-                { icon: I.clock, label: "Horário de atendimento", val: "Segunda a Sexta, das 8h às 17h" },
-              ].map(({ icon, label, val }) => (
+                { icon: I.phone, label: "Central de Atendimento", val: CONTACT_INFO.phone, href: CONTACT_INFO.phoneHref, title: "Telefone" },
+                { icon: I.mail, label: "E-mail institucional", val: CONTACT_INFO.email, href: CONTACT_INFO.emailHref, title: "E-mail" },
+                { icon: I.map, label: "Endereço", val: CONTACT_INFO.fullAddress, href: CONTACT_INFO.mapUrl, title: "Localização" },
+                { icon: I.clock, label: "Horário de atendimento", val: CONTACT_INFO.businessHours },
+              ].map(({ icon, label, val, href, title }) => (
                 <div key={label} className="flex gap-4 items-start">
                   <div  className="sx-185">{icon}</div>
                   <div>
                     <div  className="sx-186">{label}</div>
-                    <div  className="sx-187">{val}</div>
+                    {href ? (
+                      <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noreferrer" : undefined} title={title} className="sx-187">{val}</a>
+                    ) : (
+                      <div  className="sx-187">{val}</div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -2453,7 +2800,7 @@ function FaleConosco() {
                 { lbl: "Ouvidoria Municipal", color: "#168821" },
                 { lbl: "Perguntas Frequentes", color: "#505C6D" },
               ].map(({ lbl, color }) => (
-                <a key={lbl} href="#"
+                <a key={lbl} href="#conteudo-principal" title={lbl}
 
                   className="hover:opacity-80 sx-188">
                   {lbl} {I.ext}
@@ -2488,7 +2835,7 @@ function FaleConosco() {
                 <label htmlFor="contact-message" className="sx-195">Mensagem</label>
                 <textarea id="contact-message" rows={4} placeholder="Descreva sua solicitação..." className="sx-196"/>
               </div>
-              <button type="button" className="sx-197 button-yellow">
+              <button type="button" title="Enviar mensagem" className="sx-197 button-yellow">
                 Enviar mensagem
               </button>
             </div>
@@ -2499,16 +2846,16 @@ function FaleConosco() {
   );
 }
 
-function Footer() {
+function Footer({ onOpenAccessibility }: { onOpenAccessibility: () => void }) {
   const COLS = [
     { title: "A Prefeitura", links: ["História do Município", "Galeria de Prefeitos", "Estrutura Organizacional", "Secretarias Municipais", "Câmara Municipal", "Plano Diretor"] },
     { title: "Serviços Online", links: ["2ª Via IPTU / Taxas", "Quitação Dívida Ativa", "ITBI", "NFS-e", "ISS Online", "RH Online", "Veracidade do Holerite", "Acessa SP"] },
-    { title: "Cidadão", links: ["Portal da Transparência", "SIC - Acesso à Informação", "Ouvidoria Municipal", "Bolsa Família", "Banco do Povo Paulista", "Conselho Tutelar", "Junta Militar"] },
+    { title: "Cidadão", links: ["Portal da Transparência", "SIC - Acesso à Informação", "Ouvidoria Municipal", "Banco do Povo Paulista", "Junta Militar"] },
     { title: "Empresa", links: ["Cadastro Inscrição Municipal", "ISS Online", "NFS-e", "Licitações", "Portal de Compras", "Sebrae"] },
   ];
 
   return (
-    <footer  className="pt-14 pb-4 sx-198">
+    <footer id="rodape-portal" className="pt-14 pb-4 sx-198" tabIndex={-1}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           {/* Brand */}
@@ -2524,31 +2871,30 @@ function Footer() {
             </div>
             <div className="space-y-2">
               {[
-                { icon: I.clock, val: "De segunda a sexta, das 8h às 17h" },
-                { icon: I.map, val: "Praça Sant'Ana, 201, Centro - CEP: 12580-017" },
-                { icon: I.phone, val: "(12) 3646-9900" },
-                { icon: I.mail, val: "contato@roseira.sp.gov.br" },
-              ].map(({ icon, val }) => (
+                { icon: I.clock, val: CONTACT_INFO.businessHours },
+                { icon: I.map, val: CONTACT_INFO.addressWithCep, href: CONTACT_INFO.mapUrl, title: "Localização" },
+                { icon: I.phone, val: CONTACT_INFO.phone, href: CONTACT_INFO.phoneHref, title: "Telefone" },
+                { icon: I.mail, val: CONTACT_INFO.email, href: CONTACT_INFO.emailHref, title: "E-mail" },
+              ].map(({ icon, val, href, title }) => (
                 <div key={val} className="flex gap-2 items-start">
                   <span  className="sx-202">{icon}</span>
-                  <span  className="sx-203">{val}</span>
+                  {href ? (
+                    <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noreferrer" : undefined} title={title} className="sx-203">{val}</a>
+                  ) : (
+                    <span  className="sx-203">{val}</span>
+                  )}
                 </div>
               ))}
             </div>
             <div className="flex gap-3 mt-5">
-              {[
-                { icon: I.fb, label: "Facebook" },
-                { icon: I.ig, label: "Instagram" },
-                { icon: I.yt, label: "YouTube" },
-                { icon: I.msg, label: "Messenger" },
-              ].map((s, i) => (
-                <a key={i} href="#" aria-label={s.label} className="social-icon-link">{s.icon}</a>
+              {Object.values(SOCIAL_LINKS).map((s) => (
+                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} title={s.title} className="social-icon-link">{s.icon}</a>
               ))}
             </div>
-            <a href="#"  className="hover:text-white sx-205">
+            <a href={CONTACT_INFO.mapUrl} target="_blank" rel="noreferrer" title="Localização" className="hover:text-white sx-205">
               {I.map} Ver Localização
             </a>
-            <a href="#"  className="hover:text-white sx-206">
+            <a href={CONTACT_INFO.webmailUrl} target="_blank" rel="noreferrer" title="Webmail" className="hover:text-white sx-206">
               ✉ Webmail / Portal do Servidor
             </a>
           </div>
@@ -2559,7 +2905,7 @@ function Footer() {
               <ul className="space-y-2.5">
                 {links.map(l => (
                   <li key={l}>
-                    <a href="#"  className="hover:text-white sx-208">{l}</a>
+                    <a {...getPortalLinkProps(l)} title={l} className="hover:text-white sx-208">{l}</a>
                   </li>
                 ))}
               </ul>
@@ -2572,7 +2918,7 @@ function Footer() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p  className="sx-210">
-                CNPJ: 45.212.008/0001-50 - Copyright {new Date().getFullYear()} - Prefeitura Municipal de Roseira - SP. Todos os direitos reservados.
+                CNPJ: {CONTACT_INFO.cnpj} - Copyright {new Date().getFullYear()} - Prefeitura Municipal de Roseira - SP. Todos os direitos reservados.
               </p>
               <p  className="sx-211">
                 Versão do sistema: 2.0.0 · Portal atualizado em: {new Date().toLocaleDateString("pt-BR")} · Gerenciado pelo Departamento de TI
@@ -2580,7 +2926,7 @@ function Footer() {
             </div>
             <div className="flex flex-wrap gap-4">
               {["Termos e Condições de Uso", "Políticas de Cookies", "LGPD - Proteção de Dados", "Mapa do Site"].map(l => (
-                <a key={l} href="#"  className="hover:text-white/60 sx-212">{l}</a>
+                <a key={l} href="#conteudo-principal" title={l} className="hover:text-white/60 sx-212">{l}</a>
               ))}
             </div>
           </div>
@@ -2608,18 +2954,18 @@ function CookieBanner() {
             <span  className="sx-214">{I.cookie}</span>
             <p  className="sx-215">
               Utilizamos cookies para melhorar sua experiência. Ao continuar, você concorda com nossa{" "}
-              <a href="#"  className="sx-216">Política de Cookies</a> e{" "}
-              <a href="#"  className="sx-217">LGPD</a>.
+              <a href="#conteudo-principal" title="Política de Cookies" className="sx-216">Política de Cookies</a> e{" "}
+              <a href="#conteudo-principal" title="LGPD" className="sx-217">LGPD</a>.
             </p>
           </div>
           <div className="flex gap-2 flex-wrap flex-shrink-0">
-            <button onClick={() => setModal(true)}  className="sx-218">
+            <button type="button" onClick={() => setModal(true)} title="Personalizar" className="sx-218">
               Personalizar
             </button>
-            <button onClick={() => setShow(false)}  className="sx-219">
+            <button type="button" onClick={() => setShow(false)} title="Rejeitar" className="sx-219">
               Rejeitar
             </button>
-            <button onClick={() => setShow(false)}  className="sx-220">
+            <button type="button" onClick={() => setShow(false)} title="Aceitar todos" className="sx-220">
               Aceitar todos
             </button>
           </div>
@@ -2642,7 +2988,7 @@ function CookieBanner() {
                 {always ? (
                   <span  className="sx-227">Sempre ativo</span>
                 ) : (
-                  <button type="button" onClick={() => setPerf(!perf)} role="switch" aria-checked={perf} aria-label={lbl}
+                  <button type="button" onClick={() => setPerf(!perf)} title={lbl} role="switch" aria-checked={perf} aria-label={lbl}
                      className="sx-228">
                     <span className="sx-229" style={{ left: perf ? "21px" : "3px" }}/>
                   </button>
@@ -2650,10 +2996,10 @@ function CookieBanner() {
               </div>
             ))}
             <div className="flex gap-3 mt-5">
-              <button onClick={() => { setModal(false); setShow(false); }}  className="sx-230">
+              <button type="button" onClick={() => { setModal(false); setShow(false); }} title="Salvar preferências" className="sx-230">
                 Salvar preferências
               </button>
-              <button onClick={() => setModal(false)}  className="sx-231">
+              <button type="button" onClick={() => setModal(false)} title="Cancelar" className="sx-231">
                 Cancelar
               </button>
             </div>
@@ -2664,473 +3010,238 @@ function CookieBanner() {
   );
 }
 
-function getRequirementBreadcrumb(slug: string, page: RequirementPageConfig) {
-  for (const item of NAV_ITEMS) {
-    const child = item.children.find(childLabel => NAVIGATION_REQUIREMENT_SLUGS[childLabel] === slug);
-    if (child) {
-      const label = child.includes(" - Página Temática") ? page.title : child;
-      return [item.label, label];
-    }
-  }
-
-  return [page.category, page.title];
-}
-
-const FAQ_ITEMS = [
-  {
-    theme: "Geral / IPTU",
-    question: "Qual o dia de vencimento do IPTU 2021?",
-    answer: "A Prefeitura Municipal de Roseira colocou o dia 10 de junho como o dia de vencimento da primeira parcela do IPTU de 2021.",
-  },
-  {
-    theme: "Geral / IPTU",
-    question: "Onde posso pagar o meu IPTU?",
-    answer: "Os carnês podem ser pagos na Tesouraria da Prefeitura, Agência da Caixa Econômica Federal, Banco do Brasil e Casas Lotéricas.",
-  },
-  {
-    theme: "Geral / IPTU",
-    question: "Não sei onde guardei meu IPTU, como consigo a 2ª via?",
-    answer: "A 2ª via das parcelas do IPTU pode ser obtida no site da Prefeitura Municipal de Roseira, pelo serviço de 2ª via do IPTU e taxas imobiliárias.",
-  },
-  {
-    theme: "Geral / IPTU",
-    question: "Existe algum desconto para quem não possui débitos anteriores?",
-    answer: "Sim. Há desconto de 10% para pagamento em parcela única e 5% na opção de parcelamento.",
-  },
-  {
-    theme: "Geral / IPTU",
-    question: "Mesmo eu tendo débitos de anos anteriores, ainda consigo desconto no IPTU 2021?",
-    answer: "Para obter o desconto no IPTU 2021, quem possui débitos anteriores deve procurar a Tesouraria da Prefeitura Municipal de Roseira para quitar ou parcelar esses débitos. Após o primeiro pagamento das parcelas atrasadas ou quitação, o carnê de IPTU 2021 terá desconto de 10% à vista ou 5% parcelado. O desconto somente será concedido com pagamento efetuado na Tesouraria da Prefeitura.",
-  },
-];
-
-function FAQPage({ onBackHome }: { onBackHome: () => void }) {
-  return (
-    <div className="faq-page">
-      <section className="site-internal-hero concursos-hero faq-hero">
-        <div className="max-w-7xl mx-auto px-4">
-          <SiteBreadcrumb items={[
-            { label: "Início", onClick: onBackHome },
-            { label: "Serviços" },
-            { label: "Perguntas Frequentes" },
-          ]} />
-          <div className="faq-hero-grid">
-            <div>
-              <span className="concursos-hero-kicker">Atendimento ao cidadão</span>
-              <h1 className="site-title">Perguntas Frequentes</h1>
-              <p className="site-subtitle">
-                Respostas objetivas para orientar o acesso a serviços, transparência, documentos públicos e canais oficiais da Prefeitura.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="faq-content">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="faq-intro-grid">
-            <article className="faq-panel">
-              <Info aria-hidden="true" />
-              <h2>Como esta página deve funcionar</h2>
-              <p>
-                A FAQ deve reunir dúvidas recorrentes em linguagem simples, agrupadas por tema, com respostas curtas, links para páginas oficiais e data de atualização.
-              </p>
-            </article>
-            <article className="faq-panel">
-              <ShieldCheck aria-hidden="true" />
-              <h2>Requisitos esperados</h2>
-              <p>
-                Deve estar em local de fácil acesso, preferencialmente no menu de Serviços ou Atendimento, e indicar quando o usuário deve usar e-SIC, Ouvidoria ou atendimento presencial.
-              </p>
-            </article>
-          </div>
-
-          <div className="faq-toolbar">
-            <div>
-              <h2>Dúvidas frequentes</h2>
-              <p>Conteúdo demonstrativo para receber as respostas oficiais da Prefeitura.</p>
-            </div>
-            <label className="faq-search">
-              <span className="sr-only">Buscar dúvida frequente</span>
-              {I.search}
-              <input type="search" placeholder="Buscar por tema ou palavra-chave" />
-            </label>
-          </div>
-
-          <div className="faq-list">
-            {FAQ_ITEMS.map((item) => (
-              <details className="faq-item" key={item.question}>
-                <summary>
-                  <span className="faq-question-icon" aria-hidden="true">?</span>
-                  <span className="faq-question-text">
-                    <strong>{item.question}</strong>
-                  </span>
-                  <span className="faq-arrow" aria-hidden="true">{I.chevDown}</span>
-                </summary>
-                <p>{item.answer}</p>
-              </details>
-            ))}
-          </div>
-
-          <div className="faq-footer-grid">
-            <article className="faq-service-note">
-              <h2>Canais relacionados</h2>
-              <div>
-                <a href="#" className="site-green-pill-button">Acessar e-SIC {I.ext}</a>
-                <a href="#" className="site-green-pill-button">Acessar Ouvidoria {I.ext}</a>
-                <a href="#" className="site-green-pill-button">Carta de Serviços {I.ext}</a>
-              </div>
-            </article>
-            <article className="faq-update-note">
-              <span>Atualização</span>
-              <p>Última atualização: não declarada. Responsável pela página: setor de atendimento/comunicação.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function RequirementPage({ page, slug, onBackHome, portalSnapshot }: { page: RequirementPageConfig; slug: string; onBackHome: () => void; portalSnapshot?: PortalSnapshot | null }) {
-  const statusText = page.kind === "external" ? "Integração externa" : page.kind === "service" ? "Serviço estruturado" : page.kind === "documents" ? "Documentos esperados" : "Tabela prevista";
-  const isTablePage = page.kind === "table";
-  const contentTitle = page.kind === "service" ? "Serviços previstos" : page.kind === "external" ? "Links e integrações" : page.kind === "documents" ? "Blocos de conteúdo" : "Tabela demonstrativa";
-  const contentDescription = isTablePage
-    ? "Modelo visual para demonstrar que a página possui Área própria de listagem, filtros e dados tabulares."
-    : "Modelo visual para demonstrar a estrutura da página sem forçar uma tabela onde ela não é necessária.";
-  const [breadcrumbSection, breadcrumbPage] = getRequirementBreadcrumb(slug, page);
-  const liveRows = page.apiSource === "licitacoes" && portalSnapshot?.licitacoes.length
-    ? portalSnapshot.licitacoes
-      .filter((item) => !item.ds_tp_aquisicao || /dispensa|inexig/i.test(item.ds_tp_aquisicao))
-      .map((item) => [
-        item.nr_processo_compra || item.nr_modalidade || "Não informado",
-        item.objeto || "Não informado",
-        item.ds_tp_aquisicao || "Não informado",
-        item.ds_st_processo_compra || "Não informado",
-      ])
-    : null;
-  const contactRows = page.category === "Atendimento" && portalSnapshot?.contatos.length
-    ? portalSnapshot.contatos.map((item) => [
-        String(item.referencial ?? "Contato"),
-        String(item.descricao ?? "Não informado"),
-        String(item.endereco ?? "Não informado"),
-        String(item.telefone ?? "Não informado"),
-        String(item.email ?? "Não informado"),
-        String(item.horario ?? "Não informado"),
-      ])
-    : null;
-  const hrRows = (page.category === "Servidor" || page.category === "Pessoal") && portalSnapshot?.servidores.length
-    ? portalSnapshot.servidores.slice(0, 50).map((item) => {
-        const row = item as Record<string, unknown>;
-        return [
-          String(row.nome ?? row.nm_servidor ?? row.servidor ?? "Não informado"),
-          String(row.cargo ?? row.ds_cargo ?? "Não informado"),
-          String(row.lotacao ?? row.ds_lotacao ?? row.setor ?? "Não informado"),
-          String(row.situacao ?? row.ds_situacao ?? "Ativo"),
-        ];
-      })
-    : null;
-  const orgRows = page.category === "Institucional" && portalSnapshot?.organograma.length
-    ? portalSnapshot.organograma.slice(0, 30).map((item) => {
-        const row = item as Record<string, unknown>;
-        return [
-          String(row.nome ?? row.nm_orgao ?? row.orgao ?? "Órgão não informado"),
-          String(row.responsavel ?? row.nm_responsavel ?? "Não informado"),
-          String(row.telefone ?? "Não informado"),
-          String(row.email ?? "Não informado"),
-        ];
-      })
-    : null;
-  const contractRows = page.apiSource === "contratos" && portalSnapshot?.contratos.length
-    ? [...portalSnapshot.contratos]
-      .sort((a, b) => String(b.dt_inicio ?? b.dt_fim ?? "").localeCompare(String(a.dt_inicio ?? a.dt_fim ?? "")))
-      .slice(0, 10)
-      .map((item) => [
-        String(item.nr_contrato ?? item.id_contrato ?? "Não informado"),
-        String(item.fornecedor ?? item.credor ?? "Não informado"),
-        String(item.objeto ?? "Não informado"),
-        String(item.valor ?? "Não informado"),
-        String(item.fiscal ?? "Não informado"),
-        String(item.dt_inicio ?? "Não informado"),
-        String(item.dt_fim ?? "Não informado"),
-      ])
-    : null;
-  const latestContracts = page.apiSource === "contratos" && portalSnapshot?.contratos.length
-    ? [...portalSnapshot.contratos]
-      .sort((a, b) => String(b.dt_inicio ?? b.dt_fim ?? "").localeCompare(String(a.dt_inicio ?? a.dt_fim ?? "")))
-      .slice(0, 10)
-    : [];
-  const displayColumns = contractRows?.length
-    ? ["Contrato", "Fornecedor", "Objeto", "Valor", "Fiscal", "Início", "Fim"]
-    : contactRows?.length ? ["Referência", "Descrição", "Endereço", "Telefone", "E-mail", "Horário"]
-      : hrRows?.length ? ["Servidor", "Cargo", "Lotação", "Situação"]
-        : orgRows?.length ? ["Órgão", "Responsável", "Telefone", "E-mail"]
-        : liveRows?.length ? ["Processo", "Objeto", "Fundamento", "Situação"] : page.columns;
-  const displayRows = contractRows?.length ? contractRows : contactRows?.length ? contactRows : hrRows?.length ? hrRows : orgRows?.length ? orgRows : liveRows?.length ? liveRows : page.rows;
-  const apiExample = page.apiSource === "contratos"
-    ? portalSnapshot?.contratos[0]
-    : page.category === "Compras Públicas"
-      ? portalSnapshot?.licitacoes[0]
-      : page.category === "Atendimento"
-      ? portalSnapshot?.contatos[0]
-      : page.category === "Institucional" || page.category === "Servidor"
-        ? portalSnapshot?.servidores[0] ?? portalSnapshot?.organograma[0]
-        : portalSnapshot?.contatos[0] ?? portalSnapshot?.licitacoes[0];
-  const apiExampleEntries = apiExample && typeof apiExample === "object"
-    ? Object.entries(apiExample as Record<string, unknown>).filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== "").slice(0, 8)
-    : [];
-  const apiExpectedFields = page.apiSource === "contratos"
-    ? ["id_contrato", "nr_contrato", "fornecedor/credor", "objeto", "valor", "dt_inicio", "dt_fim", "fiscal"]
-    : [];
-
-  return (
-    <div className="requirement-page">
-      <section className="site-internal-hero concursos-hero requirement-hero">
-        <div className="max-w-7xl mx-auto px-4">
-          <SiteBreadcrumb items={[
-            { label: "Início", onClick: onBackHome },
-            { label: breadcrumbSection },
-            { label: breadcrumbPage },
-          ]} />
-          <div className="requirement-hero-grid">
-            <div>
-              <span className="concursos-hero-kicker">{page.category}</span>
-              <h1 className="site-title">{page.title}</h1>
-              <p className="site-subtitle">{page.subtitle}</p>
-            </div>
-            <div className="requirement-status-card">
-              <span>Status estrutural</span>
-              <strong>{statusText}</strong>
-              <p>Página criada para receber dados oficiais, anexos e integrações quando o conteúdo definitivo for fornecido.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="requirement-content">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="requirement-summary-grid">
-            <article className="requirement-panel">
-              <h2>Elementos obrigatorios previstos</h2>
-              <div className="requirement-checklist">
-                {page.requiredElements.map(item => (
-                  <div key={item} className="requirement-check-item">
-                    <span aria-hidden="true">✓</span>
-                    <p>{item}</p>
-                  </div>
-                ))}
-              </div>
-            </article>
-            <article className="requirement-panel">
-              <h2>Origem de referencia</h2>
-              <p className="requirement-panel-text">
-                Estrutura criada a partir do mapa do site antigo e dos apontamentos PNTP. Os campos com "Não declarado" são reservas para conteúdo oficial.
-              </p>
-              {page.sourceUrl ? (
-                <a className="site-green-pill-button requirement-source-link" href={page.sourceUrl} target="_blank" rel="noreferrer">
-                  {page.sourceLabel ?? "Abrir referência"} {I.ext}
-                </a>
-              ) : (
-                <span className="requirement-empty-source">Referência externa não localizada na análise.</span>
-              )}
-            </article>
-            <article className="requirement-panel requirement-api-panel">
-              <h2>Dados oficiais conectados</h2>
-              <p className="requirement-panel-text">
-                Os campos desta visualização são preparados para receber dados publicados pelo Portal da Transparência da Prefeitura de Roseira.
-              </p>
-              <div className="requirement-api-status-grid">
-                <div><strong>{portalSnapshot ? "Conectada" : "Carregando"}</strong><span>API do portal</span></div>
-                <div><strong>{portalSnapshot?.licitacoes.length ?? "—"}</strong><span>licitações consultadas</span></div>
-                <div><strong>{portalSnapshot?.contatos.length ?? "—"}</strong><span>contatos consultados</span></div>
-                <div><strong>{portalSnapshot?.servidores.length ?? "—"}</strong><span>servidores consultados</span></div>
-                <div><strong>{portalSnapshot?.contratos.length ?? "—"}</strong><span>contratos consultados</span></div>
-              </div>
-            </article>
-          </div>
-
-          <div className="requirement-table-toolbar">
-            <div>
-              <h2>{contentTitle}</h2>
-              <p>{contentDescription}</p>
-            </div>
-            {isTablePage && (
-              <div className="requirement-filter-row" aria-label="Filtros demonstrativos">
-                <input type="search" placeholder="Buscar nesta página" aria-label="Buscar nesta página" />
-                <select aria-label="Filtrar por exercício">
-                  <option>Exercício</option>
-                  <option>2026</option>
-                  <option>2025</option>
-                </select>
-                <select aria-label="Filtrar por situação">
-                  <option>Situação</option>
-                  <option>Publicado</option>
-                  <option>Pendente</option>
-                </select>
-              </div>
-            )}
-          </div>
-
-          {isTablePage ? (
-            <div className="requirement-table-wrap">
-              <table className="requirement-table">
-                <thead>
-                  <tr>
-                    {displayColumns.map(column => (
-                      <th key={column}>{column}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayRows.map((row, rowIndex) => (
-                    <tr key={`${page.title}-${rowIndex}`}>
-                      {row.map((cell, cellIndex) => (
-                        <td key={`${page.title}-${rowIndex}-${cellIndex}`}>
-                          {cell.startsWith("http") ? (
-                            <a href={cell} target="_blank" rel="noreferrer">Acessar</a>
-                          ) : (
-                            cell
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="requirement-card-list">
-              {displayRows.map((row, rowIndex) => (
-                <article className="requirement-content-card" key={`${page.title}-${rowIndex}`}>
-                  <span>{displayColumns[0] ?? page.category}</span>
-                  <h3>{row[0]}</h3>
-                  <dl>
-                    {row.slice(1).map((cell, cellIndex) => {
-                      const label = displayColumns[cellIndex + 1] ?? "Informação";
-                      return (
-                        <div key={`${page.title}-${rowIndex}-${cellIndex}`}>
-                          <dt>{label}</dt>
-                          <dd>
-                            {cell.startsWith("http") ? (
-                              <a href={cell} target="_blank" rel="noreferrer">Acessar</a>
-                            ) : (
-                              cell
-                            )}
-                          </dd>
-                        </div>
-                      );
-                    })}
-                  </dl>
-                </article>
-              ))}
-            </div>
-          )}
-
-          <section className="requirement-api-example" aria-labelledby="api-example-title">
-            <div className="requirement-api-example-heading">
-              <div>
-                <span className="site-caps-title">Integração de dados</span>
-                <h2 id="api-example-title">Exemplo consumido da API</h2>
-              </div>
-              <span className={`requirement-api-badge ${apiExampleEntries.length ? "is-connected" : "is-pending"}`}>
-                {apiExampleEntries.length ? "Dados reais carregados" : "API sem registros"}
-              </span>
-            </div>
-            {apiExampleEntries.length ? (
-              <dl className="requirement-api-fields">
-                {apiExampleEntries.map(([key, value]) => (
-                  <div key={key}>
-                    <dt>{key.replaceAll("_", " ")}</dt>
-                    <dd>{typeof value === "object" ? JSON.stringify(value) : String(value)}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : page.apiSource === "contratos" ? (
-              <>
-                <p className="requirement-panel-text">A API respondeu sem contratos publicados no período consultado. Os campos abaixo correspondem às propriedades esperadas para cada objeto de contrato.</p>
-                <dl className="requirement-api-fields">
-                  {apiExpectedFields.map((field) => (
-                    <div key={field}>
-                      <dt>{field.replaceAll("_", " ")}</dt>
-                      <dd>Sem registro retornado</dd>
-                    </div>
-                  ))}
-                </dl>
-              </>
-            ) : (
-              <p className="requirement-panel-text">A API ainda não retornou um objeto para esta categoria. Os campos obrigatórios permanecem visíveis para conferência.</p>
-            )}
-          </section>
-
-          {page.apiSource === "contratos" && (
-            <section className="requirement-latest-list" aria-labelledby="latest-contracts-title">
-              <div className="requirement-api-example-heading">
-                <div>
-                  <span className="site-caps-title">Contratos publicados</span>
-                  <h2 id="latest-contracts-title">Últimos 10 contratos</h2>
-                </div>
-                <span className="requirement-api-badge is-connected">API oficial</span>
-              </div>
-              {latestContracts.length ? (
-                <div className="requirement-latest-table-wrap">
-                  <table className="requirement-table">
-                    <thead><tr><th>Contrato</th><th>Fornecedor</th><th>Objeto</th><th>Valor</th><th>Vigência</th></tr></thead>
-                    <tbody>{latestContracts.map((item, index) => (
-                      <tr key={String(item.id_contrato ?? item.nr_contrato ?? index)}>
-                        <td>{String(item.nr_contrato ?? item.id_contrato ?? "Não informado")}</td>
-                        <td>{String(item.fornecedor ?? item.credor ?? "Não informado")}</td>
-                        <td>{String(item.objeto ?? "Não informado")}</td>
-                        <td>{String(item.valor ?? "Não informado")}</td>
-                        <td>{String(item.dt_inicio ?? "Não informado")} — {String(item.dt_fim ?? "Não informado")}</td>
-                      </tr>
-                    ))}</tbody>
-                  </table>
-                </div>
-              ) : (
-                <p className="requirement-panel-text">Nenhum contrato foi retornado pela API no período consultado.</p>
-              )}
-            </section>
-          )}
-
-          <div className="requirement-note">
-            <strong>Conteúdo provisório:</strong> esta página mostra a estrutura esperada. A validação PNTP real depende de documentos oficiais, atualização, filtros, arquivos pesquisáveis e links confirmados.
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-// -----------------------------------------------------------------------------
 // APP
 // -----------------------------------------------------------------------------
+const PAGE_PATHS: Record<AppPage, string> = {
+  home: "/",
+  "historia-roseira": "/historia",
+  contato: "/contato",
+  "fale-conosco": "/contato/fale-conosco",
+  concursos: "/concursos",
+  "concurso-detail": "/concursos",
+  licitacoes: "/licitacoes/licitacoes",
+  "licitacao-detail": "/licitacoes/detalhe",
+  "leis-municipais": "/legislacao/leis-municipais",
+  "lei-detail": "/legislacao/leis-municipais/detalhe",
+  decretos: "/legislacao/decretos",
+  "decreto-detail": "/legislacao/decretos/detalhe",
+  portarias: "/legislacao/portarias",
+  "portaria-detail": "/legislacao/portarias/detalhe",
+  noticias: "/noticias",
+  "ultimas-noticias": "/noticias/ultimas-noticias",
+  "noticia-detail": "/noticias/detalhe",
+  secretarias: "/secretarias",
+  "secretaria-detail": "/secretarias/detalhe",
+  faq: "/servicos/perguntas-frequentes",
+  accessibility: "/acessibilidade",
+  "requirement-page": "/servicos/requisito",
+};
+
+function pageFromPath(pathname: string): AppPage {
+  const exactPage = Object.entries(PAGE_PATHS).find(([, path]) => path === pathname)?.[0] as AppPage | undefined;
+  if (exactPage) return exactPage;
+  if (pathname.startsWith("/contato/") && pathname !== "/contato/fale-conosco") return "requirement-page";
+  if (pathname === "/noticias/ultimas-noticias") return "ultimas-noticias";
+  if (pathname.startsWith("/noticias/") && pathname !== "/noticias/detalhe") return "requirement-page";
+  if (pathname.startsWith("/licitacoes/") && pathname !== "/licitacoes/detalhe") {
+    const slug = requirementSlugFromPath(pathname);
+    if (LICITACOES_PAGE_CONFIGS[slug]) return "licitacoes";
+    return "requirement-page";
+  }
+  if (pathname.startsWith("/legislacao/")) {
+    const slug = legislacaoSpecialSlugFromPath(pathname);
+    if (LEGISLACAO_ESPECIAL[slug]) return pathname.endsWith("/detalhe") ? "legislacao-special-detail" : "legislacao-special";
+  }
+  if (pathname === "/servicos/educacao" || pathname === "/servicos/educação") return "secretaria-detail";
+    if (pathname.startsWith("/secretarias/") && pathname !== "/secretarias/detalhe") {
+    const slug = secretariaSlugFromPath(pathname);
+    return SECRETARIA_DETAILS.some(secretaria => secretaria.slug === slug) ? "secretaria-detail" : "requirement-page";
+  }
+  if (pathname.startsWith("/prefeitura/") || pathname.startsWith("/servicos/") || pathname.startsWith("/transparencia/") || pathname.startsWith("/legislacao/")) {
+    return "requirement-page";
+  }
+  return "home";
+}
+
+function requirementSlugFromPath(pathname: string) {
+  const slug = decodeURIComponent(pathname.split("/").filter(Boolean).pop() ?? "");
+  return slug || "portal-transparencia";
+}
+function legislacaoSpecialSlugFromPath(pathname: string) {
+  const parts = pathname.split("/").filter(Boolean);
+  return parts[1] === "detalhe" ? parts[0] : parts[1] ?? "codigo-tributario";
+}
+
+function licitacoesSlugFromPath(pathname: string) {
+  const slug = requirementSlugFromPath(pathname);
+  return ["em-aberto", "encerradas"].includes(slug) ? "licitacoes" : slug;
+}
+
+function requirementPath(slug: string) {
+  const section = NAV_ITEMS.find(item => item.children.some(child => NAVIGATION_REQUIREMENT_SLUGS[child] === slug))?.label;
+  const prefix = section === "A Prefeitura" ? "prefeitura" : section === "Secretarias" ? "secretarias" : section === "Notícias" ? "noticias" : section === "Licitações" ? "licitacoes" : section === "Transparência" ? "transparencia" : section === "Legislação" ? "legislacao" : section === "Contato" ? "contato" : "servicos";
+  return `/${prefix}/${encodeURIComponent(slug)}`;
+}
+
+function secretariaSlugFromPath(pathname: string) {
+  const slug = decodeURIComponent(pathname.split("/").filter(Boolean).pop() ?? "");
+  const aliases: Record<string, string> = { "turismo-e-cultura": "turismo-cultura", "secretaria-de-turismo-e-cultura": "turismo-cultura", "secretaria-de-meio-ambiente": "meio-ambiente" };
+  return aliases[slug] ?? slug;
+}
+
+const REQUIREMENT_PAGE_COMPONENTS: Record<string, typeof RequirementPageExternal> = {
+  "ouvidoria": OuvidoriaPage,
+  "e-sic": EsicPage,
+  "endereco-telefones": EnderecoTelefonesPage,
+  "horarios-atendimento": HorariosAtendimentoPage,
+  "mapa-localizacao": MapaLocalizacaoPage,
+  "redes-sociais": RedesSociaisPage,
+  "codigo-tributario": CodigoTributarioPage,
+  "plano-diretor": PlanoDiretorPage,
+  "lei-organica-municipal": LeiOrganicaMunicipalPage,
+  "em-aberto": LicitacoesAbertasPage,
+  "encerradas": LicitacoesEncerradasPage,
+  "concorrencia-publica": ConcorrenciaPublicaPage,
+  "chamada-publica": ChamadaPublicaPage,
+  "pregao-presencial": PregaoPresencialPage,
+  "tomada-de-precos": TomadaPrecosPage,
+  "leilao": LeilaoPage,
+  "dispensas-inexigibilidades": DispensasInexigibilidadesPage,
+  "contratos": ContratosLicitacoesPage,
+  "aditivos": AditivosPage,
+  "atas-registro-precos": AtasRegistroPrecosPage,
+  "fornecedores": FornecedoresPage,
+  "pncp": PncpPage,
+  "comunicados": ComunicadosPage,
+  "eventos": AgendaEventosPage,
+  "campanhas": CampanhasPage,
+  "boletins-oficiais": BoletinsOficiaisPage,
+  "carta-servicos": CartaServicosPage,
+  "servicos-cidadao": ServicosCidadaoPage,
+  "servicos-empresa": ServicosEmpresaPage,
+  "servicos-servidor": ServicosServidorPage,
+  "protocolos": ProtocolosPage,
+  "emissao-guias": EmissaoGuiasPage,
+  "iptu": IptuPage,
+  "divida-ativa": DividaAtivaPage,
+  "itbi": ItbiPage,
+  "nota-fiscal-eletronica": NotaFiscalEletronicaPage,
+  "cadastro-inscricao-municipal": CadastroInscricaoMunicipalPage,
+  "bolsa-familia": BolsaFamiliaPage,
+  "banco-povo": BancoPovoPage,
+  "acessa-sp": AcessaSpPage,
+  "conselho-tutelar": ConselhoTutelarPage,
+  "junta-militar": JuntaMilitarPage,
+  "covid": CovidPage,
+  "portal-educacao": PortalEducacaoPage,
+  "plano-arborizacao": PlanoArborizacaoPage,
+  "centro-esterilizacao": CentroEsterilizacaoPage,
+  "lei-aldir-blanc": LeiAldirBlancPage,
+  "vagas-emprego": VagasEmpregoPage,
+  "agendamento": AgendamentoPage,
+  "prefeito-vice": PrefeitoVicePage,
+  gabinete: GabinetePage,
+  "estrutura-administrativa": EstruturaAdministrativaPage,
+  "telefones-enderecos": TelefonesEnderecosPage,
+  "horario-atendimento": HorarioAtendimentoPage,
+  "símbolos-municipais": SimbolosMunicipaisPage,
+  "conselhos-municipais": ConselhosMunicipaisPage,
+  "mapa-site": MapaSitePage,
+  "galeria-fotos": GaleriaFotosPage,
+  "termos-uso": TermosUsoPage,
+  "politica-cookies": PoliticaCookiesPage,
+  lgpd: LgpdPage,
+};
+
 export default function App() {
+  const appRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [fontSize, setFontSize] = useState(0);
-  const [page, setPage] = useState<AppPage>("home");
+  const [fontSize, setFontSize] = useState(100);
+  const [highContrast, setHighContrast] = useState(false);
+  const [page, setPage] = useState<AppPage>(() => pageFromPath(window.location.pathname));
   const [activeNoticiaIndex, setActiveNoticiaIndex] = useState(0);
   const [activeLicitacaoIndex, setActiveLicitacaoIndex] = useState(0);
+  const [activeConcursoIndex, setActiveConcursoIndex] = useState(0);
+  const [activeLicitacaoSlug, setActiveLicitacaoSlug] = useState(() => licitacoesSlugFromPath(window.location.pathname));
   const [activeLeiIndex, setActiveLeiIndex] = useState(0);
   const [activeDecretoIndex, setActiveDecretoIndex] = useState(0);
   const [activePortariaIndex, setActivePortariaIndex] = useState(0);
-  const [activeSecretariaSlug, setActiveSecretariaSlug] = useState(SECRETARIA_DETAILS[0].slug);
-  const [activeRequirementSlug, setActiveRequirementSlug] = useState("portal-transparencia");
-  const [portalSnapshot, setPortalSnapshot] = useState<PortalSnapshot | null>(null);
+  const [activeLegislacaoSpecialSlug, setActiveLegislacaoSpecialSlug] = useState(() => legislacaoSpecialSlugFromPath(window.location.pathname));
+  const [activeLegislacaoSpecialIndex, setActiveLegislacaoSpecialIndex] = useState(0);
+  const [activeSecretariaSlug, setActiveSecretariaSlug] = useState(() => secretariaSlugFromPath(window.location.pathname) || SECRETARIA_DETAILS[0].slug);
+  const [activeRequirementSlug, setActiveRequirementSlug] = useState(() => requirementSlugFromPath(window.location.pathname));
+
+  const fontScale = fontSize / 100;
 
   useEffect(() => {
-    let active = true;
-    loadPortalSnapshot().then((snapshot) => { if (active) setPortalSnapshot(snapshot); }).catch(() => {
-      // O site continua disponível com o conteúdo editorial local quando a API estiver indisponível.
+    const root = appRef.current;
+    applyAccessibleFontScale(root, fontScale);
+
+    if (!root || typeof MutationObserver === "undefined") return undefined;
+
+    const observer = new MutationObserver(() => {
+      applyAccessibleFontScale(root, fontScale);
     });
-    return () => { active = false; };
+
+    observer.observe(root, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [fontScale, page, menuOpen, activeNoticiaIndex, activeLicitacaoIndex, activeLicitacaoSlug, activeLeiIndex, activeDecretoIndex, activePortariaIndex, activeSecretariaSlug, activeRequirementSlug]);
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if (!event.altKey) return;
+      const key = event.key.toLowerCase();
+      if (key === "a" || key === "d" || key === "n") {
+        event.preventDefault();
+        if (key === "a" && !event.shiftKey) setFontSize(current => clampFontScale(current + FONT_SCALE_STEP));
+        if (key === "d" && event.shiftKey) setFontSize(current => clampFontScale(current - FONT_SCALE_STEP));
+        if (key === "n" && !event.shiftKey) setFontSize(100);
+        return;
+      }
+      if (key === "h" && !event.shiftKey) { event.preventDefault(); navigate("home"); return; }
+      if (key === "9" && !event.shiftKey) { event.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+      if (key === "c" && !event.shiftKey) { event.preventDefault(); document.getElementById("conteudo-principal")?.focus(); return; }
+      if (event.shiftKey && key === "1") { event.preventDefault(); navigate("accessibility"); return; }
+      if (!event.shiftKey || !["1", "2", "3", "4"].includes(key)) return;
+      event.preventDefault();
+      const shortcutTargets: Record<string, string> = { "2": "menu-principal", "3": "busca-portal", "4": "rodape-portal" };
+      const target = document.getElementById(shortcutTargets[key]);
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    document.addEventListener("keydown", handleShortcut);
+    return () => document.removeEventListener("keydown", handleShortcut);
   }, []);
 
-  const fontScale = fontSize === -1 ? 0.9 : fontSize === 1 ? 1.1 : 1;
   const navigate = (nextPage: AppPage) => {
     setPage(nextPage);
+    if (window.location.pathname !== PAGE_PATHS[nextPage]) window.history.pushState({ page: nextPage }, "", PAGE_PATHS[nextPage]);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const nextPage = pageFromPath(window.location.pathname);
+      setPage(nextPage);
+       if (nextPage === "requirement-page") setActiveRequirementSlug(requirementSlugFromPath(window.location.pathname));
+      if (nextPage === "licitacoes") setActiveLicitacaoSlug(licitacoesSlugFromPath(window.location.pathname));
+      if (nextPage === "legislacao-special" || nextPage === "legislacao-special-detail") setActiveLegislacaoSpecialSlug(legislacaoSpecialSlugFromPath(window.location.pathname));
+      if (nextPage === "secretaria-detail") setActiveSecretariaSlug(secretariaSlugFromPath(window.location.pathname));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (page !== "secretaria-detail") return;
+    const slug = secretariaSlugFromPath(window.location.pathname);
+    const secretaria = SECRETARIA_DETAILS.find((item) => item.slug === slug);
+    if (!secretaria) return;
+    setActiveSecretariaSlug(secretaria.slug);
+    const canonicalPath = "/secretarias/" + encodeURIComponent(secretaria.slug);
+    if (window.location.pathname !== canonicalPath) window.history.replaceState({ page: "secretaria-detail", slug: secretaria.slug }, "", canonicalPath);
+  }, [page]);
   const openNoticia = (index: number) => {
     setActiveNoticiaIndex(index);
     navigate("noticia-detail");
@@ -3151,14 +3262,127 @@ export default function App() {
     setActivePortariaIndex(index);
     navigate("portaria-detail");
   };
+  const openConcurso = (index: number) => {
+    setActiveConcursoIndex(index);
+    navigate("concurso-detail");
+  };
+  const openLegislacaoSpecial = (slug: string, index = 0, detail = false) => {
+    setActiveLegislacaoSpecialSlug(slug);
+    setActiveLegislacaoSpecialIndex(index);
+    const path = `/legislacao/${slug}`;
+    window.history.pushState({ page: detail ? "legislacao-special-detail" : "legislacao-special", slug }, "", path);
+    setPage(detail ? "legislacao-special-detail" : "legislacao-special");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const openSecretaria = (slug: string) => {
+    if (slug === "cadastro-inscricao-municipal") {
+      openRequirement(slug);
+      return;
+    }
     setActiveSecretariaSlug(slug);
-    navigate("secretaria-detail");
+    const friendlyPath = `/secretarias/${encodeURIComponent(slug)}`;
+    if (window.location.pathname !== friendlyPath) window.history.pushState({ page: "secretaria-detail", slug }, "", friendlyPath);
+    setPage("secretaria-detail");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const openRequirement = (slug: string) => {
     setActiveRequirementSlug(slug);
-    navigate("requirement-page");
+    const friendlyPath = requirementPath(slug);
+    if (window.location.pathname !== friendlyPath || window.location.hash) window.history.pushState({ page: "requirement-page", slug }, "", friendlyPath);
+    setPage("requirement-page");
   };
+  const searchResults = useMemo<SearchResult[]>(() => {
+    const openExternal = (url: string) => {
+      window.open(url, "_blank", "noreferrer");
+    };
+
+    const navigationResults: SearchResult[] = [
+      { title: "Início", category: "Página", description: "Página inicial do portal", keywords: "home prefeitura roseira", action: () => navigate("home") },
+      { title: "História de Roseira", category: "Página", description: "História do município", keywords: "prefeitura municipio cidade", action: () => navigate("historia-roseira") },
+      { title: "Fale Conosco", category: "Página", description: "Canais de atendimento e formulário de contato", keywords: "contato email telefone endereco atendimento", action: () => navigate("contato") },
+      { title: "Concursos", category: "Página", description: "Concursos e processos seletivos públicos", keywords: "processo seletivo edital candidatos", action: () => navigate("concursos") },
+      { title: "Licitações", category: "Página", description: "Editais, processos e compras públicas", keywords: "compras contratos fornecedores pncp", action: () => navigate("licitacoes") },
+      { title: "Leis Municipais", category: "Página", description: "Consulta de leis municipais", keywords: "legislacao normas atos", action: () => navigate("leis-municipais") },
+      { title: "Decretos", category: "Página", description: "Consulta de decretos municipais", keywords: "legislacao normas atos", action: () => navigate("decretos") },
+      { title: "Portarias", category: "Página", description: "Consulta de portarias municipais", keywords: "nomeacoes atos administrativos", action: () => navigate("portarias") },
+      { title: "Notícias", category: "Página", description: "Comunicados, campanhas e notícias oficiais", keywords: "ultimas noticias eventos comunicados", action: () => navigate("noticias") },
+      { title: "Secretarias Municipais", category: "Página", description: "Diretório de secretarias e departamentos", keywords: "departamentos diretorias responsaveis", action: () => navigate("secretarias") },
+      { title: "Perguntas Frequentes", category: "Página", description: "Dúvidas recorrentes sobre serviços municipais", keywords: "faq duvidas atendimento", action: () => navigate("faq") },
+      { title: "Acessibilidade", category: "Página", description: "Recursos de acessibilidade e atalhos do portal", keywords: "acessibilidade emag atalhos libras contraste", action: () => navigate("accessibility") },
+      { title: "Portal da Transparência", category: "Link externo", description: "Receitas, despesas e contratos públicos", keywords: "transparencia geosiap contas publicas", action: () => openExternal(CONTACT_INFO.transparencyPortalUrl), externalUrl: CONTACT_INFO.transparencyPortalUrl },
+      { title: "Webmail", category: "Link externo", description: "Acesso ao webmail institucional", keywords: "servidor email hostinger", action: () => openExternal(CONTACT_INFO.webmailUrl), externalUrl: CONTACT_INFO.webmailUrl },
+      { title: "Instagram", category: "Rede social", description: "Perfil oficial da Prefeitura no Instagram", keywords: "rede social", action: () => openExternal(SOCIAL_LINKS.instagram.href), externalUrl: SOCIAL_LINKS.instagram.href },
+      { title: "Facebook", category: "Rede social", description: "Página oficial da Prefeitura no Facebook", keywords: "rede social", action: () => openExternal(SOCIAL_LINKS.facebook.href), externalUrl: SOCIAL_LINKS.facebook.href },
+      { title: "YouTube", category: "Rede social", description: "Canal oficial da Prefeitura no YouTube", keywords: "video videos rede social", action: () => openExternal(SOCIAL_LINKS.youtube.href), externalUrl: SOCIAL_LINKS.youtube.href },
+    ];
+
+    const requirementResults = Object.entries(REQUIREMENT_PAGES).map(([slug, item]) => ({
+      title: item.title,
+      category: item.category,
+      description: item.subtitle,
+      keywords: `${item.sourceLabel ?? ""} ${item.requiredElements.join(" ")} ${item.rows.flat().join(" ")}`,
+      action: () => openRequirement(slug),
+    }));
+
+    const noticiaResults = NOTICIAS.map((item, index) => ({
+      title: item.title,
+      category: `Notícia - ${item.cat}`,
+      description: item.desc,
+      keywords: `${item.date} ${item.views}`,
+      action: () => openNoticia(index),
+    }));
+
+    const licitacaoResults = LICITACOES.map((item, index) => ({
+      title: `Licitação Nº ${item.num}`,
+      category: "Licitação",
+      description: item.desc,
+      keywords: `${item.date} ${item.status}`,
+      action: () => openLicitacao(index),
+    }));
+
+    const leiResults = LEGISLACAO.map((item, index) => ({
+      title: `Lei Municipal Nº ${item.num}`,
+      category: "Legislação",
+      description: item.desc,
+      keywords: `${item.date} ${item.status}`,
+      action: () => openLei(index),
+    }));
+
+    const decretoResults = DECRETOS.map((item, index) => ({
+      title: `Decreto Nº ${item.num}`,
+      category: "Decreto",
+      description: item.desc,
+      keywords: `${item.date} ${item.status}`,
+      action: () => openDecreto(index),
+    }));
+
+    const portariaResults = PORTARIAS.map((item, index) => ({
+      title: `Portaria Nº ${item.num}`,
+      category: "Portaria",
+      description: item.desc,
+      keywords: `${item.date} ${item.status}`,
+      action: () => openPortaria(index),
+    }));
+
+    const secretariaResults = SECRETARIA_DETAILS.map((item) => ({
+      title: item.nome,
+      category: "Secretaria",
+      description: item.summary,
+      keywords: `${item.shortName} ${item.diretor} ${item.cargo} ${item.end} ${item.tel} ${item.email} ${item.sobre} ${item.competencias.join(" ")}`,
+      action: () => openSecretaria(item.slug),
+    }));
+
+    return [
+      ...navigationResults,
+      ...requirementResults,
+      ...noticiaResults,
+      ...licitacaoResults,
+      ...leiResults,
+      ...decretoResults,
+      ...portariaResults,
+      ...secretariaResults,
+    ];
+  }, []);
   const activeNoticia = NOTICIAS[activeNoticiaIndex] ?? NOTICIAS[0];
   const activeLicitacao = LICITACOES[activeLicitacaoIndex] ?? LICITACOES[0];
   const activeLei = LEGISLACAO[activeLeiIndex] ?? LEGISLACAO[0];
@@ -3166,37 +3390,32 @@ export default function App() {
   const activePortaria = PORTARIAS[activePortariaIndex] ?? PORTARIAS[0];
   const activeSecretaria = SECRETARIA_DETAILS.find((secretaria) => secretaria.slug === activeSecretariaSlug) ?? SECRETARIA_DETAILS[0];
   const activeRequirement = REQUIREMENT_PAGES[activeRequirementSlug] ?? REQUIREMENT_PAGES["portal-transparencia"];
-  const licitacoes = portalSnapshot?.licitacoes.length
-    ? portalSnapshot.licitacoes.map((item) => ({
-      num: item.nr_modalidade || item.nr_processo_compra || item.id_processo_compra || "—",
-      desc: item.objeto || "Objeto não informado pela API",
-      date: item.dt_abertura || item.dt_homologacao || "—",
-      status: item.ds_st_processo_compra || "Não informado",
-    }))
-    : LICITACOES;
-  const activeApiLicitacao = licitacoes[activeLicitacaoIndex] ?? licitacoes[0];
+  const ActiveRequirementPage = REQUIREMENT_PAGE_COMPONENTS[activeRequirementSlug] ?? RequirementPageExternal;
 
   return (
-    <div className={`sx-232 ${fontSize === -1 ? "font-scale-small" : fontSize === 1 ? "font-scale-large" : "font-scale-normal"}`}>
-      <a href="#conteúdo-principal" className="skip-link">Pular para o conteúdo principal</a>
+    <div ref={appRef} className={`sx-232 ${fontSize < 100 ? "font-scale-small" : fontSize > 100 ? "font-scale-large" : "font-scale-normal"} ${highContrast ? "high-contrast-mode" : ""}`}>
+      <a href="#conteudo-principal" title="Pular para o conteúdo" className="skip-link">Pular para o conteúdo principal</a>
       <div className="site-header-fixed">
-        <AccessBar fontSize={fontSize} setFontSize={setFontSize} />
+        <AccessBar fontSize={fontSize} setFontSize={setFontSize} highContrast={highContrast} setHighContrast={setHighContrast} onOpenAccessibility={() => navigate("accessibility")} />
         <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} onNavigateHome={() => navigate("home")} />
-        <NavBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} currentPage={page} onNavigate={navigate} onOpenRequirement={openRequirement} onSelectSecretaria={openSecretaria} />
-        <SearchBar />
+        <NavBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} currentPage={page} activeSecretariaSlug={activeSecretariaSlug} activeRequirementSlug={activeRequirementSlug} onNavigate={navigate} onOpenRequirement={openRequirement} onSelectSecretaria={openSecretaria} />
+        <SearchBar results={searchResults} />
       </div>
+      <VLibrasWidget />
       {page === "home" && <AlertBanner />}
       <main id="conteudo-principal" tabIndex={-1}>
         {page === "concursos" ? (
-          <ConcursosPage onBackHome={() => navigate("home")} />
+          <ConcursosPage onBackHome={() => navigate("home")} onSelectConcurso={openConcurso} />
+        ) : page === "concurso-detail" ? (
+          <ConcursoDetailPage item={CONCURSOS_PAGE_ITEMS[activeConcursoIndex] ?? CONCURSOS_PAGE_ITEMS[0]} onBackHome={() => navigate("home")} onBackList={() => navigate("concursos")} onSelectConcurso={openConcurso} />
         ) : page === "historia-roseira" ? (
           <HistoriaRoseiraPage onBackHome={() => navigate("home")} />
-        ) : page === "contato" ? (
-          <ContatoPage onBackHome={() => navigate("home")} contacts={portalSnapshot?.contatos} />
+        ) : page === "contato" || page === "fale-conosco" ? (
+          <ContatoPage onBackHome={() => navigate("home")} />
         ) : page === "licitacoes" ? (
-          <LicitacoesPage licitacoes={licitacoes} onBackHome={() => navigate("home")} onSelectLicitacao={openLicitacao} />
+          <LicitacoesPage licitacoes={LICITACOES} config={LICITACOES_PAGE_CONFIGS[activeLicitacaoSlug] ?? LICITACOES_PAGE_CONFIGS.licitacoes} onBackHome={() => navigate("home")} onSelectLicitacao={openLicitacao} />
         ) : page === "licitacao-detail" ? (
-          <LicitacaoDetailPage licitacao={activeApiLicitacao ?? activeLicitacao} licitacoes={licitacoes} onBackHome={() => navigate("home")} onBackList={() => navigate("licitacoes")} onSelectLicitacao={openLicitacao} />
+          <LicitacaoDetailPage licitacao={activeLicitacao} licitacoes={LICITACOES} config={LICITACOES_PAGE_CONFIGS[activeLicitacaoSlug] ?? LICITACOES_PAGE_CONFIGS.licitacoes} onBackHome={() => navigate("home")} onBackList={() => navigate("licitacoes")} onSelectLicitacao={openLicitacao} />
         ) : page === "leis-municipais" ? (
           <LeisMunicipaisPage leis={LEGISLACAO} onBackHome={() => navigate("home")} onSelectLei={openLei} />
         ) : page === "lei-detail" ? (
@@ -3209,20 +3428,26 @@ export default function App() {
           <LeisMunicipaisPage leis={PORTARIAS} config={PORTARIAS_CONFIG} onBackHome={() => navigate("home")} onSelectLei={openPortaria} />
         ) : page === "portaria-detail" ? (
           <LeiMunicipalDetailPage lei={activePortaria} leis={PORTARIAS} config={PORTARIAS_CONFIG} onBackHome={() => navigate("home")} onBackList={() => navigate("portarias")} onSelectLei={openPortaria} />
-        ) : page === "noticias" ? (
+        ) : page === "legislacao-special" ? (
+          <LeisMunicipaisPage leis={LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.leis ?? CODIGO_TRIBUTARIO} config={LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.config} onBackHome={() => navigate("home")} onSelectLei={(index) => openLegislacaoSpecial(activeLegislacaoSpecialSlug, index, true)} />
+        ) : page === "legislacao-special-detail" ? (
+          <LeiMunicipalDetailPage lei={(LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.leis ?? CODIGO_TRIBUTARIO)[activeLegislacaoSpecialIndex] ?? (LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.leis ?? CODIGO_TRIBUTARIO)[0]} leis={LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.leis ?? CODIGO_TRIBUTARIO} config={LEGISLACAO_ESPECIAL[activeLegislacaoSpecialSlug]?.config} onBackHome={() => navigate("home")} onBackList={() => openLegislacaoSpecial(activeLegislacaoSpecialSlug)} onSelectLei={(index) => openLegislacaoSpecial(activeLegislacaoSpecialSlug, index, true)} />
+        ) : page === "noticias" || page === "ultimas-noticias" ? (
           <NoticiasPage noticias={NOTICIAS} onBackHome={() => navigate("home")} onSelectNoticia={openNoticia} />
         ) : page === "noticia-detail" ? (
           <NoticiaDetailPage noticia={activeNoticia} noticias={NOTICIAS} onBackHome={() => navigate("home")} onBackList={() => navigate("noticias")} onSelectNoticia={openNoticia} />
         ) : page === "secretarias" ? (
           <SecretariasDirectoryPage secretarias={SECRETARIA_DETAILS} onBackHome={() => navigate("home")} onSelectSecretaria={openSecretaria} />
         ) : page === "secretaria-detail" ? (
-          <SecretariaDetailPage secretaria={activeSecretaria} onBackHome={() => navigate("home")} onBackList={() => navigate("secretarias")} />
+          <SecretariaDetailPage secretaria={activeSecretaria} noticias={NOTICIAS} onBackHome={() => navigate("home")} onBackList={() => navigate("secretarias")} />
         ) : page === "faq" ? (
-          <FAQPage onBackHome={() => navigate("home")} />
+          <FAQPageExternal onBackHome={() => navigate("home")} />
+        ) : page === "accessibility" ? (
+          <AccessibilityPageExternal onBackHome={() => navigate("home")} />
         ) : page === "requirement-page" ? (
-          <RequirementPage page={activeRequirement} slug={activeRequirementSlug} onBackHome={() => navigate("home")} portalSnapshot={portalSnapshot} />
+          <ActiveRequirementPage page={activeRequirement} slug={activeRequirementSlug} onBackHome={() => navigate("home")} />
         ) : (
-          <>
+          <HomePage>
             <HeroSlider />
             <AcessoRapido />
             <Noticias onSelectNoticia={openNoticia} onOpenNoticias={() => navigate("noticias")} />
@@ -3234,10 +3459,10 @@ export default function App() {
             <SocialNewsletter />
             <FaleConosco />
             <MapaTuristico />
-          </>
+          </HomePage>
         )}
       </main>
-      <Footer />
+      <Footer onOpenAccessibility={() => navigate("accessibility")} />
       <CookieBanner />
     </div>
   );

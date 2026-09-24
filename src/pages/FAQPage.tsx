@@ -1,0 +1,13 @@
+import SiteBreadcrumb from "../components/SiteBreadcrumb";
+
+const FAQ_ITEMS = [
+  { question: "Qual o dia de vencimento do IPTU 2021?", answer: "A Prefeitura Municipal de Roseira colocou o dia 10 de Junho como o dia de vencimento da primeira parcela do IPTU de 2021." },
+  { question: "Onde posso pagar o meu IPTU?", answer: "Os carnês podem ser pagos na Tesouraria da Prefeitura, Agência da Caixa Econômica Federal, Banco do Brasil e nas Casas Lotéricas." },
+  { question: "Não sei onde guardei meu IPTU, como consigo a 2ª via?", answer: "Você pode conseguir a 2ª via das parcelas do seu IPTU no site da Prefeitura Municipal de Roseira. Consulte o link oficial de emissão da segunda via no atendimento da Prefeitura." },
+  { question: "Existe algum desconto para quem não possui débitos anteriores?", answer: "Sim! Existe um desconto de 10% para quem efetuar o pagamento em parcela única e 5% na opção de parcelamento." },
+  { question: "Mesmo eu tendo débitos de anos anteriores, ainda consigo desconto no IPTU 2021?", answer: "Para quem possui débitos anteriores e quer ter o desconto no IPTU 2021, é necessário dirigir-se à Tesouraria da Prefeitura Municipal de Roseira para quitar ou parcelar os débitos anteriores. Assim que efetuar o primeiro pagamento das parcelas atrasadas ou a quitação dos débitos anteriores, o carnê de IPTU 2021 terá desconto de 10% à vista ou 5% parcelado. O desconto só será concedido com pagamento efetuado na Tesouraria da Prefeitura Municipal de Roseira." },
+];
+
+export default function FAQPage({ onBackHome }: { onBackHome: () => void }) {
+  return <div className="faq-page"><section className="site-internal-hero concursos-hero faq-hero"><div className="max-w-7xl mx-auto px-4"><SiteBreadcrumb items={[{ label: "Início", onClick: onBackHome }, { label: "Serviços" }, { label: "Perguntas Frequentes" }]} /><h1 className="site-title">Perguntas Frequentes</h1><p className="site-subtitle">Respostas objetivas para orientar o acesso a serviços, transparência, documentos públicos e canais oficiais da Prefeitura.</p></div></section><section className="faq-content"><div className="max-w-7xl mx-auto px-4"><div className="faq-list">{FAQ_ITEMS.map(item => <details className="faq-item" key={item.question}><summary><span className="site-text faq-question">{item.question}</span><span className="faq-arrow" aria-hidden="true">+</span></summary><p>{item.answer}</p></details>)}</div></div></section></div>;
+}
